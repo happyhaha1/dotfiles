@@ -1,4 +1,4 @@
-#vscode 配置相关#
+# vscode 配置相关 #
 
 ## 插件 ##
 vetur
