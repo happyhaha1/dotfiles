@@ -6,3 +6,5 @@
 [MindNode](https://pan.baidu.com/s/1dF0ZCL7) 密码 7a2i
 
 [Charles](http://charles.iiilab.com/) 破解教程
+
+[ShadowsocksX](http://www.abclite.pro/?dir=Shadowsocks/Mac%20OS) ShadowsocksX
