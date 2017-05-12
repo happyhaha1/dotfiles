@@ -1,0 +1,107 @@
+let mapleader=' '
+set gdefault
+set ignorecase
+set hlsearch
+
+
+" ============================================================================
+" Movement
+" ============================================================================
+
+" Scroll screen with the cursor
+noremap <C-j> gj<C-e>
+noremap <C-k> gk<C-y>
+
+" Left / right
+noremap <C-h> h
+noremap <C-l> l
+
+" Insert mode
+inoremap <C-k> <Up>
+inoremap <C-j> <Down>
+inoremap <C-l> <Right>
+inoremap <C-h> <Left>
+
+" Previous / next match
+noremap H ,
+noremap L ;
+
+" Home row beginning / end of line
+" noremap h ^
+" noremap l $
+
+" Previous / next word
+" noremap k #
+" noremap j *
+
+" ============================================================================
+" Editing
+" ============================================================================
+
+" Escape
+inoremap jk <Esc>`^
+inoremap <C-q> <Esc>`^
+noremap <C-q> <Esc>
+vnoremap <C-q> <Esc>
+cmap <C-q> <C-c>
+
+" Moving blocks of text in visual mode
+vnoremap < <gv
+vnoremap > >gv
+
+" Select all text
+map <leader>a ggVG
+
+" Copy until the end of the line
+noremap Y y$
+
+" Indent everything
+noremap <leader>I ggvG=
+
+" Indent selection in visual mode
+vnoremap <leader>i =
+
+" Indent the current line
+noremap <leader>i v=
+
+" Change current word - kill
+noremap K ciw
+
+" Change in double quotes
+noremap J ci"
+
+" Join lines
+nnoremap <leader>J J
+
+
+" ============================================================================
+" Editor control
+" ============================================================================
+
+" Enter the command-line mode
+noremap <CR> :
+
+" Reload .ideavimrc
+nnoremap <leader>vs :source ~/.ideavimrc<CR>
+
+
+" ============================================================================
+" IDE actions
+" ============================================================================
+
+" nnoremap / :action Find<CR>
+" nnoremap n :action FindNext<CR>
+" nnoremap N :action FindPrevious<CR>
+nnoremap U :action $Redo<CR>
+nnoremap <leader><leader>w :action AceAction<CR>
+nnoremap <leader>o :action GotoClass<CR>
+nnoremap <leader>O :action GotoFile<CR>
+nnoremap <leader>d :action CloseContent<CR>
+nnoremap <leader>j :action RecentFiles<CR>
+nnoremap <leader>k :action FileStructurePopup<CR>
+nnoremap <leader>h :action QuickJavaDoc<CR>
+nnoremap <leader>fp :action ShowFilePath<CR>
+nnoremap <leader>nc :action NewClass<CR>
+nnoremap ]] :action MethodDown<CR>
+nnoremap [[ :action MethodUp<CR>
+
