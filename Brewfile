@@ -12,12 +12,18 @@ brew 'fish'
 brew 'gradle'
 brew 'maven'
 brew 'python3'
+brew 'python'
 brew 'vim',args: ['override-system-vi','with-lua','with-python3']
 brew 'neovim'
 brew 'md5sha1sum'
 brew 'yarn',args: ['without-node']
 brew 'fzf'
 brew 'thefuck'
+brew 'reattach-to-user-namespace'
+brew 'tig'
+brew 'git-flow'
+brew 'go'
+
 
 cask 'google-chrome'
 cask 'iterm2'
