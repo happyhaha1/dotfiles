@@ -11,3 +11,18 @@
 pip3 install virtualfish
 pip3 install neovim
 pip2 install neovim
+
+antd-init@2.0.4
+├── cnpm@5.1.1
+├── create-next-app@0.5.2
+├── create-react-app@1.4.0
+├── dva-cli@0.8.1
+├── generator-generator@3.2.0
+├── generator-jhipster@4.8.1
+├── hexo-cli@1.0.3
+├── hotnode@0.0.8
+├── npm@5.3.0
+├── pm2@2.6.1
+├── serve@6.0.6
+├── vue-cli@2.8.2
+└── yo@2.0.0
