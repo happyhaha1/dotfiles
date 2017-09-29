@@ -11,6 +11,8 @@ set hlsearch
 " Scroll screen with the cursor
 noremap <C-j> gj<C-e>
 noremap <C-k> gk<C-y>
+noremap E <C-e>
+noremap D <C-d>
 
 " Left / right
 noremap <C-h> h
@@ -102,6 +104,7 @@ nnoremap <leader>k :action FileStructurePopup<CR>
 nnoremap <leader>h :action QuickJavaDoc<CR>
 nnoremap <leader>fp :action ShowFilePath<CR>
 nnoremap <leader>nc :action NewClass<CR>
-nnoremap ]] :action MethodDown<CR>
-nnoremap [[ :action MethodUp<CR>
-
+nnoremap mn :action MethodDown<CR>
+nnoremap mb :action MethodUp<CR>
+nnoremap gl :action VimMotionNextTab<CR>
+nnoremap gh :action VimMotionPreviousTab<CR> 

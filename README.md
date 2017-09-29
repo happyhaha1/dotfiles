@@ -8,3 +8,6 @@
 [Charles](http://charles.iiilab.com/) 破解教程
 
 [ShadowsocksX](http://www.abclite.pro/?dir=Shadowsocks/Mac%20OS) ShadowsocksX
+pip3 install virtualfish
+pip3 install neovim
+pip2 install neovim
