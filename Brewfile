@@ -23,6 +23,7 @@ brew 'reattach-to-user-namespace'
 brew 'tig'
 brew 'git-flow'
 brew 'go'
+brew 'tmux'
 
 
 cask 'google-chrome'
@@ -40,4 +41,3 @@ cask 'jietu'
 cask 'iina'
 cask 'qblocker'
 cask 'uninstallpkg'
-cask 'dukto'

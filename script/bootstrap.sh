@@ -4,7 +4,10 @@ cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd -P)
 echo $DOTFILES_ROOT
 
-
+export all_proxy=http://127.0.0.1:1087
+export ftp_proxy=http://127.0.0.1:1087
+export http_proxy=http://127.0.0.1:1087
+export https_proxy=http://127.0.0.1:1087
 install_homebrew () {
   if test ! $(which brew)
   then
@@ -18,10 +21,10 @@ install_homebrew () {
     then
       ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/linuxbrew/go/install)"
     fi
-
   else
       echo "Homebrew Already Install..."
   fi
+  brew bundle
 }
 install_fish () {
     if test ! $(which fish)
@@ -30,9 +33,23 @@ install_fish () {
         brew install fish
         echo "/usr/local/bin/fish" | sudo tee -a /etc/shells
         sudo chsh -s /usr/local/bin/fish
-        curl -L https://get.oh-my.fish | fish
     else
         echo "Fish Already Intasll..."
+        echo "install fisher"
+        curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
+        fisher oh-my-fish/plugin-thefuck
+        fisher oh-my-fish/theme-bobthefish
+        fisher fzf
+        fisher docker-completion
+        fisher docker-compltion
+        fisher docker-compltions
+        fisher ls
+        fisher oh-my-fish/plugin-osx
+        fisher oh-my-fish/plugin-proxy
+        fisher oh-my-fish/plugin-ssh
+        fisher fnm
+        fisher hooks/install.fish
+        fisher oh-my-fish/plugin-z
     fi
 }
 
