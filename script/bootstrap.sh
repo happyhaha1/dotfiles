@@ -37,4 +37,4 @@ install_fish () {
 }
 
 install_homebrew
-install_fish
+# install_fish
