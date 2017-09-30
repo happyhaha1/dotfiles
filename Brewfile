@@ -24,6 +24,7 @@ brew 'tig'
 brew 'git-flow'
 brew 'go'
 brew 'tmux'
+brew 'homebrew/dupes/grep'
 
 
 cask 'google-chrome'

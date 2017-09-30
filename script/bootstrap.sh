@@ -40,6 +40,19 @@ install_fish () {
         fish $DOTFILES_ROOT/script/installFisher.fish 
     fi
 }
-
-install_homebrew
-install_fish
+set_config() {
+    tmuxpowerline="~/.tmux/tmux-powerline"
+    if [ -d "$tmuxpowerline" ]; then
+        echo "tmux-powerline already..."
+    else
+        git clone https://github.com/erikw/tmux-powerline.git $tmuxpowerline
+    fi
+    if [ -f "~/.npmrc" ]; then
+      ln -s $DOTFILES_ROOT/.npmrc ~/.npmrc
+    else
+      echo "npmrc alreay ..."
+    fi
+}
+# install_homebrew
+# install_fish
+set_config
