@@ -1,0 +1,9 @@
+fisher oh-my-fish/plugin-thefuck
+fisher oh-my-fish/theme-bobthefish
+fisher fzf
+fisher docker-completion
+fisher oh-my-fish/plugin-osx
+fisher oh-my-fish/plugin-proxy
+fisher oh-my-fish/plugin-ssh
+fisher fnm
+fisher oh-my-fish/plugin-z

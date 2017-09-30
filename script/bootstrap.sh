@@ -37,19 +37,7 @@ install_fish () {
         echo "Fish Already Intasll..."
         echo "install fisher"
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
-        fisher oh-my-fish/plugin-thefuck
-        fisher oh-my-fish/theme-bobthefish
-        fisher fzf
-        fisher docker-completion
-        fisher docker-compltion
-        fisher docker-compltions
-        fisher ls
-        fisher oh-my-fish/plugin-osx
-        fisher oh-my-fish/plugin-proxy
-        fisher oh-my-fish/plugin-ssh
-        fisher fnm
-        fisher hooks/install.fish
-        fisher oh-my-fish/plugin-z
+        fish $DOTFILES_ROOT/script/installFisher.fish 
     fi
 }
 
