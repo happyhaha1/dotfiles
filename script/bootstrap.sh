@@ -41,17 +41,26 @@ install_fish () {
     fi
 }
 set_config() {
-    tmuxpowerline="~/.tmux/tmux-powerline"
+    tmuxpowerline=$HOME"/.tmux/tmux-powerline"
     if [ -d "$tmuxpowerline" ]; then
         echo "tmux-powerline already..."
     else
         git clone https://github.com/erikw/tmux-powerline.git $tmuxpowerline
     fi
-    if [ -f "~/.npmrc" ]; then
-      ln -s $DOTFILES_ROOT/.npmrc ~/.npmrc
-    else
-      echo "npmrc alreay ..."
+    use_ln .yarnrc
+    use_ln .npmrc
+    use_ln .tmux.conf
+    use_ln .ideavimrc
+    use_ln .tmux-powerlinerc
+}
+
+use_ln(){
+    config=$HOME"/$1"
+    if [ -f "$config" ]; then
+      echo "$1 alreay ..."
+      mv $config $config".bak"
     fi
+    ln -s $DOTFILES_ROOT/$1 ~/$1
 }
 # install_homebrew
 # install_fish
