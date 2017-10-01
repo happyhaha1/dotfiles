@@ -37,6 +37,9 @@ install_fish () {
         echo "Fish Already Intasll..."
         echo "install fisher"
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
+        use_ln .config/fish/config.fish
+        use_ln .config/fish/alias.fish
+        use_ln .config/fish/functions.fish
         fish $DOTFILES_ROOT/script/installFisher.fish 
     fi
 }
@@ -53,9 +56,6 @@ set_config() {
     use_ln .tmux.conf
     use_ln .ideavimrc
     use_ln .tmux-powerlinerc
-    use_ln .config/fish/config.fish
-    use_ln .config/fish/alias.fish
-    use_ln .config/fish/functions.fish
     use_ln .gradle/gradle.properties
 }
 
@@ -69,10 +69,12 @@ use_ln(){
 }
 install_vim() {
     if [ -d $HOME"/.SpaceVim" ];then
-        echo "alreay .SpaceVim"
+        eccurl -sLf https://spacevim.org/install.sh | bash -s -- --install neovimho "alreay .SpaceVim"
     else
         curl -sLf https://spacevim.org/install.sh | bash -s -- --install neovim
         use_ln $DOTFILES_ROOT/.SpaceVim.d $HOME/.SpaceVim.d
+        pip2 install neovim --upgrade
+        pip3 install neovim --upgrade
     fi
 }
 
