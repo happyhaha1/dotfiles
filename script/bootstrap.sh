@@ -67,6 +67,16 @@ use_ln(){
     fi
     ln -s $DOTFILES_ROOT/$1 ~/$1
 }
-# install_homebrew
-# install_fish
+install_vim() {
+    if [ -d $HOME"/.SpaceVim" ];then
+        echo "alreay .SpaceVim"
+    else
+        curl -sLf https://spacevim.org/install.sh | bash -s -- --install neovim
+        use_ln $DOTFILES_ROOT/.SpaceVim.d $HOME/.SpaceVim.d
+    fi
+}
+
+install_homebrew
+install_fish
 set_config
+install_vim
