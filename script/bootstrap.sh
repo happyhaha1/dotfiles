@@ -69,7 +69,7 @@ use_ln(){
 }
 install_vim() {
     if [ -d $HOME"/.SpaceVim" ];then
-        eccurl -sLf https://spacevim.org/install.sh | bash -s -- --install neovimho "alreay .SpaceVim"
+        curl -sLf https://spacevim.org/install.sh | bash -s -- --install neovimho "alreay .SpaceVim"
     else
         curl -sLf https://spacevim.org/install.sh | bash -s -- --install neovim
         use_ln $DOTFILES_ROOT/.SpaceVim.d $HOME/.SpaceVim.d
