@@ -85,4 +85,7 @@ function brewi --wraps brew -d "brew install"
   noproxy
 end
 
+function pbwd -d "pwd|pbcopy"
+    pwd|pbcopy
+end
 
