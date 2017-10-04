@@ -10,7 +10,7 @@ alias glog "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset
 alias cask 'brew cask'
 alias brew_update="proxy;brew -v update; brew upgrade --force-bottle --cleanup;brew cu -a; brew cleanup; brew cask cleanup; brew prune; noproxy"
 alias vi 'nvim '
-alias rm 'rm -i'
+alias rm 'rm -ir'
 alias wget 'curl -O'
 
 function _current_branch

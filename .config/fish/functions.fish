@@ -70,7 +70,8 @@ end
 #---------------------md ,star---------------------
 
 function rma --wraps rm -d "rm all file"
-  rm $argv|read -l isDirectory
+  rm -i $argv|read -l isDirectory
+  echo $isDirectory
   if [ -n "$isDirectory"]
     get --prompt="remove $argv?" --rule="y|n" --no-cursor --silent=1|read -l yesOrNo
     if [ "y" = "$yesOrNo" ]
