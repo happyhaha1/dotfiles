@@ -6,55 +6,13 @@
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
 [mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
 [user]
 	name = 郑开心
 	email = happyzhengkaixin@gmail.com
-[commit]
-	template = /Users/zhengkaixin/.stCommitMsg
 [alias]
 	co = checkout
     cm = commit
     ss = stash
     st = status
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
-[http]
-[https]
