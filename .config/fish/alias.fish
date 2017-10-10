@@ -111,6 +111,7 @@ end
 
 alias gm 'git merge'
 alias gmom 'git merge origin/master'
+alias gmod 'git merge origin/devlop'
 alias gmt 'git mergetool --no-prompt'
 alias gmtvim 'git mergetool --no-prompt --tool=vimdiff'
 alias gmum 'git merge upstream/master'
