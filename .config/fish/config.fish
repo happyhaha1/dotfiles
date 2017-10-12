@@ -11,4 +11,4 @@ set PATH $PATH /usr/local/opt/go/libexec/bin $GOPATH/bin
 set -g theme_color_scheme base16
 set -g theme_display_ruby yes
 set -g theme_git_worktree_support yes
-
+set -gx HOMEBREW_GITHUB_API_TOKEN effd0bb149c58a5a89f1bbe4eddebdfbadc7c4f1
