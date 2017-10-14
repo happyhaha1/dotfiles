@@ -32,7 +32,6 @@ install_fish () {
         echo "Install fish and oh my fish"
         brew install fish
         echo "/usr/local/bin/fish" | sudo tee -a /etc/shells
-        sudo chsh -s /usr/local/bin/fish
     else
         echo "Fish Already Intasll..."
         echo "install fisher"
@@ -77,8 +76,19 @@ install_vim() {
         pip3 install neovim --upgrade
     fi
 }
+install_font() {
+    # clone
+    git clone https://github.com/powerline/fonts.git --depth=1
+    # install
+    cd fonts
+    ./install.sh
+    # clean-up a bit
+    cd ..
+    rm -rf fonts
+}
 
 install_homebrew
 install_fish
 set_config
 install_vim
+install_font
