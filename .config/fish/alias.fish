@@ -41,7 +41,10 @@ alias gca 'git commit -v -a'
 alias gca! 'git commit -v -a --amend'
 alias gcam 'git commit -v -a -m'
 alias gcan! 'git commit -v -a -s --no-edit --amend'
-alias gcb 'git checkout -b'
+function gcb --wraps 'git checkout -b' -d 'git checkout -b'
+    git checkout -b $argv;
+end
+
 alias gcd 'git checkout develop'
 alias gcf 'git config --list'
 alias gcl 'git clone --recursive'
