@@ -1,0 +1,13 @@
+{
+	"pluginName": "mganet",
+    "description": "使用mganet调整屏幕",
+	"main": "index.html",
+	"version": "0.0.1",
+	"features": [
+		{
+		  "code": "hello",
+		  "explain": "hello world",
+			"cmds":["hello", "你好"]
+		}
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"pluginName": "magent",
+    "description": "使用mganet调整屏幕",
+	"version": "0.0.1",
+	"preload": "preload.js",
+	"logo": "logo.png",
+	"platform": ["darwin"],
+	"features": [
+		{
+		  "code": "magent",
+		  "platform": ["win32", "darwin", "linux"],
+		  "explain": "使用mganet调整屏幕",
+			"cmds":["magent", "mag", "调整屏幕"]
+		}
+	]
+}
