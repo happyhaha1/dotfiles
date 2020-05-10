@@ -2,6 +2,7 @@
 	"pluginName": "magent",
     "description": "使用mganet调整屏幕",
 	"version": "0.0.1",
+	"author": "happyhaha1",
 	"preload": "preload.js",
 	"logo": "logo.png",
 	"platform": ["darwin"],
