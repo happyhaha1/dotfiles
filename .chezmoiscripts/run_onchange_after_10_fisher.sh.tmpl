@@ -24,13 +24,12 @@ fi
 echo ":: [fish] Checking plugins..."
 
 # Get installed plugins
-installed_plugins=$(fish -c 'fisher list 2>/dev/null' | tr ' ' '\n')
+installed_plugins=$(fish -c 'fisher list 2>/dev/null')
 
 {{- range .fisher.shared }}
 plugin="{{ . }}"
-plugin_name=$(echo "$plugin" | sed 's|.*/||')
 
-if echo "$installed_plugins" | grep -q "^$plugin_name$"; then
+if echo "$installed_plugins" | grep -q "^$plugin$"; then
     echo ":: [fish] Plugin $plugin is already installed"
 else
     echo ":: [fish] Installing plugin $plugin..."
