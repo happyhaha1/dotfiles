@@ -14,5 +14,19 @@ homepkgs:
     - bat-extras.batman
     - bat-extras.batgrep
     - bat-extras.batdiff
+    - eza
+    - fastfetch
+    - fd
+    - ffmpeg
+    - fzf
+    - jq
+    - just # use Justfile to simplify nix-darwin's commands
+    - openssh
+    - openssl
+    - p7zip-rar
+    - starship
+    - wget
+    - zoxide
+
   work: []
   private: []
