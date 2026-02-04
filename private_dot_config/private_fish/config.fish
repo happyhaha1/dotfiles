@@ -126,3 +126,6 @@ set -x FZF_DEFAULT_OPTS_FILE $XDG_CONFIG_HOME/fzf/default_ops
 zoxide init fish | source
 
 #direnv hook fish | source
+
+# 更改 fzf 默认按键
+fzf_configure_bindings --directory=\cf
