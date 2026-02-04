@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+# Download pre-built nix-index database from nix-community
+# Source: https://github.com/nix-community/nix-index-database
+
+echo ":: [06] Downloading nix-index database"
+
+# Runtime check: skip if nix-locate not installed
+if ! command -v nix-locate &>/dev/null; then
+    echo "    Skipped (nix-locate not installed)"
+    exit 0
+fi
+
+REPO="nix-community/nix-index-database"
+VERSION_FILE="$HOME/.cache/nix-index/.version"
+# Version pinned in .chezmoidata.yaml, auto-updated by GitHub Actions
+PINNED_VERSION="{{ .versions.nixIndexDb }}"
+
+arch=$(uname -m | sed 's/^arm64$/aarch64/')
+os=$(uname | tr '[:upper:]' '[:lower:]')
+filename="index-${arch}-${os}"
+
+mkdir -p ~/.cache/nix-index
+
+# Check installed version
+INSTALLED_VERSION=""
+[[ -f "$VERSION_FILE" ]] && INSTALLED_VERSION=$(cat "$VERSION_FILE")
+
+if [[ "$PINNED_VERSION" != "$INSTALLED_VERSION" ]] || [[ ! -f "$HOME/.cache/nix-index/files" ]]; then
+    echo "    Downloading nix-index database ($PINNED_VERSION)..."
+    cd ~/.cache/nix-index
+
+    DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${PINNED_VERSION}/${filename}"
+
+    if command -v wget &>/dev/null; then
+        wget -q -N "$DOWNLOAD_URL"
+    else
+        curl -fsSLO "$DOWNLOAD_URL"
+    fi
+
+    ln -sf "${filename}" files
+    echo "$PINNED_VERSION" >"$VERSION_FILE"
+    echo "    Database updated to $PINNED_VERSION"
+else
+    echo "    nix-index database already at $INSTALLED_VERSION"
+fi
