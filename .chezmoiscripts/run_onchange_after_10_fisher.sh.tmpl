@@ -1,0 +1,24 @@
+#!/bin/bash
+# Check and install fisher plugin manager for fish shell
+
+set -eufo pipefail
+
+# Only run if using fish shell
+if [[ "$SHELL" != *"fish"* ]]; then
+    echo ":: [fish] Not using fish shell (current: $SHELL), skipping fisher check"
+    exit 0
+fi
+
+echo ":: [fish] Checking fisher plugin manager..."
+
+# Check if fisher is installed
+if command -v fisher &>/dev/null; then
+    echo ":: [fish] fisher is already installed"
+else
+    echo ":: [fish] fisher not found, installing..."
+
+    # Install fisher
+    fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
+
+    echo ":: [fish] fisher installed successfully"
+fi
