@@ -29,4 +29,7 @@ homepkgs:
     - wget
     - zoxide
   work: []
-  private: []
+  private:
+    - pnpm
+    - uv
+    - bun
