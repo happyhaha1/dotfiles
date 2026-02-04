@@ -12,7 +12,7 @@ fi
 echo ":: [fish] Checking fisher plugin manager..."
 
 # Check if fisher is installed
-if command -v fisher &>/dev/null; then
+if fish -c 'fisher -v' 2>/dev/null; then
     echo ":: [fish] fisher is already installed"
 else
     echo ":: [fish] fisher not found, installing..."
