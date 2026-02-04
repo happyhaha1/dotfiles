@@ -1,0 +1,116 @@
+encryption = "age"
+
+{{/* boolean feature tags */}}
+{{- $work := promptBoolOnce . "work" "Is this a work machine" -}}{{/* true if this machine is a work machine */}}
+{{- $private := not $work -}}{{/* true if this machine should have private configuration  */}}
+{{- $headless := false -}}{{/* true if this machine does not have a screen and keyboard */}}
+{{- $useEncryption := false -}}{{/* default false for users without encryption key */}}
+{{- if stdinIsATTY -}}
+{{-   $useEncryption = promptBoolOnce . "useEncryption" "Enable encryption & SSH config (requires ~/.ssh/main key, default: false)" -}}
+{{- end -}}
+{{- "" -}}
+
+{{- $hostname := .chezmoi.hostname -}}
+{{- if not $work -}}
+{{- $hostname = promptStringOnce . "hostname" "Hostname" -}}{{/* set the hostname */}}
+{{- end -}}
+
+{{/* prompt for user specific configuration */}}
+{{- $useremail := promptStringOnce . "useremail" "Email address" -}}{{/* set the useremail address */}}
+{{- $gitUsername := promptStringOnce . "gitUsername" "GitHub username" -}}{{/* set the github username */}}
+{{- $gitEmail := promptStringOnce . "gitEmail" "GitHub useremail" -}}{{/* set the github useremail */}}
+
+{{- $osID := .chezmoi.os -}}
+{{- if (and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id")) -}}
+{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
+{{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
+{{-   $headless = true -}}
+{{- end -}}
+
+{{/* prompt for headless if stdin is a TTY */}}
+{{- if stdinIsATTY -}}
+{{-   $headless = promptBoolOnce . "headless" "headless" -}}
+{{- else -}}
+{{-   $headless = true -}}
+{{- end -}}
+
+{{/* macOS specific: install Mac App Store apps */}}
+{{- $installMasApps := false -}}
+{{- if and (eq .chezmoi.os "darwin") (stdinIsATTY) -}}
+{{-   $installMasApps = promptBoolOnce . "installMasApps" "Install Mac App Store apps (requires Apple ID login)" -}}
+{{- end -}}
+
+{{/* macOS specific: home WiFi SSIDs for auto-volume (comma-separated) */}}
+{{- $homeWifiSSIDs := "" -}}
+{{- if and (eq .chezmoi.os "darwin") (stdinIsATTY) -}}
+{{-   $homeWifiSSIDs = promptStringOnce . "homeWifiSSIDs" "Home WiFi SSIDs for auto-volume (comma-separated, e.g. Home-5G,Home-2.4G)" -}}
+{{- end -}}
+
+{{/* Claude Code provider@account selection (e.g. "deepseek" or "deepseek@work") */}}
+{{- $claudeProviderAccount := "anthropic" -}}{{/* default provider, no account means "default" */}}
+{{- if hasKey . "claudeProviderAccount" -}}
+{{-   $claudeProviderAccount = .claudeProviderAccount -}}
+{{- else if hasKey . "claudeProvider" -}}
+{{-   $claudeProviderAccount = .claudeProvider -}}{{/* backward compatibility */}}
+{{- end -}}
+
+{{/* timezone: prefer local config, fallback to ip-api.com */}}
+{{- $timezone := "" -}}
+
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $timezone = (output "sh" "-c" "readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##' || true") | trim -}}
+{{- else if eq .chezmoi.os "linux" -}}
+{{-   $timezone = (output "sh" "-c" "cat /etc/timezone 2>/dev/null || true") | trim -}}
+{{-   if eq $timezone "" -}}
+{{-     $timezone = (output "sh" "-c" "readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##' || true") | trim -}}
+{{-   end -}}
+{{- end -}}
+
+{{/* NOTE: ip-api.com free tier only supports HTTP (HTTPS requires paid plan) */}}
+{{- if eq $timezone "" -}}
+{{-   $ipApiJson := output "sh" "-c" "curl -fsS --max-time 2 http://ip-api.com/json/ 2>/dev/null || echo '{}' " -}}
+{{-   $timezone = (index (fromJson $ipApiJson) "timezone") | default "" -}}
+{{- end -}}
+
+{{- if eq $timezone "" -}}
+{{-   $timezone = promptStringOnce . "timezone" "Timezone (e.g. Asia/Tokyo)" -}}
+{{- end -}}
+
+[data]
+hostname = {{ $hostname | quote }}
+platform = {{ .chezmoi.os | quote }}
+useremail = {{ $useremail | quote }}
+gitUsername = {{ $gitUsername | quote }}
+gitEmail = {{ $gitEmail | quote }}
+work = {{ $work }}
+private = {{ $private }}
+headless = {{ $headless }}
+useEncryption = {{ $useEncryption }}
+installMasApps = {{ $installMasApps }}
+homeWifiSSIDs = {{ $homeWifiSSIDs | quote }}
+osid = {{ $osID | quote }}
+timezone = {{ $timezone | quote }}
+claudeProviderAccount = {{ $claudeProviderAccount | quote }}
+
+[edit]
+command = "code"
+args = ["--wait"]
+
+[diff]
+pager = "diff-so-fancy"
+
+[merge]
+command = "bash"
+args = [
+    "-c",
+    "cp {{ "{{ .Target }}" }} {{ "{{ .Target }}" }}.base && code --new-window --wait --merge {{ "{{ .Destination }}" }} {{ "{{ .Target }}" }} {{ "{{ .Target }}" }}.base {{ "{{ .Source }}" }}",
+]
+
+[age]
+command = "age"
+identity = "~/.ssh/main"
+recipientsFile = "~/.ssh/main.pub"
+

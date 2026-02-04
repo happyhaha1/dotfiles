@@ -1,0 +1,18 @@
+sysPkgs:
+  - git
+  - neovim
+  - fish
+homepkgs:
+  shared:
+    - "(texliveFull.withPackages (ps: with ps; [ ]))"
+    - age
+    - asciinema
+    - bat
+    - bat-extras.prettybat
+    - bat-extras.batwatch
+    - bat-extras.batpipe
+    - bat-extras.batman
+    - bat-extras.batgrep
+    - bat-extras.batdiff
+  work: []
+  private: []

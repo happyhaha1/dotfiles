@@ -1,0 +1,41 @@
+# Shell
+*.sh linguist-language=Shell
+*.sh.tmpl linguist-language=Shell
+dot_zshrc linguist-language=Shell
+dot_zshenv.tmpl linguist-language=Shell
+dot_zprofile.tmpl linguist-language=Shell
+*.conf linguist-language=Shell
+*.conf.tmpl linguist-language=Shell
+
+# Nix
+*.nix linguist-language=Nix
+*.nix.tmpl linguist-language=Nix
+
+# TOML (data type, need detectable to show in stats)
+*.toml linguist-language=TOML linguist-detectable=true
+*.toml.tmpl linguist-language=TOML linguist-detectable=true
+
+# YAML (data type, need detectable to show in stats)
+*.yml linguist-language=YAML linguist-detectable=true
+*.yml.tmpl linguist-language=YAML linguist-detectable=true
+*.yaml linguist-language=YAML linguist-detectable=true
+
+# JSON (data type, need detectable to show in stats)
+*.json linguist-language=JSON linguist-detectable=true
+
+# Lua
+*.lua linguist-language=Lua
+*.lua.tmpl linguist-language=Lua
+
+# Other
+Justfile.tmpl linguist-language=Makefile
+**/config.tmpl linguist-language=INI
+private_dot_config/bat/config linguist-language=Shell
+private_dot_config/ghostty/config linguist-language=INI
+private_dot_config/git/ignore linguist-language=Git-Ignore
+private_dot_config/git/message linguist-documentation
+
+# Exclude from stats
+*.md linguist-documentation
+*.lock linguist-generated
+

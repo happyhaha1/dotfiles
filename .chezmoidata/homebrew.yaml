@@ -1,0 +1,25 @@
+homebrew:
+  taps:
+    shared:
+      - nikitabobko/tap
+      - FelixKratz/formulae
+    work:
+      - azure/functions
+    private: []
+  brews:
+    shared:
+      - mole
+    work: []
+    private:
+      - mas # Required for masApps installation
+  casks:
+    shared:
+      - visual-studio-code
+      - keka
+      - orbstack
+    work: []
+    private: []
+  masApps:
+    shared: []
+    work: []
+    private: []
