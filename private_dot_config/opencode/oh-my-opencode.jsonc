@@ -1,0 +1,74 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  "agents": {
+    "sisyphus": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    },
+    "oracle": {
+      "model": "CLIProxyAPI/gpt-5.2-codex"
+    },
+    "librarian": {
+      "model": "CLIProxyAPI/gemini-claude-opus-4-5-thinking"
+    },
+    "explore": {
+      "model": "CLIProxyAPI/gemini-claude-sonnet-4-5"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "CLIProxyAPI/gemini-3-pro-preview"
+    },
+    "document-writer": {
+      "model": "CLIProxyAPI/glm-4.7"
+    },
+    "multimodal-looker": {
+      "model": "CLIProxyAPI/gemini-3-flash-preview"
+    },
+    "prometheus": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    },
+    "atlas": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    },
+    "momus": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    },
+    "metis": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    }
+  },
+  "categories": {
+    "quick": {
+      "model": "CLIProxyAPI/minimax-m2.1"
+    },
+    "visual-engineering": {
+      "model": "CLIProxyAPI/gemini-3-pro-preview"
+    },
+    "visual": {
+      "model": "CLIProxyAPI/gemini-3-pro-preview",
+      "temperature": 0.7,
+      "description": "前端、UI/UX、设计相关任务"
+    },
+    "business-logic": {
+      "model": "CLIProxyAPI/gpt-5.2-codex",
+      "temperature": 0.1,
+      "description": "后端逻辑、架构设计、战略推理"
+    },
+    "documentation": {
+      "model": "CLIProxyAPI/glm-4.7",
+      "temperature": 0.3,
+      "description": "文档编写、技术写作任务"
+    }
+  },
+  "claude_code": {
+    "mcp": false,
+    "commands": true,
+    "skills": false,
+    "agents": false,
+    "hooks": false
+  },
+  "sisyphus_agent": {
+    "disabled": false,
+    "default_builder_enabled": false,
+    "planner_enabled": true,
+    "replace_plan": true
+  }
+}
