@@ -28,6 +28,5 @@ homepkgs:
     - starship
     - wget
     - zoxide
-
   work: []
   private: []

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Check and install fisher plugin manager for fish shell
+# Check and install fisher plugin manager and plugins for fish shell
 
 set -eufo pipefail
 
@@ -16,9 +16,25 @@ if command -v fisher &>/dev/null; then
     echo ":: [fish] fisher is already installed"
 else
     echo ":: [fish] fisher not found, installing..."
-
-    # Install fisher
     fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
-
     echo ":: [fish] fisher installed successfully"
 fi
+
+# Check and install plugins
+echo ":: [fish] Checking plugins..."
+
+# Get installed plugins
+installed_plugins=$(fish -c 'fisher list 2>/dev/null' | tr ' ' '\n')
+
+{{- range .fisher.shared }}
+plugin="{{ . }}"
+plugin_name=$(echo "$plugin" | sed 's|.*/||')
+
+if echo "$installed_plugins" | grep -q "^$plugin_name$"; then
+    echo ":: [fish] Plugin $plugin is already installed"
+else
+    echo ":: [fish] Installing plugin $plugin..."
+    fish -c "fisher install $plugin"
+    echo ":: [fish] Plugin $plugin installed"
+fi
+{{- end }}
