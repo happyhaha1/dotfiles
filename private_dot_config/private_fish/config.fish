@@ -121,7 +121,7 @@ end
 starship init fish | source
 
 set -x FZF_DEFAULT_OPTS_FILE $XDG_CONFIG_HOME/fzf/default_ops
-fzf --fish | source
+# fzf --fish | source
 
 zoxide init fish | source
 
