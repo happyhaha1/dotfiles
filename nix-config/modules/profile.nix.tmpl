@@ -14,6 +14,11 @@ flakey-profile.lib.mkProfile {
     {{ . }}
     {{- end }}
     {{- end }}
+    {{- if .devMachine }}
+    {{- range .homepkgs.dev }}
+    {{ . }}
+    {{- end }}
+    {{- end }}
     {{- if .private }}
     {{- range .homepkgs.private }}
     {{ . }}

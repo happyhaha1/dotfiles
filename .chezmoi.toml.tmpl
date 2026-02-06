@@ -3,6 +3,10 @@ encryption = "age"
 {{/* boolean feature tags */}}
 {{- $work := promptBoolOnce . "work" "Is this a work machine" -}}{{/* true if this machine is a work machine */}}
 {{- $private := not $work -}}{{/* true if this machine should have private configuration  */}}
+{{- $devMachine := false -}}{{/* true if this machine is used for development */}}
+{{- if stdinIsATTY -}}
+{{-   $devMachine = promptBoolOnce . "devMachine" "Is this a development machine" -}}
+{{- end -}}
 {{- $headless := false -}}{{/* true if this machine does not have a screen and keyboard */}}
 {{- $useEncryption := false -}}{{/* default false for users without encryption key */}}
 {{- if stdinIsATTY -}}
@@ -35,6 +39,13 @@ encryption = "age"
 {{-   $headless = promptBoolOnce . "headless" "headless" -}}
 {{- else -}}
 {{-   $headless = true -}}
+{{- end -}}
+
+{{/* macOS specific: detect if this is a MacBook (vs desktop iMac/Mac mini/Mac Pro) */}}
+{{- $isMacbook := false -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $macbookModel := (output "sh" "-c" "sysctl -n hw.model 2>/dev/null | grep -q 'Book' && echo 'true' || echo 'false'") | trim -}}
+{{-   $isMacbook = (eq $macbookModel "true") -}}
 {{- end -}}
 
 {{/* macOS specific: install Mac App Store apps */}}
@@ -87,11 +98,13 @@ gitUsername = {{ $gitUsername | quote }}
 gitEmail = {{ $gitEmail | quote }}
 work = {{ $work }}
 private = {{ $private }}
+devMachine = {{ $devMachine }}
 headless = {{ $headless }}
 useEncryption = {{ $useEncryption }}
 installMasApps = {{ $installMasApps }}
 homeWifiSSIDs = {{ $homeWifiSSIDs | quote }}
 osid = {{ $osID | quote }}
+isMacbook = {{ $isMacbook }}
 timezone = {{ $timezone | quote }}
 claudeProviderAccount = {{ $claudeProviderAccount | quote }}
 

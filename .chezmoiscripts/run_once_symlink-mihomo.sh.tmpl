@@ -1,0 +1,36 @@
+#!/bin/sh
+# shellcheck shell=dash
+# Create symlink for mihomo in /usr/local/bin
+
+set -eu
+
+echo ":: Creating symlink for mihomo"
+
+# Check if nix-profile mihomo exists
+if [ -f "$HOME/.nix-profile/bin/mihomo" ]; then
+    echo "   Found mihomo in nix-profile"
+
+    # Create symlink if it doesn't exist or points to wrong location
+    if [ -L "/usr/local/bin/mihomo" ]; then
+        current_target=$(readlink "/usr/local/bin/mihomo")
+        if [ "$current_target" = "$HOME/.nix-profile/bin/mihomo" ]; then
+            echo "   Symlink already exists and points to nix-profile"
+            exit 0
+        else
+            echo "   Updating existing symlink..."
+            sudo rm "/usr/local/bin/mihomo"
+        fi
+    fi
+
+    # Create new symlink
+    sudo ln -sf "$HOME/.nix-profile/bin/mihomo" /usr/local/bin/mihomo
+    echo "   Created symlink: /usr/local/bin/mihomo -> $HOME/.nix-profile/bin/mihomo"
+
+    # Set permissions
+    sudo chown root:wheel /usr/local/bin/mihomo
+    sudo chmod 755 /usr/local/bin/mihomo
+
+    echo "   Done!"
+else
+    echo "   mihomo not found in nix-profile, skipping"
+fi
