@@ -102,29 +102,25 @@ end
 # fzf
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
 
-function fzfp
-    fzf --layout='default' \
-        --ansi \
-        --preview-window=top,75%,sharp,wrap \
-        --bind 'focus:transform-header:file --brief {}' \
-        --bind='ctrl-d:abort' \
-        --bind='ctrl-s:change-preview(stat {})' \
-        --bind='ctrl-e:change-preview(bat -n --color=always {})' \
-        --bind='ctrl-w:toggle-preview'
-end
-
 # setup
 
 if status is-interactive
     # Commands to run in interactive sessions can go here
+    if type -q mise
+        mise activate fish | source
+    end
+
+    if type -q starship
+        starship init fish | source
+    end
+
+    if type -q zoxide
+        zoxide init fish | source
+    end
 end
-starship init fish | source
 
 set -x FZF_DEFAULT_OPTS_FILE $XDG_CONFIG_HOME/fzf/default_ops
 # fzf --fish | source
-
-zoxide init fish | source
-
 #direnv hook fish | source
 
 # 更改 fzf 默认按键

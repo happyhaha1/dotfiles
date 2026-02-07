@@ -34,9 +34,7 @@ homepkgs:
   work: []
   dev:
     - pnpm
-    - uv
     - bun
-    - go
     - opencode
   private:
     - mihomo

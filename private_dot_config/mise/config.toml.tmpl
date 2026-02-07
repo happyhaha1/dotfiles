@@ -1,0 +1,57 @@
+# mise global configuration
+# https://mise.jdx.dev/configuration.html
+
+[tools]
+# Node.js (replaces volta)
+node = "lts"
+
+# Terraform (replaces tenv)
+terraform = "latest"
+
+# Python (for tools that need it)
+python = "3.12"
+
+# uv (Python package manager)
+uv = "latest"
+
+# Poetry (Python dependency manager, via pipx/uvx)
+"pipx:poetry" = "latest"
+
+# Go
+go = "latest"
+
+# Rust
+rust = "latest"
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Python CLI tools (via pipx) - macOS only
+"pipx:mac-cleanup" = "latest"
+{{ end -}}
+
+# pre-commit (avoid Swift compilation from nixpkgs dotnet dependency)
+pre-commit = "latest"
+
+[settings]
+# Automatically install tools when entering directory
+auto_install = true
+
+# Use idiomatic version files (.node-version, .python-version, etc.)
+idiomatic_version_file = true
+
+# Experimental features
+experimental = true
+
+# Trust specific project paths (more secure than trusting ~)
+# Add your trusted project directories here
+trusted_config_paths = [
+    "~/Documents/Projects",
+    "~/Documents/Work",
+]
+
+# Always keep latest versions
+always_keep_download = false
+always_keep_install = false
+
+[env]
+# Add local bin to PATH
+_.path = ["./node_modules/.bin", "./bin"]
