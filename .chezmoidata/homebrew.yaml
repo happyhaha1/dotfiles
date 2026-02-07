@@ -9,18 +9,23 @@ homebrew:
   brews:
     shared:
       - mole
-      - opencode
     work: []
     private:
       - mas # Required for masApps installation
   casks:
     shared:
+      - bitwarden
       - visual-studio-code
       - keka
       - orbstack
     work: []
-    private: []
+    private:
+      - cherry-studio
+      - iina
+      - telegram
   masApps:
     shared: []
     work: []
-    private: []
+    private: 
+      - - WeChat
+        - "836500024"

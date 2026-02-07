@@ -22,17 +22,20 @@ homepkgs:
     - fzf
     - jq
     - just # use Justfile to simplify nix-darwin's commands
+    - mise
     - openssh
     - openssl
     - p7zip-rar
     - starship
     - wget
     - zoxide
+    - yazi
   work: []
   dev:
     - pnpm
     - uv
     - bun
     - go
+    - opencode
   private:
     - mihomo
