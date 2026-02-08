@@ -23,7 +23,6 @@ homepkgs:
     - fzf
     - jq
     - just # use Justfile to simplify nix-darwin's commands
-    - mise
     - openssh
     - openssl
     - p7zip-rar
@@ -33,6 +32,7 @@ homepkgs:
     - yazi
   work: []
   dev:
+    - mise
     - pnpm
     - bun
     - opencode
