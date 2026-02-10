@@ -23,6 +23,8 @@ homebrew:
       - cherry-studio
       - iina
       - telegram
+      - wpsoffice-cn
+      - vnc-viewer
   masApps:
     shared: []
     work: []
