@@ -3,6 +3,7 @@ homebrew:
     shared:
       - nikitabobko/tap
       - FelixKratz/formulae
+      - BarutSRB/tap
     work:
       - azure/functions
     private: []
@@ -17,7 +18,10 @@ homebrew:
       - bitwarden
       - visual-studio-code
       - keka
+      - ghostty
+      # - nikitabobko/tap/aerospace
       - orbstack
+      # - omniwm
     work: []
     private:
       - cherry-studio
