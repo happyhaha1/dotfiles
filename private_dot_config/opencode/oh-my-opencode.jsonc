@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "oracle": {
-      "model": "CLIProxyAPI/gpt-5.2-codex"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "librarian": {
       "model": "CLIProxyAPI/gemini-claude-opus-4-5-thinking"
@@ -23,21 +23,21 @@
       "model": "CLIProxyAPI/gemini-3-flash-preview"
     },
     "prometheus": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "atlas": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "momus": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "metis": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     }
   },
   "categories": {
     "quick": {
-      "model": "CLIProxyAPI/minimax-m2.5"
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     },
     "visual-engineering": {
       "model": "CLIProxyAPI/gemini-3-pro-preview"
