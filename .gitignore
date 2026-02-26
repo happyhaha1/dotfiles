@@ -43,3 +43,6 @@ backups/
 # Node modules (created by prettier cache)
 node_modules/
 
+# Python cache artifacts
+__pycache__/
+*.py[cod]
