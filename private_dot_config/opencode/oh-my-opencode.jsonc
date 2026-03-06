@@ -2,72 +2,83 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "CLIProxyAPI/gpt-5.3-codex"
+      "model": "CLIProxyAPI/glm-5",
+      "variant": "medium"
     },
-    "oracle": {
-      "model": "CLIProxyAPI/gpt-5.3-codex"
-    },
-    "librarian": {
-      "model": "CLIProxyAPI/gemini-claude-opus-4-5-thinking"
-    },
-    "explore": {
-      "model": "CLIProxyAPI/gemini-claude-sonnet-4-5"
-    },
-    "frontend-ui-ux-engineer": {
-      "model": "CLIProxyAPI/gemini-3-pro-preview"
-    },
-    "document-writer": {
-      "model": "CLIProxyAPI/glm-5"
-    },
-    "multimodal-looker": {
-      "model": "CLIProxyAPI/gemini-3-flash-preview"
+    "Hephaestus": {
+      "model": "CLIProxyAPI/gpt-5.3-codex",
+      "variant": "medium"
     },
     "prometheus": {
-      "model": "CLIProxyAPI/gpt-5.3-codex"
+      "model": "CLIProxyAPI/gpt-5.3-codex",
+      "variant": "high"
     },
     "atlas": {
       "model": "CLIProxyAPI/gpt-5.3-codex"
     },
-    "momus": {
-      "model": "CLIProxyAPI/gpt-5.3-codex"
-    },
     "metis": {
-      "model": "CLIProxyAPI/gpt-5.3-codex"
+      "model": "CLIProxyAPI/gpt-5.2",
+      "variant": "high"
+    },
+    "momus": {
+      "model": "CLIProxyAPI/gpt-5.2",
+      "variant": "high"
+    },
+    "oracle": {
+      "model": "CLIProxyAPI/gpt-5.2",
+      "variant": "xhigh"
+    },
+    "librarian": {
+      "model": "CLIProxyAPI/gemini-3-flash-preview"
+    },
+    "explore": {
+      "model": "CLIProxyAPI/gemini-3-flash-preview"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "CLIProxyAPI/gemini-3.1-pro-high"
+    },
+    "multimodal-looker": {
+      "model": "CLIProxyAPI/gemini-3-flash-preview",
+      "variant": "medium"
     }
   },
   "categories": {
+    "artistry": {
+      "model": "CLIProxyAPI/gemini-3.1-pro-high"
+    },
     "quick": {
+      "model": "CLIProxyAPI/gpt-5.2"
+    },
+    "ultrabrain": {
       "model": "CLIProxyAPI/gpt-5.3-codex"
     },
+    "unspecified-high": {
+      "model": "CLIProxyAPI/gpt-5.3-codex"
+    },
+    "unspecified-low": {
+      "model": "CLIProxyAPI/claude-sonnet-4.5"
+    },
     "visual-engineering": {
-      "model": "CLIProxyAPI/gemini-3-pro-preview"
+      "model": "CLIProxyAPI/gemini-3.1-pro-high"
     },
-    "visual": {
-      "model": "CLIProxyAPI/gemini-3-pro-preview",
-      "temperature": 0.7,
-      "description": "前端、UI/UX、设计相关任务"
+    "writing": {
+      "model": "CLIProxyAPI/gemini-3-flash-preview"
     },
-    "business-logic": {
-      "model": "CLIProxyAPI/gpt-5.2-codex",
-      "temperature": 0.1,
-      "description": "后端逻辑、架构设计、战略推理"
-    },
-    "documentation": {
-      "model": "CLIProxyAPI/glm-5",
-      "temperature": 0.3,
-      "description": "文档编写、技术写作任务"
+    "deep": {
+      "model": "CLIProxyAPI/gpt-5.3-codex"
     }
   },
   "claude_code": {
-    "mcp": false,
-    "commands": true,
-    "skills": false,
     "agents": false,
-    "hooks": false
+    "commands": true,
+    "hooks": false,
+    "mcp": false,
+    "plugins": false,
+    "skills": true
   },
   "sisyphus_agent": {
-    "disabled": false,
     "default_builder_enabled": false,
+    "disabled": false,
     "planner_enabled": true,
     "replace_plan": true
   }
