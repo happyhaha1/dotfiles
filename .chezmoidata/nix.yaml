@@ -35,6 +35,6 @@ homepkgs:
     - mise
     - pnpm
     - bun
-    - opencode
+    # - opencode
   private:
     - mihomo
