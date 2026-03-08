@@ -4,7 +4,6 @@ homebrew:
       - nikitabobko/tap
       - FelixKratz/formulae
       - BarutSRB/tap
-      - anomalyco/tap
     work:
       - azure/functions
     private: []
@@ -14,7 +13,6 @@ homebrew:
     work: []
     private:
       - mas # Required for masApps installation
-      - anomalyco/tap/opencode
   casks:
     shared:
       - bitwarden

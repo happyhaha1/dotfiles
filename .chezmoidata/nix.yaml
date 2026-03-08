@@ -6,28 +6,13 @@ homepkgs:
   shared:
     - "(texliveFull.withPackages (ps: with ps; [ ]))"
     - age
-    - asciinema
-    - bat
-    - bat-extras.prettybat
-    - bat-extras.batwatch
-    - bat-extras.batpipe
-    - bat-extras.batman
-    - bat-extras.batgrep
-    - bat-extras.batdiff
     - bitwarden-cli
     - chezmoi
-    - eza
-    - fastfetch
     - ffmpeg
-    - jq
-    - just # use Justfile to simplify nix-darwin's commands
     - openssh
     - openssl
     - p7zip-rar
-    - starship
     - wget
-    - zoxide
-    - yazi
     - mise
   work: []
   private:
