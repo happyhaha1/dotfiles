@@ -1,0 +1,180 @@
+name: Update pinned versions
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  update:
+    name: Update versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Get latest versions
+        id: versions
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          curl_sha256() {
+            local url="$1"
+            curl -fsSL --retry 5 --retry-delay 2 --retry-max-time 120 --retry-all-errors -L "$url" \
+              | sha256sum | awk '{print $1}'
+          }
+
+          nix_installer=$(gh release view --repo DeterminateSystems/nix-installer --json tagName -q '.tagName')
+          nix_version=$(gh release view --repo DeterminateSystems/nix --json tagName -q '.tagName')
+          aqua_installer=$(gh release view --repo aquaproj/aqua-installer --json tagName -q '.tagName')
+          aqua_installer_sha256=$(curl_sha256 "https://raw.githubusercontent.com/aquaproj/aqua-installer/${aqua_installer}/aqua-installer")
+          aqua_version=$(gh release view --repo aquaproj/aqua --json tagName -q '.tagName')
+          nix_index_db=$(gh release view --repo nix-community/nix-index-database --json tagName -q '.tagName')
+          # paperlib tag format: release-electron-X.Y.Z -> extract X.Y.Z
+          paperlib=$(gh release view --repo Future-Scholars/paperlib --json tagName -q '.tagName' | sed 's/release-electron-//')
+
+          claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
+          claude_wshobson_agents_sha256=$(curl_sha256 "https://github.com/wshobson/agents/archive/${claude_wshobson_agents_rev}.tar.gz")
+          claude_superpowers_rev=$(gh api repos/obra/superpowers/commits/main -q '.sha')
+          claude_superpowers_sha256=$(curl_sha256 "https://github.com/obra/superpowers/archive/${claude_superpowers_rev}.tar.gz")
+          claude_anthropics_skills_rev=$(gh api repos/anthropics/skills/commits/main -q '.sha')
+          claude_anthropics_skills_sha256=$(curl_sha256 "https://github.com/anthropics/skills/archive/${claude_anthropics_skills_rev}.tar.gz")
+          ui_ux_pro_max_skill_rev=$(gh api repos/nextlevelbuilder/ui-ux-pro-max-skill/commits/main -q '.sha')
+          ui_ux_pro_max_skill_sha256=$(curl_sha256 "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/archive/${ui_ux_pro_max_skill_rev}.tar.gz")
+          openai_skills_rev=$(gh api repos/openai/skills/commits/main -q '.sha')
+          huggingface_skills_rev=$(gh api repos/huggingface/skills/commits/main -q '.sha')
+          getsentry_skills_rev=$(gh api repos/getsentry/skills/commits/main -q '.sha')
+          trailofbits_skills_rev=$(gh api repos/trailofbits/skills/commits/main -q '.sha')
+          cloudflare_skills_rev=$(gh api repos/cloudflare/skills/commits/main -q '.sha')
+          vercel_labs_agent_skills_rev=$(gh api repos/vercel-labs/agent-skills/commits/main -q '.sha')
+          vercel_labs_next_skills_rev=$(gh api repos/vercel-labs/next-skills/commits/main -q '.sha')
+          supabase_agent_skills_rev=$(gh api repos/supabase/agent-skills/commits/main -q '.sha')
+          expo_skills_rev=$(gh api repos/expo/skills/commits/main -q '.sha')
+          microsoft_skills_rev=$(gh api repos/microsoft/skills/commits/main -q '.sha')
+          sickn33_antigravity_skills_rev=$(gh api repos/sickn33/antigravity-awesome-skills/commits/main -q '.sha')
+          zig_development_playbook_skill_rev=$(gh api repos/signalridge/zig-development-playbook-skill/commits/main -q '.sha')
+          rust_development_playbook_skill_rev=$(gh api repos/signalridge/rust-development-playbook-skill/commits/main -q '.sha')
+          humanizer_en_rev=$(gh api repos/blader/humanizer/commits/main -q '.sha')
+          stop_slop_en_rev=$(gh api repos/hardikpandya/stop-slop/commits/main -q '.sha')
+          humanizer_zh_rev=$(gh api repos/op7418/Humanizer-zh/commits/main -q '.sha')
+          humanizer_ja_rev=$(gh api repos/kgraph57/humanizer-ja/commits/main -q '.sha')
+
+          {
+            echo "nix_installer=$nix_installer"
+            echo "nix_version=$nix_version"
+            echo "aqua_installer=$aqua_installer"
+            echo "aqua_installer_sha256=$aqua_installer_sha256"
+            echo "aqua_version=$aqua_version"
+            echo "nix_index_db=$nix_index_db"
+            echo "paperlib=$paperlib"
+            echo "claude_wshobson_agents_rev=$claude_wshobson_agents_rev"
+            echo "claude_wshobson_agents_sha256=$claude_wshobson_agents_sha256"
+            echo "claude_superpowers_rev=$claude_superpowers_rev"
+            echo "claude_superpowers_sha256=$claude_superpowers_sha256"
+            echo "claude_anthropics_skills_rev=$claude_anthropics_skills_rev"
+            echo "claude_anthropics_skills_sha256=$claude_anthropics_skills_sha256"
+            echo "ui_ux_pro_max_skill_rev=$ui_ux_pro_max_skill_rev"
+            echo "ui_ux_pro_max_skill_sha256=$ui_ux_pro_max_skill_sha256"
+            echo "openai_skills_rev=$openai_skills_rev"
+            echo "huggingface_skills_rev=$huggingface_skills_rev"
+            echo "getsentry_skills_rev=$getsentry_skills_rev"
+            echo "trailofbits_skills_rev=$trailofbits_skills_rev"
+            echo "cloudflare_skills_rev=$cloudflare_skills_rev"
+            echo "vercel_labs_agent_skills_rev=$vercel_labs_agent_skills_rev"
+            echo "vercel_labs_next_skills_rev=$vercel_labs_next_skills_rev"
+            echo "supabase_agent_skills_rev=$supabase_agent_skills_rev"
+            echo "expo_skills_rev=$expo_skills_rev"
+            echo "microsoft_skills_rev=$microsoft_skills_rev"
+            echo "sickn33_antigravity_skills_rev=$sickn33_antigravity_skills_rev"
+            echo "zig_development_playbook_skill_rev=$zig_development_playbook_skill_rev"
+            echo "rust_development_playbook_skill_rev=$rust_development_playbook_skill_rev"
+            echo "humanizer_en_rev=$humanizer_en_rev"
+            echo "stop_slop_en_rev=$stop_slop_en_rev"
+            echo "humanizer_zh_rev=$humanizer_zh_rev"
+            echo "humanizer_ja_rev=$humanizer_ja_rev"
+          } >> "$GITHUB_OUTPUT"
+      - name: Update .chezmoidata/versions.yaml
+        run: |
+          sed -i 's/nixInstaller: .*/nixInstaller: ${{ steps.versions.outputs.nix_installer }}/' .chezmoidata/versions.yaml
+          sed -i 's/nixVersion: .*/nixVersion: ${{ steps.versions.outputs.nix_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/aquaInstaller: .*/aquaInstaller: ${{ steps.versions.outputs.aqua_installer }}/' .chezmoidata/versions.yaml
+          sed -i 's/aquaInstallerSha256: .*/aquaInstallerSha256: ${{ steps.versions.outputs.aqua_installer_sha256 }}/' .chezmoidata/versions.yaml
+          sed -i 's/aquaVersion: .*/aquaVersion: ${{ steps.versions.outputs.aqua_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/nixIndexDb: .*/nixIndexDb: ${{ steps.versions.outputs.nix_index_db }}/' .chezmoidata/versions.yaml
+          sed -i 's/paperlib: .*/paperlib: ${{ steps.versions.outputs.paperlib }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeWshobsonAgentsRev: .*/claudeWshobsonAgentsRev: ${{ steps.versions.outputs.claude_wshobson_agents_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeWshobsonAgentsSha256: .*/claudeWshobsonAgentsSha256: ${{ steps.versions.outputs.claude_wshobson_agents_sha256 }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeSuperpowersRev: .*/claudeSuperpowersRev: ${{ steps.versions.outputs.claude_superpowers_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeSuperpowersSha256: .*/claudeSuperpowersSha256: ${{ steps.versions.outputs.claude_superpowers_sha256 }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeAnthropicsSkillsRev: .*/claudeAnthropicsSkillsRev: ${{ steps.versions.outputs.claude_anthropics_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/claudeAnthropicsSkillsSha256: .*/claudeAnthropicsSkillsSha256: ${{ steps.versions.outputs.claude_anthropics_skills_sha256 }}/' .chezmoidata/versions.yaml
+          sed -i 's/uiUxProMaxSkillRev: .*/uiUxProMaxSkillRev: ${{ steps.versions.outputs.ui_ux_pro_max_skill_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/uiUxProMaxSkillSha256: .*/uiUxProMaxSkillSha256: ${{ steps.versions.outputs.ui_ux_pro_max_skill_sha256 }}/' .chezmoidata/versions.yaml
+          sed -i 's/openaiSkillsRev: .*/openaiSkillsRev: ${{ steps.versions.outputs.openai_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/huggingfaceSkillsRev: .*/huggingfaceSkillsRev: ${{ steps.versions.outputs.huggingface_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/getsentrySkillsRev: .*/getsentrySkillsRev: ${{ steps.versions.outputs.getsentry_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/trailofbitsSkillsRev: .*/trailofbitsSkillsRev: ${{ steps.versions.outputs.trailofbits_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/cloudflareSkillsRev: .*/cloudflareSkillsRev: ${{ steps.versions.outputs.cloudflare_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/vercelLabsAgentSkillsRev: .*/vercelLabsAgentSkillsRev: ${{ steps.versions.outputs.vercel_labs_agent_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/vercelLabsNextSkillsRev: .*/vercelLabsNextSkillsRev: ${{ steps.versions.outputs.vercel_labs_next_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/supabaseAgentSkillsRev: .*/supabaseAgentSkillsRev: ${{ steps.versions.outputs.supabase_agent_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/expoSkillsRev: .*/expoSkillsRev: ${{ steps.versions.outputs.expo_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/microsoftSkillsRev: .*/microsoftSkillsRev: ${{ steps.versions.outputs.microsoft_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/sickn33AntigravitySkillsRev: .*/sickn33AntigravitySkillsRev: ${{ steps.versions.outputs.sickn33_antigravity_skills_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/zigDevelopmentPlaybookSkillRev: .*/zigDevelopmentPlaybookSkillRev: ${{ steps.versions.outputs.zig_development_playbook_skill_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/rustDevelopmentPlaybookSkillRev: .*/rustDevelopmentPlaybookSkillRev: ${{ steps.versions.outputs.rust_development_playbook_skill_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/humanizerEnRev: .*/humanizerEnRev: ${{ steps.versions.outputs.humanizer_en_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/stopSlopEnRev: .*/stopSlopEnRev: ${{ steps.versions.outputs.stop_slop_en_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/humanizerZhRev: .*/humanizerZhRev: ${{ steps.versions.outputs.humanizer_zh_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/humanizerJaRev: .*/humanizerJaRev: ${{ steps.versions.outputs.humanizer_ja_rev }}/' .chezmoidata/versions.yaml
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet .chezmoidata/versions.yaml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Get current date
+        if: steps.changes.outputs.changed == 'true'
+        id: date
+        run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Create PR
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "chore(versions): update pinned versions"
+          title: "chore(versions): update pinned versions (${{ steps.date.outputs.date }})"
+          branch: update-pinned-versions
+          labels: dependencies,automation
+          body: |
+            Automated version update for pinned dependencies.
+
+            | Package | Version |
+            |---------|---------|
+            | nix-installer | `${{ steps.versions.outputs.nix_installer }}` |
+            | nix | `${{ steps.versions.outputs.nix_version }}` |
+            | aqua-installer | `${{ steps.versions.outputs.aqua_installer }}` |
+            | aqua-installer sha256 | `${{ steps.versions.outputs.aqua_installer_sha256 }}` |
+            | aqua | `${{ steps.versions.outputs.aqua_version }}` |
+            | nix-index-database | `${{ steps.versions.outputs.nix_index_db }}` |
+            | paperlib | `${{ steps.versions.outputs.paperlib }}` |
+            | openai/skills | `${{ steps.versions.outputs.openai_skills_rev }}` |
+            | huggingface/skills | `${{ steps.versions.outputs.huggingface_skills_rev }}` |
+            | getsentry/skills | `${{ steps.versions.outputs.getsentry_skills_rev }}` |
+            | trailofbits/skills | `${{ steps.versions.outputs.trailofbits_skills_rev }}` |
+            | cloudflare/skills | `${{ steps.versions.outputs.cloudflare_skills_rev }}` |
+            | vercel-labs/agent-skills | `${{ steps.versions.outputs.vercel_labs_agent_skills_rev }}` |
+            | vercel-labs/next-skills | `${{ steps.versions.outputs.vercel_labs_next_skills_rev }}` |
+            | supabase/agent-skills | `${{ steps.versions.outputs.supabase_agent_skills_rev }}` |
+            | expo/skills | `${{ steps.versions.outputs.expo_skills_rev }}` |
+            | microsoft/skills | `${{ steps.versions.outputs.microsoft_skills_rev }}` |
+            | sickn33/antigravity-awesome-skills | `${{ steps.versions.outputs.sickn33_antigravity_skills_rev }}` |
+            | signalridge/zig-development-playbook-skill | `${{ steps.versions.outputs.zig_development_playbook_skill_rev }}` |
+            | signalridge/rust-development-playbook-skill | `${{ steps.versions.outputs.rust_development_playbook_skill_rev }}` |
+            | humanizer-en | `${{ steps.versions.outputs.humanizer_en_rev }}` |
+            | stop-slop-en | `${{ steps.versions.outputs.stop_slop_en_rev }}` |
+            | humanizer-zh | `${{ steps.versions.outputs.humanizer_zh_rev }}` |
+            | humanizer-ja | `${{ steps.versions.outputs.humanizer_ja_rev }}` |

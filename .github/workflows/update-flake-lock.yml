@@ -1,0 +1,75 @@
+name: Update flake.lock
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  update:
+    name: Update (${{ matrix.platform }})
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Setup chezmoi config
+        run: |
+          mkdir -p ~/.config/chezmoi
+          cat > ~/.config/chezmoi/chezmoi.toml << EOF
+          [data]
+          hostname = "ci-host"
+          platform = "${{ matrix.platform }}"
+          work = false
+          private = false
+          timezone = "UTC"
+          installMasApps = false
+          EOF
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+        with:
+          use-flakehub: false
+          use-gha-cache: true
+      - name: Install chezmoi
+        run: nix profile install nixpkgs#chezmoi
+      - name: Update flake.lock
+        run: |
+          # Render to temp directory (avoids Git tracking issues with flakes)
+          workdir=$(mktemp -d)
+          mkdir -p "$workdir/modules"
+          chezmoi execute-template --source . < nix-config/flake.nix.tmpl > "$workdir/flake.nix"
+          cp nix-config/.flake-${{ matrix.platform }}.lock "$workdir/flake.lock"
+          for f in nix-config/modules/*.tmpl; do
+            chezmoi execute-template --source . < "$f" > "$workdir/modules/$(basename "${f%.tmpl}")"
+          done
+          for f in nix-config/modules/*.nix; do
+            [ -f "$f" ] && cp "$f" "$workdir/modules/"
+          done
+
+          # Update lock file
+          nix flake update --flake "$workdir"
+
+          # Copy updated lock back to repo
+          cp "$workdir/flake.lock" nix-config/.flake-${{ matrix.platform }}.lock
+          rm -rf "$workdir"
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "chore(nix): update flake.lock for ${{ matrix.platform }}"
+          title: "chore(nix): update flake.lock for ${{ matrix.platform }} (${{ steps.date.outputs.date }})"
+          branch: update-flake-lock-${{ matrix.platform }}
+          labels: dependencies,nix,${{ matrix.platform }}
+          body: |
+            Automated flake.lock update for ${{ matrix.platform }}.
+
+            Updates all flake inputs to their latest versions.
