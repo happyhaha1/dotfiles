@@ -2,7 +2,10 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  nixInstaller: v3.15.2
-  nixVersion: v2.33.1
-  nixIndexDb: 2026-02-05-175827
+  nixInstaller: v3.17.0
+  nixVersion: v2.34.0
+  aquaInstaller: v4.0.4
+  aquaInstallerSha256: acd21cbb06609dd9a701b0032ba4c21fa37b0e3b5cc4c9d721cc02f25ea33a28
+  aquaVersion: v2.56.7
+  nixIndexDb: 2026-03-01-044622
   paperlib: 3.1.12

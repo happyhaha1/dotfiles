@@ -20,7 +20,6 @@ homepkgs:
     - fastfetch
     - fd
     - ffmpeg
-    - fzf
     - jq
     - just # use Justfile to simplify nix-darwin's commands
     - openssh

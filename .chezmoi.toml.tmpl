@@ -113,8 +113,8 @@ command = "code"
 args = ["--wait"]
 
 [diff]
-pager = "diff-so-fancy"
-
+pager = "sh -c 'delta --config ~/.config/delta/config --paging=never || less -FRX'"
+s
 [merge]
 command = "bash"
 args = [

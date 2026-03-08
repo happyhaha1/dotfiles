@@ -7,6 +7,17 @@ set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
 set -x XDG_CACHE_HOME "$HOME/.cache"
 
+# aqua
+if test -d "$XDG_DATA_HOME/aquaproj-aqua/bin"
+    fish_add_path "$XDG_DATA_HOME/aquaproj-aqua/bin"
+end
+
+set -l aqua_config "$XDG_CONFIG_HOME/aquaproj-aqua/aqua.yaml"
+if test -f "$aqua_config"
+    set -gx AQUA_GLOBAL_CONFIG "$aqua_config"
+    set -gx AQUA_CONFIG "$aqua_config"
+end
+
 # https://www.freedesktop.org/wiki/Software/xdg-user-dirs/
 set -x XDG_DESKTOP_DIR "$HOME/Desktop"
 set -x XDG_DOWNLOAD_DIR "$HOME/Downloads"
@@ -45,7 +56,7 @@ set -gx DOCKER_CONFIG "$XDG_CONFIG_HOME/docker"
 
 # npm / node
 set -gx NPM_CONFIG_USERCONFIG "$XDG_CONFIG_HOME/npm/npmrc"
-fish_add_path "./node_modules/.bin"
+# fish_add_path "./node_modules/.bin"
 
 # OCaml
 # set -gx OPAMROOT "$XDG_DATA_HOME/opam"
