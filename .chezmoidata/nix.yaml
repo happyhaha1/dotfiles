@@ -28,11 +28,7 @@ homepkgs:
     - wget
     - zoxide
     - yazi
-  work: []
-  dev:
     - mise
-    - pnpm
-    - bun
-    # - opencode
+  work: []
   private:
     - mihomo
