@@ -3,5 +3,6 @@ registries:
   - type: standard
     ref: v4.470.0 # renovate: depName=aquaproj/aqua-registry
 packages:
+  - name: sharkdp/fd@v10.2.0
   - name: junegunn/fzf@v0.70.0
   - name: dandavison/delta@0.18.2

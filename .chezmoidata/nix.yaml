@@ -18,7 +18,6 @@ homepkgs:
     - chezmoi
     - eza
     - fastfetch
-    - fd
     - ffmpeg
     - jq
     - just # use Justfile to simplify nix-darwin's commands
