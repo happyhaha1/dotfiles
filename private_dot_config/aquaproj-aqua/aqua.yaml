@@ -12,7 +12,7 @@ packages:
       enabled: false
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.70.0
-  - name: dandavison/delta@0.18.2
+  - name: dandavison/delta@0.19.0
   - name: pnpm/pnpm@v10.32.1
   - name: sxyazi/yazi@v26.1.22
   - name: ajeetdsouza/zoxide@v0.9.9
