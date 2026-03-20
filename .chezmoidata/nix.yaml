@@ -14,6 +14,7 @@ homepkgs:
     - p7zip-rar
     - wget
     - mise
+    - cmake
   work: []
   private:
     - mihomo
