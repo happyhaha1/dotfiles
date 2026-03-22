@@ -7,14 +7,17 @@ homepkgs:
     - "(texliveFull.withPackages (ps: with ps; [ ]))"
     - age
     - bitwarden-cli
+    - cmake
     - chezmoi
     - ffmpeg
     - openssh
     - openssl
-    - p7zip-rar
+    - ouch
+    - statix
+    - nixfmt
     - wget
     - mise
-    - cmake
+    - zstd
   work: []
   private:
     - mihomo
