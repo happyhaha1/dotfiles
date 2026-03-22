@@ -3,7 +3,7 @@ registries:
   - type: standard
     ref: v4.470.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-  - name: anomalyco/opencode@v1.2.27
+  - name: atuinsh/atuin@v18.13.3
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
     # aqua update can downgrade to v20200408 due semver ordering;
@@ -13,6 +13,7 @@ packages:
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.70.0
   - name: dandavison/delta@0.19.0
+  - name: anomalyco/opencode@v1.2.27
   - name: pnpm/pnpm@v10.32.1
   - name: sxyazi/yazi@v26.1.22
   - name: ajeetdsouza/zoxide@v0.9.9
@@ -20,3 +21,9 @@ packages:
   - name: casey/just@1.47.1
   - name: jqlang/jq@jq-1.8.1
   - name: eza-community/eza@v0.23.4
+  - name: BurntSushi/ripgrep@15.1.0
+  - name: phiresky/ripgrep-all@v0.10.10
+  - name: numtide/treefmt@v2.4.1
+  - name: jesseduffield/lazygit@v0.60.0
+  - name: ip7z/7zip@26.00
+  - name: Wilfred/difftastic@0.68.0
