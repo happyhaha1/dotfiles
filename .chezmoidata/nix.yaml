@@ -9,10 +9,12 @@ homepkgs:
     - bitwarden-cli
     - cmake
     - chezmoi
+    - imagemagick
     - ffmpeg
     - openssh
     - openssl
     - ouch
+    - resvg
     - statix
     - nixfmt
     - wget
