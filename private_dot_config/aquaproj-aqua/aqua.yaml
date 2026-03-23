@@ -12,8 +12,8 @@ packages:
       enabled: false
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.70.0
-  - name: dandavison/delta@0.19.0
-  - name: anomalyco/opencode@v1.2.27
+  - name: dandavison/delta@0.19.1
+  - name: anomalyco/opencode@v1.3.0
   - name: pnpm/pnpm@v10.32.1
   - name: sxyazi/yazi@v26.1.22
   - name: ajeetdsouza/zoxide@v0.9.9
