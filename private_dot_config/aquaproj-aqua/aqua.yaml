@@ -27,3 +27,4 @@ packages:
   - name: jesseduffield/lazygit@v0.60.0
   - name: ip7z/7zip@26.00
   - name: Wilfred/difftastic@0.68.0
+  - name: ytdl-org/ytdl-nightly@2025.11.26
