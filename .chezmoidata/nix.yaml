@@ -18,7 +18,6 @@ homepkgs:
     - statix
     - nixfmt
     - wget
-    - mise
     - zstd
   work: []
   private:
