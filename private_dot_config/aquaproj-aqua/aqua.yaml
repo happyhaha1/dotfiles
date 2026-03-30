@@ -13,7 +13,7 @@ packages:
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.70.0
   - name: dandavison/delta@0.19.2
-  - name: anomalyco/opencode@v1.3.4
+  - name: anomalyco/opencode@v1.3.6
   - name: pnpm/pnpm@v10.33.0
   - name: sxyazi/yazi@v26.1.22
   - name: ajeetdsouza/zoxide@v0.9.9
@@ -28,4 +28,4 @@ packages:
   - name: ip7z/7zip@26.00
   - name: Wilfred/difftastic@0.68.0
   - name: ytdl-org/ytdl-nightly@2025.11.26
-  - name: jdx/mise@v2026.3.10
+  - name: jdx/mise@v2026.3.17
