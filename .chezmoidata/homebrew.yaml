@@ -10,6 +10,7 @@ homebrew:
   brews:
     shared:
       - mole
+      - sing-box
     work: []
     private:
       - mas # Required for masApps installation
@@ -34,10 +35,4 @@ homebrew:
   masApps:
     shared: []
     work: []
-    private: 
-      - - WeChat
-        - "836500024"
-      - - SenPlayer
-        - "6443975850"
-      - - capture
-        - "6742318274"
+    private: []
