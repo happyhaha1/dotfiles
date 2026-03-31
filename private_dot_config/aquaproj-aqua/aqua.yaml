@@ -13,7 +13,7 @@ packages:
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.70.0
   - name: dandavison/delta@0.19.2
-  - name: anomalyco/opencode@v1.3.6
+  - name: anomalyco/opencode@v1.3.9
   - name: pnpm/pnpm@v10.33.0
   - name: sxyazi/yazi@v26.1.22
   - name: ajeetdsouza/zoxide@v0.9.9
