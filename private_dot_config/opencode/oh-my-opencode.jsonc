@@ -6,26 +6,26 @@
       "variant": "medium"
     },
     "hephaestus": {
-      "model": "CLIProxyAPI/gpt-5.2",
+      "model": "CLIProxyAPI/gpt-5.4",
       "variant": "medium"
     },
     "prometheus": {
-      "model": "CLIProxyAPI/gpt-5.2",
+      "model": "CLIProxyAPI/gpt-5.4",
       "variant": "high"
     },
     "atlas": {
-      "model": "CLIProxyAPI/gpt-5.2"
+      "model": "CLIProxyAPI/gpt-5.4"
     },
     "metis": {
-      "model": "CLIProxyAPI/gpt-5.2",
+      "model": "CLIProxyAPI/gpt-5.4",
       "variant": "high"
     },
     "momus": {
-      "model": "CLIProxyAPI/gpt-5.2",
+      "model": "CLIProxyAPI/gpt-5.4",
       "variant": "high"
     },
     "oracle": {
-      "model": "CLIProxyAPI/gpt-5.2",
+      "model": "CLIProxyAPI/gpt-5.4",
       "variant": "xhigh"
     },
     "librarian": {
@@ -47,13 +47,13 @@
       "model": "CLIProxyAPI/gemini-3.1-pro-high"
     },
     "quick": {
-      "model": "CLIProxyAPI/gpt-5.2"
+      "model": "CLIProxyAPI/gpt-5.4"
     },
     "ultrabrain": {
-      "model": "CLIProxyAPI/gpt-5.2"
+      "model": "CLIProxyAPI/gpt-5.4"
     },
     "unspecified-high": {
-      "model": "CLIProxyAPI/gpt-5.2"
+      "model": "CLIProxyAPI/gpt-5.4"
     },
     "unspecified-low": {
       "model": "CLIProxyAPI/claude-sonnet-4.5"
@@ -65,7 +65,7 @@
       "model": "CLIProxyAPI/gemini-3-flash-preview"
     },
     "deep": {
-      "model": "CLIProxyAPI/gpt-5.2"
+      "model": "CLIProxyAPI/gpt-5.4"
     }
   },
   "claude_code": {
