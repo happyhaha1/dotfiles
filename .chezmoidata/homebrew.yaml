@@ -24,6 +24,7 @@ homebrew:
       # - nikitabobko/tap/aerospace
       - orbstack
       - electerm
+      - codex-app
       # - omniwm
     work: []
     private:

@@ -280,6 +280,11 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  nix.settings.substituters = [
+    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+    "https://cache.nixos.org/"
+  ];
+
   # Determinate Nix is installed; avoid conflicting daemon/config management.
   nix.enable = false;
 
@@ -321,4 +326,3 @@
     };
   };
 }
-
