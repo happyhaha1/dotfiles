@@ -133,6 +133,10 @@ if status is-interactive
         atuin init fish | source
     end
 
+    if type -q direnv
+        direnv hook fish | source
+    end
+
     if test -d (brew --prefix)"/share/fish/completions"
         set -p fish_complete_path (brew --prefix)/share/fish/completions
     end
