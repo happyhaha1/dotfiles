@@ -1,3 +1,90 @@
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
 [user]
 	name = {{ .gitUsername }}
 	email = {{ .gitEmail }}
+
+[init]
+    defaultBranch = main
+
+[push]
+    autoSetupRemote = true
+
+[pull]
+    rebase = true
+
+[core]
+    pager = sh -c 'delta --config ~/.config/delta/config --paging=never || less -FRX'
+    editor = nvim
+    excludesFile = ~/.config/git/ignore
+
+[interactive]
+    diffFilter = sh -c 'delta --config ~/.config/delta/config --color-only || cat'
+
+[commit]
+    template = ~/.config/git/message
+    verbose = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[diff]
+    external = difft
+    algorithm = histogram
+    colorMoved = default
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+
+[fetch]
+    prune = true
+    prunetags = true
+
+[rerere]
+    enabled = true
+
+[alias]
+    # Quick commands (use lazygit for everything else)
+    st = status -sb
+    lg = log --oneline --graph --decorate -10
+
+    # Amend without editor (useful for quick fixes)
+    can = commit --amend --no-edit
+
+    # Undo last commit (keep changes staged)
+    undo = reset --soft HEAD~1
+
+    # Force push safely
+    pf = push --force-with-lease
+
+    # Show current user
+    whoami = "!echo $(git config user.name) '<'$(git config user.email)'>'"
+
+    # Open lazygit
+    ui = "!lazygit"
+
+    # Structured diff tools (difftastic, force ext-diff where needed)
+    dft = -c diff.external=difft diff --ext-diff
+    dfs = -c diff.external=difft show --ext-diff
+    dfl = -c diff.external=difft log -p --ext-diff
+
+    # Show branches sorted by last commit date
+    branches = for-each-ref --sort=-committerdate refs/heads/ --format='%(color:blue)%(committerdate:relative)%(color:reset) %(color:green)%(refname:short)%(color:reset) %(color:yellow)%(authorname)%(color:reset)'
+
+    # Show recent branches (top 10)
+    recent = for-each-ref --sort=-committerdate refs/heads/ --format='%(refname:short)' --count=10
+
+    # Interactive rebase with autosquash
+    rsq = rebase -i --autosquash
+
+# ─────────────────────────────────────────────────────────────
+# URL Rewriting - Use SSH instead of HTTPS for git operations
+# This allows using SSH keys for authentication
+# ─────────────────────────────────────────────────────────────
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
