@@ -1,3 +1,134 @@
+# FZF-powered shell functions
+
+# ─────────────────────────────────────────────────────────────
+# ghq + fzf Integration
+# ─────────────────────────────────────────────────────────────
+
+# 交互式仓库选择器，基于 ghq + fzf
+# 用法: dev [query]
+# 功能:
+#   - 模糊搜索所有 ghq 管理的仓库
+#   - 预览: eza 目录树 + README + git 分支
+#   - 自动重命名 tmux session
+#   - Ctrl+O: 在 VS Code 中打开
+#   - Ctrl+E: 在编辑器中打开
+#   - Ctrl+Y: 复制路径到剪贴板
+function dev
+    set ghq_root (ghq root)
+    set editor (set -q EDITOR; and echo $EDITOR; or echo nvim)
+
+    set repo (
+        ghq list | fzf \
+            --query=(test (count $argv) -gt 0; and echo $argv[1]; or echo "") \
+            --preview "
+            set repo_path $ghq_root/{}
+            echo -e '\033[1;34m📁 {}\033[0m'
+            echo ''
+            if test -d \$repo_path/.git
+                set branch (git -C \$repo_path branch --show-current 2>/dev/null)
+                echo -e '\033[1;33m⎇ \$branch\033[0m'
+                echo ''
+            end
+            eza --tree --level=2 --color=always --icons --git-ignore \$repo_path 2>/dev/null
+            echo ''
+            for readme in \$repo_path/README \$repo_path/README.md \$repo_path/README.rst \$repo_path/README.txt \$repo_path/readme \$repo_path/readme.md
+                if test -f \$readme
+                    echo -e '\033[1;32m📖 README\033[0m'
+                    bat --color=always --style=plain --line-range=:20 \$readme 2>/dev/null
+                    break
+                end
+            end
+            " \
+            --preview-window='right:55%:border-left:wrap' \
+            --header='Enter: cd | Ctrl+O: VS Code | Ctrl+E: Editor | Ctrl+Y: copy path' \
+            --bind="ctrl-o:execute-silent(code $ghq_root/{})" \
+            --bind="ctrl-e:execute($editor $ghq_root/{})" \
+            --bind="ctrl-y:execute-silent(echo $ghq_root/{} | pbcopy)+abort"
+    )
+
+    if test -n "$repo"
+        cd $ghq_root/$repo; or return 1
+        if test -n "$TMUX"
+            tmux rename-session (string split -r -m1 / "$repo")[-1]
+        end
+    end
+end
+
+function _ghq_fzf_cd
+    set repo (
+        ghq list | fzf \
+            --height=40% \
+            --reverse \
+            --preview 'eza --tree --level=1 --color=always --icons "(ghq root)/{}"' \
+            --preview-window='right:40%:border-left'
+    )
+    if test -n "$repo"
+        cd (ghq root)/$repo
+        commandline -f repaint
+    end
+end
+
+bind \cg _ghq_fzf_cd
+
+# ghq 包装器：无参数时用 fzf 选择仓库，有参数时正常执行 ghq
+function ghq
+    if test (count $argv) -eq 0
+        dev
+    else
+        command ghq $argv
+    end
+end
+
+# 用 fzf 选择分支并切换，支持预览提交历史
+# 用法: fgc
+function fgc
+    if not git rev-parse --is-inside-work-tree >/dev/null 2>&1
+        echo "Not a git repository"
+        return 1
+    end
+
+    set branch (
+        git branch -a --color=always \
+        | grep -v '/HEAD' \
+        | fzf --ansi --preview 'git log --oneline --graph --color=always {1}' \
+        | string trim \
+        | string replace -r '^\*\s*' '' \
+        | string replace 'remotes/origin/' ''
+    )
+
+    if test -z "$branch"
+        return 0
+    end
+
+    git checkout "$branch"
+end
+
+
+
+# ─────────────────────────────────────────────────────────────
+# GitHub Utilities
+# ─────────────────────────────────────────────────────────────
+
+# 获取 GitHub 仓库的最新 release 版本号
+# 用法: gh_latest <owner/repo>
+function gh_latest
+    if test (count $argv) -eq 0
+        echo "Usage: gh_latest <owner/repo>"
+        return 1
+    end
+    gh api "repos/$argv[1]/releases/latest" --jq '.tag_name'
+end
+
+# 克隆 GitHub 仓库到 ghq 根目录
+# 用法: gh_clone <owner/repo>
+function gh_clone
+    if test (count $argv) -eq 0
+        echo "Usage: gh_clone <owner/repo>"
+        return 1
+    end
+    ghq get "https://github.com/$argv[1]"
+end
+
 # 使用 AI 自动生成并提交 git commit
 # 用法: aicommit [prompt]
 # 示例: aicommit "修复登录 bug"

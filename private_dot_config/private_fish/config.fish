@@ -130,7 +130,16 @@ if status is-interactive
     end
 
     if type -q atuin
+        set -gx ATUIN_NOBIND "true"
         atuin init fish | source
+
+        # 覆盖默认 Ctrl-R 绑定
+        function set_atuin_bindings
+            bind \cr _atuin_search
+            bind -M insert \cr _atuin_search
+        end
+
+        set_atuin_bindings
     end
 
     if type -q direnv
@@ -152,3 +161,4 @@ set -x FZF_DEFAULT_OPTS_FILE $XDG_CONFIG_HOME/fzf/default_ops
 
 # 更改 fzf 默认按键
 fzf_configure_bindings --directory=\cf
+fzf_configure_bindings --history=\e\cr
