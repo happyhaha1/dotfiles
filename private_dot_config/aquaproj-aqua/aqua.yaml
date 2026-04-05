@@ -50,4 +50,4 @@ packages:
   - name: ytdl-org/ytdl-nightly@2025.11.26
   - name: mikefarah/yq@v4.52.5
   - name: ajeetdsouza/zoxide@v0.9.9
-  - name: numtide/treefmt@v2.4.1
+  - name: zellij-org/zellij@v0.44.0
