@@ -15,7 +15,7 @@ packages:
   - name: openai/codex@rust-v0.118.0
   - name: anomalyco/opencode@v1.3.15
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.4.3
+  - name: jdx/mise@v2026.4.4
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.68.0
@@ -29,7 +29,7 @@ packages:
   - name: git-lfs/git-lfs@v3.7.1
   - name: charmbracelet/glow@v2.1.1
   - name: jqlang/jq@jq-1.8.1
-  - name: casey/just@1.48.1
+  - name: casey/just@1.49.0
   - name: jesseduffield/lazygit@v0.60.0
   - name: LuaLS/lua-language-server@3.18.0
   - name: tree-sitter/tree-sitter@v0.26.8
