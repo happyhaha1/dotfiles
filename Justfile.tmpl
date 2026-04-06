@@ -255,29 +255,24 @@ update-all: up
 [group('utils')]
 full-upgrade:
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 1/5: Updating nix flake inputs..."
+    @echo "Step 1/4: Updating nix flake inputs..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     cd "$HOME/nix-config" && nix flake update
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 2/5: Switching nix profile..."
+    @echo "Step 2/4: Switching nix profile..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     nix run ~/nix-config#{{ "{{hostname}}" }}.switch
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 3/5: Updating chezmoi..."
+    @echo "Step 3/4: Updating chezmoi..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     chezmoi update || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 4/5: Updating mise tools..."
+    @echo "Step 4/4: Updating mise tools..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     mise upgrade || true
-    @echo ""
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 5/5: Updating sheldon plugins..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    sheldon lock --update || true
     @echo ""
     @echo "✓ Full upgrade complete!"
 
