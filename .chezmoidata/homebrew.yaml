@@ -33,6 +33,7 @@ homebrew:
       - telegram
       - wpsoffice-cn
       - vnc-viewer
+      - android-platform-tools
   masApps:
     shared: []
     work: []
