@@ -14,9 +14,7 @@
 [push]
     autoSetupRemote = true
 
-[pull]
-    rebase = true
-
+[pull] rebase = true
 [core]
     pager = sh -c 'delta --config ~/.config/delta/config --paging=never || less -FRX'
     editor = nvim
@@ -86,8 +84,8 @@
 # URL Rewriting - Use SSH instead of HTTPS for git operations
 # This allows using SSH keys for authentication
 # ─────────────────────────────────────────────────────────────
-[url "ssh://git@github.com/"]
-    insteadOf = https://github.com/
+#[url "ssh://git@github.com/"]
+#    insteadOf = https://github.com/
 
 [ghq]
     root = ~/Documents/Projects/ghq
