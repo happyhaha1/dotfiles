@@ -56,8 +56,7 @@ end
 
 function _ghq_fzf_cd
     set repo (
-        ghq list | fzf \
-            --height=40% \
+        ghq list | fzf \ --height=40% \
             --reverse \
             --preview 'eza --tree --level=1 --color=always --icons "(ghq root)/{}"' \
             --preview-window='right:40%:border-left'
@@ -242,4 +241,44 @@ end
 function dotfiles
     set editor (set -q EDITOR; and echo $EDITOR; or echo nvim)
     $editor (chezmoi source-path)
+end
+
+function ghprm --description "Select a GitHub PR with fzf and merge it"
+    if not command -q gh
+        echo "Error: gh is not installed"
+        return 1
+    end
+
+    if not command -q fzf
+        echo "Error: fzf is not installed"
+        return 1
+    end
+
+    if not command -q jq
+        echo "Error: jq is not installed"
+        return 1
+    end
+
+    set -l selected (
+        gh pr list --limit 100 --json number,title,headRefName,author \
+        | jq -r '.[] | "\(.number)\t\(.title)\t\(.headRefName)\t@\(.author.login)"' \
+        | fzf --height=80% --layout=reverse --border \
+              --delimiter='\t' --with-nth=1,2,3,4 \
+              --prompt="Select PR to merge > "
+    )
+
+    if test -z "$selected"
+        echo "No PR selected"
+        return 1
+    end
+
+    set -l pr_number (echo $selected | cut -f1)
+
+    if not string match -qr '^[0-9]+$' -- $pr_number
+        echo "Error: failed to parse PR number: $pr_number"
+        return 1
+    end
+
+    echo "Merging PR #$pr_number ..."
+    gh pr merge $pr_number --rebase --delete-branch
 end

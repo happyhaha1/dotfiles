@@ -157,3 +157,6 @@ if type -q atuin
     bind \cr _atuin_search
     bind -M insert \cr _atuin_search
 end
+
+# 设置vim模式
+set -g fish_key_bindings fish_vi_key_bindings
