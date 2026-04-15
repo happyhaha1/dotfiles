@@ -11,9 +11,9 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.105
+  - name: anthropics/claude-code@v2.1.108
   - name: openai/codex@rust-v0.120.0
-  - name: anomalyco/opencode@v1.4.3
+  - name: anomalyco/opencode@v1.4.4
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.4.11
   - name: muesli/duf@v0.9.1
@@ -31,7 +31,7 @@ packages:
   - name: jqlang/jq@jq-1.8.1
   - name: casey/just@1.49.0
   - name: jesseduffield/lazygit@v0.61.1
-  - name: LuaLS/lua-language-server@3.18.1
+  - name: LuaLS/lua-language-server@3.18.2
   - name: tree-sitter/tree-sitter@v0.26.8
   - name: o2sh/onefetch@2.27.1
   - name: ip7z/7zip@26.00
@@ -40,7 +40,7 @@ packages:
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.25.0
-  - name: skim-rs/skim@v4.5.1
+  - name: skim-rs/skim@v4.6.0
   - name: starship/starship@v1.24.2
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.13.1
