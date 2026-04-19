@@ -264,7 +264,7 @@ function ghprm --description "Select GitHub PR(s) with fzf and merge them"
               --delimiter='\t' --with-nth=1,2,3,4 \
               --prompt="Select PR(s) to merge > " \
               --multi \
-              --bind='tab:toggle+down'  # Tab 键切换选中并下移
+              --bind='tab:toggle+down'
     )
 
     if test -z "$selected"
@@ -272,8 +272,7 @@ function ghprm --description "Select GitHub PR(s) with fzf and merge them"
         return 1
     end
 
-    # 统计选中数量
-    set -l count (echo $selected | wc -l | string trim)
+    set -l count (count $selected)
     echo "Merging $count PR(s)..."
 
     for line in $selected

@@ -25,6 +25,7 @@ homebrew:
       - orbstack
       - electerm
       - codex-app
+      - zed
       # - omniwm
     work: []
     private:
