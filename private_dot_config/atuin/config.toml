@@ -5,8 +5,9 @@
 # Sync Settings
 # ─────────────────────────────────────────────────────────────
 # Disable sync by default (enable if you want cross-machine history)
-auto_sync = false
-sync_frequency = "0"
+sync_address = "http://10.10.10.210:8889"
+auto_sync = true
+sync_frequency = "1h"
 
 # ─────────────────────────────────────────────────────────────
 # Search Settings
