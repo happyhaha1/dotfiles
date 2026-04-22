@@ -11,16 +11,16 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.116
+  - name: anthropics/claude-code@v2.1.117
   - name: openai/codex@rust-v0.122.0
-  - name: anomalyco/opencode@v1.14.19
+  - name: anomalyco/opencode@v1.14.20
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.4.18
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.68.0
   - name: eza-community/eza@v0.23.4
-  - name: fastfetch-cli/fastfetch@2.61.0
+  - name: fastfetch-cli/fastfetch@2.62.0
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.71.0
   - name: cli/cli@v2.90.0
