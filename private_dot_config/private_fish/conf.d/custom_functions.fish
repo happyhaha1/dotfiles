@@ -163,6 +163,25 @@ end
 # Direnv Helper Functions
 # ─────────────────────────────────────────────────────────────
 
+# 创建 Python venv 的 mise 环境
+# 用法: create_direnv_venv
+function create_mise_venv
+    set python_version "3.12"  # 默认版本
+
+    if test (count $argv) -gt 0
+        set python_version $argv[1]
+    end
+
+    echo '[tools]
+python = "'$python_version'"
+
+[env]
+
+_.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }' > mise.toml
+
+    mise trust mise.toml
+end
+
 # 创建 Python venv 的 direnv 环境
 # 用法: create_direnv_venv
 function create_direnv_venv

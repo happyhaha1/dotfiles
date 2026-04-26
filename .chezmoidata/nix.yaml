@@ -6,7 +6,7 @@ homepkgs:
   shared:
     - "(texliveFull.withPackages (ps: with ps; [ ]))"
     - age
-    - bitwarden-cli
+    # - bitwarden-cli
     - cmake
     - chezmoi
     - imagemagick
