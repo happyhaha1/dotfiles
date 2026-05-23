@@ -2,7 +2,7 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  nixInstaller: v3.20.0
+  nixInstaller: v3.21.0
   nixVersion: v2.34.7
   aquaInstaller: v4.0.4
   aquaInstallerSha256: acd21cbb06609dd9a701b0032ba4c21fa37b0e3b5cc4c9d721cc02f25ea33a28
@@ -13,4 +13,4 @@ versions:
   claudeAnthropicsSkillsSha256: 60089fdfe24c4e9a5adc3804563009f17a3b7ef44f85de90cf4ae269384e64ea
   uiUxProMaxSkillRev: b7e3af80f6e331f6fb456667b82b12cade7c9d35
   uiUxProMaxSkillSha256: 7c51fb0ab28651f620e873632d0109f364942c54c9e77a8819a1e2cedec424ea
-  vercelLabsAgentSkillsRev: da22a4c9e85b3a3f6f4b4e8cd415016117643bb2
+  vercelLabsAgentSkillsRev: 18a24346600009dc3fcb99e4b2cd83b301601775
