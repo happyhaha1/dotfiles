@@ -7,7 +7,7 @@ versions:
   aquaInstaller: v4.0.4
   aquaInstallerSha256: acd21cbb06609dd9a701b0032ba4c21fa37b0e3b5cc4c9d721cc02f25ea33a28
   aquaVersion: v2.59.0
-  nixIndexDb: 2026-05-17-060925
+  nixIndexDb: 2026-05-24-062331
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: 690f15cac7f7b4c055c5ab109c79ed9259934081
   claudeAnthropicsSkillsSha256: 60089fdfe24c4e9a5adc3804563009f17a3b7ef44f85de90cf4ae269384e64ea
