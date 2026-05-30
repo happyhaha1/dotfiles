@@ -40,10 +40,24 @@ function dev
             end
             " \
             --preview-window='right:55%:border-left:wrap' \
-            --header='Enter: cd | Ctrl+O: VS Code | Ctrl+E: Editor | Ctrl+Y: copy path' \
+            --header='Enter: cd | Ctrl+O: VS Code | Ctrl+E: Editor | Ctrl+Y: copy path | Ctrl+D: delete' \
             --bind="ctrl-o:execute-silent(code $ghq_root/{})" \
             --bind="ctrl-e:execute($editor $ghq_root/{})" \
-            --bind="ctrl-y:execute-silent(echo $ghq_root/{} | pbcopy)+abort"
+            --bind="ctrl-y:execute-silent(echo $ghq_root/{} | pbcopy)+abort" \
+            --bind="ctrl-d:execute(
+                set repo_path '$ghq_root/{}'
+                echo ''
+                echo '即将删除: ' \$repo_path
+                echo '确认删除请输入 y: '
+                read confirm
+                if test \"\$confirm\" = y
+                    rm -rf \"\$repo_path\"
+                    echo '已删除: ' \$repo_path
+                else
+                    echo '已取消'
+                end
+                sleep 1
+            )+reload(ghq list)"
     )
 
     if test -n "$repo"
