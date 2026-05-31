@@ -13,7 +13,7 @@ packages:
       enabled: false
   - name: anthropics/claude-code@v2.1.158
   - name: openai/codex@rust-v0.135.0
-  - name: anomalyco/opencode@v1.15.12
+  - name: anomalyco/opencode@v1.15.13
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.5.16
   - name: muesli/duf@v0.9.1
