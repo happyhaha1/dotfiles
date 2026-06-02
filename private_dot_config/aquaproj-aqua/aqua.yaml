@@ -3,7 +3,7 @@ registries:
   - type: standard
     ref: v4.470.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-  - name: nektos/act@v0.2.88
+  - name: nektos/act@v0.2.89
   - name: atuinsh/atuin@v18.16.1
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
@@ -11,11 +11,11 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.158
-  - name: openai/codex@rust-v0.135.0
+  - name: anthropics/claude-code@v2.1.160
+  - name: openai/codex@rust-v0.136.0
   - name: anomalyco/opencode@v1.15.13
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.5.16
+  - name: jdx/mise@v2026.5.18
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.69.0
