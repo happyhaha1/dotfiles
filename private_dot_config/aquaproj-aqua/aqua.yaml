@@ -11,11 +11,11 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.177
-  - name: openai/codex@rust-v0.139.0
-  - name: anomalyco/opencode@v1.17.4
+  - name: anthropics/claude-code@v2.1.183
+  - name: openai/codex@rust-v0.141.0
+  - name: anomalyco/opencode@v1.17.8
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.6.5
+  - name: jdx/mise@v2026.6.11
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.69.0
@@ -23,13 +23,13 @@ packages:
   - name: fastfetch-cli/fastfetch@2.64.2
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.73.1
-  - name: cli/cli@v2.94.0
+  - name: cli/cli@v2.95.0
   - name: dlvhdr/gh-dash@v4.24.1
   - name: x-motemen/ghq@v1.10.1
   - name: git-lfs/git-lfs@v3.7.1
   - name: charmbracelet/glow@v2.1.2
   - name: jqlang/jq@jq-1.8.1
-  - name: casey/just@1.52.0
+  - name: casey/just@1.53.0
   - name: jesseduffield/lazygit@v0.62.2
   - name: LuaLS/lua-language-server@3.18.2
   - name: tree-sitter/tree-sitter@v0.26.9
@@ -40,7 +40,7 @@ packages:
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.26.2
-  - name: skim-rs/skim@v4.7.0
+  - name: skim-rs/skim@v4.8.0
   - name: starship/starship@v1.25.1
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.13.1
