@@ -1,11 +1,17 @@
 {
   pkgs,
   flakey-profile,
+  omnyssh,
   ...
 }:
 flakey-profile.lib.mkProfile {
   inherit pkgs;
   paths = with pkgs; [
+    (omnyssh.packages.${pkgs.stdenv.hostPlatform.system}.omnyssh.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [
+        ../patches/omnyssh-xdg-no-ssh-config.patch
+      ];
+    }))
     {{- range .homepkgs.shared }}
     {{ . }}
     {{- end }}
@@ -21,4 +27,3 @@ flakey-profile.lib.mkProfile {
     {{- end }}
   ];
 }
-

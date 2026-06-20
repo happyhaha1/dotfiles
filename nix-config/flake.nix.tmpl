@@ -8,6 +8,7 @@
 
     # Cross-platform package management
     flakey-profile.url = "github:lf-/flakey-profile";
+    omnyssh.url = "github:timhartmann7/omnyssh";
 
 {{- if eq .platform "darwin" }}
 
@@ -39,6 +40,7 @@
       nixpkgs,
       flake-utils,
       flakey-profile,
+      omnyssh,
 {{- if eq .platform "darwin" }}
       nix-darwin,
       mac-app-util,
@@ -68,7 +70,7 @@
 
       # flakey-profile for user packages (cross-platform)
       myProfile = import ./modules/profile.nix {
-        inherit pkgs flakey-profile;
+        inherit pkgs flakey-profile omnyssh;
       };
 {{- if eq .platform "darwin" }}
 
@@ -113,4 +115,3 @@
       formatter.${system} = pkgs.alejandra;
     };
 }
-
