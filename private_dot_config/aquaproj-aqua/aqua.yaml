@@ -11,11 +11,11 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.183
-  - name: openai/codex@rust-v0.141.0
-  - name: anomalyco/opencode@v1.17.8
+  - name: anthropics/claude-code@v2.1.186
+  - name: openai/codex@rust-v0.142.0
+  - name: anomalyco/opencode@v1.17.9
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.6.11
+  - name: jdx/mise@v2026.6.12
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.69.0
@@ -28,7 +28,7 @@ packages:
   - name: x-motemen/ghq@v1.10.1
   - name: git-lfs/git-lfs@v3.7.1
   - name: charmbracelet/glow@v2.1.2
-  - name: jqlang/jq@jq-1.8.1
+  - name: jqlang/jq@jq-1.8.2
   - name: casey/just@1.53.0
   - name: jesseduffield/lazygit@v0.62.2
   - name: LuaLS/lua-language-server@3.18.2
