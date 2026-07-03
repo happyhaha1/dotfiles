@@ -7,10 +7,10 @@ versions:
   aquaInstaller: v4.0.5
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.60.1
-  nixIndexDb: 2026-06-21-071954
+  nixIndexDb: 2026-07-02-200945
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 57546260929473d4e0d1c1bb75297be2fdfa1949
-  claudeAnthropicsSkillsSha256: 7a3e7ac65a8057d56c3ed78292b69d1a0b48cb3adfe3e77ec5019621c42e940e
-  uiUxProMaxSkillRev: 318e0b2e4069b578c729228455328a1ca88f640d
-  uiUxProMaxSkillSha256: bb5960421fedabc7e06b70d4dae0b49ff179bbd9fb752e81bb12172357fa7dc3
+  claudeAnthropicsSkillsRev: 9d2f1ae187231d8199c64b5b762e1bdf2244733d
+  claudeAnthropicsSkillsSha256: d3369ba9df41ec79bccc1ca98c63cd7c4fe866718670f34e149b2c0acc9e4c0a
+  uiUxProMaxSkillRev: 9ceab49a1c6e9bf23fa9ebc49ca7d4f0c6303a99
+  uiUxProMaxSkillSha256: 6958babddf184d788c84ff36c8aa69f4bfd400b2e2c3e2b6719b30cb9e7dcf94
   vercelLabsAgentSkillsRev: f8a72b9603728bb92a217a879b7e62e43ad76c81
