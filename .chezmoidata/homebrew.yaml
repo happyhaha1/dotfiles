@@ -28,6 +28,8 @@ homebrew:
       - zed
       - intellij-idea
       # - omniwm
+      - otty
+      - stablyai/orca/orca
     work: []
     private:
       - cherry-studio
