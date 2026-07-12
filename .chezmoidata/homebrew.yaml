@@ -8,6 +8,7 @@ homebrew:
     shared:
       - mole
       - sing-box
+      - steipete/tap/remindctl
     work: []
     private:
       - mas # Required for masApps installation
