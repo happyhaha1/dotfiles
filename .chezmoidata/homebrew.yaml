@@ -1,9 +1,6 @@
 homebrew:
   taps:
     shared:
-      - nikitabobko/tap
-      - FelixKratz/formulae
-      - BarutSRB/tap
     work:
       - azure/functions
     private: []
@@ -21,10 +18,9 @@ homebrew:
       - visual-studio-code
       - keka
       - ghostty
-      # - nikitabobko/tap/aerospace
       - orbstack
       - electerm
-      - codex-app
+      - chatgpt
       - zed
       - intellij-idea
       # - omniwm

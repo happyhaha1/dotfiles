@@ -39,9 +39,11 @@ jobs:
       - name: Update private_dot_config/aquaproj-aqua/aqua.yaml
         env:
           AQUA_GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          AQUA_CONFIG: private_dot_config/aquaproj-aqua/aqua.yaml
+          AQUA_POLICY_CONFIG: private_dot_config/aquaproj-aqua/aqua-policy.yaml
         run: |
           aqua --version
-          AQUA_CONFIG=private_dot_config/aquaproj-aqua/aqua.yaml aqua update -p
+          aqua update -p
 
       - name: Check for changes
         id: changes

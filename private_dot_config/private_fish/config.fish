@@ -18,6 +18,11 @@ if test -f "$aqua_config"
     set -gx AQUA_CONFIG "$aqua_config"
 end
 
+set -l aqua_policy "$XDG_CONFIG_HOME/aquaproj-aqua/aqua-policy.yaml"
+if test -f "$aqua_policy"
+    set -gx AQUA_POLICY_CONFIG "$aqua_policy"
+end
+
 # https://www.freedesktop.org/wiki/Software/xdg-user-dirs/
 set -x XDG_DESKTOP_DIR "$HOME/Desktop"
 set -x XDG_DOWNLOAD_DIR "$HOME/Downloads"

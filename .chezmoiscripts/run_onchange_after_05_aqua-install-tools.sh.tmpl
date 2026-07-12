@@ -3,7 +3,11 @@
 set -euo pipefail
 
 {{ $aquaConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua.yaml" -}}
+{{ $aquaRegistry := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/registry.yaml" -}}
+{{ $aquaPolicy := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-policy.yaml" -}}
 # aqua config: {{ if stat $aquaConfig }}{{ output "sha256sum" $aquaConfig | trim }}{{ else }}n/a{{ end }}
+# aqua local registry: {{ if stat $aquaRegistry }}{{ output "sha256sum" $aquaRegistry | trim }}{{ else }}n/a{{ end }}
+# aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
 
 echo ":: [05] Installing aqua tools"
@@ -14,7 +18,9 @@ if [[ -d "$aqua_bin_dir" ]]; then
 fi
 
 source_aqua_config="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua.yaml" }}"
+source_aqua_policy="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua-policy.yaml" }}"
 AQUA_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua.yaml"
+AQUA_POLICY_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua-policy.yaml"
 if [[ -f "$AQUA_CONFIG_PATH" ]]; then
     :
 elif [[ -f "$source_aqua_config" ]]; then
@@ -26,6 +32,11 @@ fi
 
 export AQUA_GLOBAL_CONFIG="$AQUA_CONFIG_PATH"
 export AQUA_CONFIG="$AQUA_CONFIG_PATH"
+if [[ -f "$AQUA_POLICY_CONFIG_PATH" ]]; then
+    export AQUA_POLICY_CONFIG="$AQUA_POLICY_CONFIG_PATH"
+elif [[ -f "$source_aqua_policy" ]]; then
+    export AQUA_POLICY_CONFIG="$source_aqua_policy"
+fi
 
 aqua_cmd=""
 if command -v aqua &>/dev/null; then
