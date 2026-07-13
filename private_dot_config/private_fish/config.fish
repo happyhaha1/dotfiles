@@ -165,3 +165,5 @@ end
 
 # 设置vim模式
 set -g fish_key_bindings fish_vi_key_bindings
+
+fish_add_path "$HOME/.local/bin"
