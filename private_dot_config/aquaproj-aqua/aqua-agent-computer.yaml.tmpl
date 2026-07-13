@@ -1,0 +1,6 @@
+{{- if .agentComputer }}
+packages:
+  - name: twistedpair/google-cloud-sdk@{{ .versions.gcloudVersion }}
+{{- else }}
+packages: []
+{{- end }}

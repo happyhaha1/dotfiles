@@ -36,6 +36,10 @@ jobs:
           "${installer_path}" -v "${aqua_version}"
           echo "${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin" >> "$GITHUB_PATH"
 
+      - name: Provide empty agent-computer aqua config for import resolution
+        run: |
+          echo 'packages: []' > private_dot_config/aquaproj-aqua/aqua-agent-computer.yaml
+
       - name: Update private_dot_config/aquaproj-aqua/aqua.yaml
         env:
           AQUA_GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

@@ -5,8 +5,10 @@ encryption = "age"
 {{- $private := not $work -}}{{/* true if this machine should have private configuration  */}}
 {{- $headless := false -}}{{/* true if this machine does not have a screen and keyboard */}}
 {{- $useEncryption := false -}}{{/* default false for users without encryption key */}}
+{{- $agentComputer := false -}}{{/* true if this machine should have agent-computer setup */}}
 {{- if stdinIsATTY -}}
 {{-   $useEncryption = promptBoolOnce . "useEncryption" "Enable encryption & SSH config (requires ~/.ssh/main key, default: false)" -}}
+{{-   $agentComputer = promptBoolOnce . "agentComputer" "Enable agent-computer (default: false)" -}}
 {{- end -}}
 {{- "" -}}
 
@@ -96,6 +98,7 @@ work = {{ $work }}
 private = {{ $private }}
 headless = {{ $headless }}
 useEncryption = {{ $useEncryption }}
+agentComputer = {{ $agentComputer }}
 installMasApps = {{ $installMasApps }}
 homeWifiSSIDs = {{ $homeWifiSSIDs | quote }}
 osid = {{ $osID | quote }}
