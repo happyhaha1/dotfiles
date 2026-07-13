@@ -57,5 +57,4 @@ packages:
   - name: ajeetdsouza/zoxide@v0.10.0
   - name: zellij-org/zellij@v0.44.3
   - name: k3d-io/k3d@v5.9.0
-import:
-  - aqua-agent-computer.yaml
+  - import: aqua-agent-computer.yaml
