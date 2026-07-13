@@ -24,7 +24,7 @@ packages:
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
   - name: Wilfred/difftastic@0.69.0
-  - name: eza-community/eza@v0.23.4
+  - name: eza-community/eza@v0.23.5
   - name: fastfetch-cli/fastfetch@2.66.0
   - name: sharkdp/fd@v10.4.2
   - name: junegunn/fzf@v0.74.0
@@ -37,7 +37,7 @@ packages:
   - name: casey/just@1.56.0
   - name: jesseduffield/lazygit@v0.63.0
   - name: LuaLS/lua-language-server@3.18.2
-  - name: tree-sitter/tree-sitter@v0.26.10
+  - name: tree-sitter/tree-sitter@v0.26.11
   - name: o2sh/onefetch@2.27.1
   - name: ip7z/7zip@26.02
   - name: Nukesor/pueue/pueue@v4.0.4
