@@ -11,7 +11,7 @@ versions:
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: 9d2f1ae187231d8199c64b5b762e1bdf2244733d
   claudeAnthropicsSkillsSha256: d3369ba9df41ec79bccc1ca98c63cd7c4fe866718670f34e149b2c0acc9e4c0a
-  uiUxProMaxSkillRev: e2964b533eb35f532072732731dbe8075d09b069
-  uiUxProMaxSkillSha256: c8823beff1509e516929f35556e8cf4230ffe82d3588e9a009366f5726841367
+  uiUxProMaxSkillRev: f8ac5e1266dba8354ea96e19994d9f4345e7ec31
+  uiUxProMaxSkillSha256: da336394c02d1b46003feededf63be67442e3f10a2fbfbc841a74ef9212ebba5
   vercelLabsAgentSkillsRev: f8a72b9603728bb92a217a879b7e62e43ad76c81
   gcloudVersion: 562.0.0
