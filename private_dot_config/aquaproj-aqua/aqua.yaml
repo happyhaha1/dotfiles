@@ -14,11 +14,11 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.210
-  - name: openai/codex@rust-v0.144.4
-  - name: anomalyco/opencode@v1.18.1
+  - name: anthropics/claude-code@v2.1.218
+  - name: openai/codex@rust-v0.145.0
+  - name: anomalyco/opencode@v1.18.4
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.7.6
+  - name: jdx/mise@v2026.7.12
   - name: timhartmann7/omnyssh@v1.0.4
     registry: local
   - name: muesli/duf@v0.9.1
@@ -31,25 +31,25 @@ packages:
       enabled: false
   - name: fastfetch-cli/fastfetch@2.66.0
   - name: sharkdp/fd@v10.4.2
-  - name: junegunn/fzf@v0.74.0
+  - name: junegunn/fzf@v0.74.1
   - name: cli/cli@v2.96.0
   - name: dlvhdr/gh-dash@v4.25.2
   - name: x-motemen/ghq@v1.10.1
   - name: git-lfs/git-lfs@v3.7.1
   - name: charmbracelet/glow@v2.1.2
   - name: jqlang/jq@jq-1.8.2
-  - name: casey/just@1.56.0
-  - name: jesseduffield/lazygit@v0.63.0
+  - name: casey/just@1.57.0
+  - name: jesseduffield/lazygit@v0.63.1
   - name: LuaLS/lua-language-server@3.18.2
   - name: tree-sitter/tree-sitter@v0.26.11
   - name: o2sh/onefetch@2.27.1
   - name: ip7z/7zip@26.02
   - name: Nukesor/pueue/pueue@v4.0.4
-  - name: BurntSushi/ripgrep@15.1.0
+  - name: BurntSushi/ripgrep@15.2.0
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.27.0
-  - name: skim-rs/skim@v5.1.0
+  - name: skim-rs/skim@v5.5.0
   - name: starship/starship@v1.26.0
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.13.1
