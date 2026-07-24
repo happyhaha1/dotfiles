@@ -2,16 +2,16 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  nixInstaller: v3.21.5
-  nixVersion: v2.34.8
+  nixInstaller: v3.21.8
+  nixVersion: v2.35.1
   aquaInstaller: v4.0.5
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
-  aquaVersion: v2.61.0
-  nixIndexDb: 2026-07-12-134147
+  aquaVersion: v2.62.1
+  nixIndexDb: 2026-07-19-053822
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 9d2f1ae187231d8199c64b5b762e1bdf2244733d
-  claudeAnthropicsSkillsSha256: d3369ba9df41ec79bccc1ca98c63cd7c4fe866718670f34e149b2c0acc9e4c0a
-  uiUxProMaxSkillRev: f8ac5e1266dba8354ea96e19994d9f4345e7ec31
-  uiUxProMaxSkillSha256: da336394c02d1b46003feededf63be67442e3f10a2fbfbc841a74ef9212ebba5
-  vercelLabsAgentSkillsRev: f8a72b9603728bb92a217a879b7e62e43ad76c81
+  claudeAnthropicsSkillsRev: 1f630fdf9259cec4a14913127dfd7c3b69ef72eb
+  claudeAnthropicsSkillsSha256: 99225b81b773e31de44f897f7c831fc9bd45353bc7c7fc025050fb52291b2c28
+  uiUxProMaxSkillRev: 1307d97a72e6c1cda572cb65471ae5ce82995218
+  uiUxProMaxSkillSha256: 5eeb6c0d48aa93da4554320d788dcc0144cb193a310e3231d928ec2984a5161a
+  vercelLabsAgentSkillsRev: fb0282c76b8bbd709e1a5dadb32bb4aa463cdd9b
   gcloudVersion: 562.0.0
