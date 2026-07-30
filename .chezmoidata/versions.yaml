@@ -6,12 +6,12 @@ versions:
   nixVersion: v2.35.1
   aquaInstaller: v4.0.5
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
-  aquaVersion: v2.62.1
+  aquaVersion: v2.62.2
   nixIndexDb: 2026-07-26-054738
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: b29e7cf65e5cb78a5ac33d582270551bc74a14eb
   claudeAnthropicsSkillsSha256: c3832f49600230dc30ccecb770bea6887dab5341632652f0e56b1c41278d474c
-  uiUxProMaxSkillRev: 1307d97a72e6c1cda572cb65471ae5ce82995218
-  uiUxProMaxSkillSha256: 5eeb6c0d48aa93da4554320d788dcc0144cb193a310e3231d928ec2984a5161a
+  uiUxProMaxSkillRev: 4857a2c5ef989794751a0f66b8545a4a49566286
+  uiUxProMaxSkillSha256: 8d3c63e539e58c4e490240e883a29ab0231514ba0db9f210b2997a41afc8e5df
   vercelLabsAgentSkillsRev: 7c180d9044c9ae2b442b567aad4e42a28dd5ed62
   gcloudVersion: 562.0.0
