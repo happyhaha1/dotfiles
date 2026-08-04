@@ -7,18 +7,18 @@ registries:
     path: registry.yaml
 packages:
   - name: nektos/act@v0.2.89
-  - name: atuinsh/atuin@v18.18.1
+  - name: atuinsh/atuin@v18.19.0
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
     # aqua update can downgrade to v20200408 due semver ordering;
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.220
+  - name: anthropics/claude-code@v2.1.221
   - name: openai/codex@rust-v0.146.0
-  - name: anomalyco/opencode@v1.18.10
+  - name: anomalyco/opencode@v1.18.12
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.7.18
+  - name: jdx/mise@v2026.8.1
   - name: timhartmann7/omnyssh@v1.1.1
     registry: local
   - name: muesli/duf@v0.9.1
@@ -38,7 +38,7 @@ packages:
   - name: git-lfs/git-lfs@v3.7.1
   - name: charmbracelet/glow@v2.1.2
   - name: jqlang/jq@jq-1.8.2
-  - name: casey/just@1.57.0
+  - name: casey/just@1.58.0
   - name: jesseduffield/lazygit@v0.63.1
   - name: LuaLS/lua-language-server@3.18.2
   - name: tree-sitter/tree-sitter@v0.26.11
