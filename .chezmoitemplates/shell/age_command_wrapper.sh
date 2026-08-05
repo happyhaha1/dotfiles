@@ -3,14 +3,10 @@ set -euo pipefail
 
 AGE_BIN="$HOME/.nix-profile/bin/age"
 
-# Fast path: prefer profile-managed age binary.
+# Prefer the profile-managed age binary. This is important during the first
+# chezmoi run: an older age already in PATH may not understand SSH identities.
 if [[ -x "$AGE_BIN" ]]; then
     exec "$AGE_BIN" "$@"
-fi
-
-# Fallback to any age already in PATH.
-if command -v age >/dev/null 2>&1; then
-    exec "$(command -v age)" "$@"
 fi
 
 # Source nix environment if not already available.
@@ -21,16 +17,21 @@ if ! command -v nix >/dev/null 2>&1; then
     fi
 fi
 
-if ! command -v nix >/dev/null 2>&1; then
-    echo "Error: age is not found and nix is unavailable" >&2
-    exit 1
+# Install age once into user profile, then execute the profile binary.
+if command -v nix >/dev/null 2>&1; then
+    nix --extra-experimental-features 'nix-command flakes' profile add "nixpkgs#age" >/dev/null || true
+    if [[ -x "$AGE_BIN" ]]; then
+        exec "$AGE_BIN" "$@"
+    fi
 fi
 
-# Install age once into user profile, then execute it.
-nix --extra-experimental-features 'nix-command flakes' profile add "nixpkgs#age" >/dev/null
-if [[ -x "$AGE_BIN" ]]; then
-    exec "$AGE_BIN" "$@"
+# Homebrew is the fallback on machines without a usable Nix profile.
+if command -v brew >/dev/null 2>&1; then
+    brew install age >/dev/null 2>&1 || true
+fi
+if command -v age >/dev/null 2>&1; then
+    exec "$(command -v age)" "$@"
 fi
 
-# Last-resort fallback.
-exec nix --extra-experimental-features 'nix-command flakes' run "nixpkgs#age" -- "$@"
+echo "Error: age could not be installed or found" >&2
+exit 1

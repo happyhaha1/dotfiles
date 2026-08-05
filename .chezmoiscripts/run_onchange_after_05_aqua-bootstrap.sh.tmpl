@@ -10,7 +10,7 @@ set -euo pipefail
 # aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
 
-echo ":: [05] Installing aqua tools"
+echo ":: [05] Installing aqua bootstrap tools"
 
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then
@@ -48,4 +48,4 @@ else
     exit 0
 fi
 
-"$aqua_cmd" install
+"$aqua_cmd" install --tags bootstrap

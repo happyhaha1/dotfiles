@@ -121,6 +121,8 @@ args = [
 ]
 
 [age]
-command = "age"
+{{ $ageCommand := joinPath .chezmoi.sourceDir ".chezmoitemplates/shell/age_command_wrapper.sh" -}}
+command = {{ $ageCommand | quote }}
+useBuiltin = false
 identity = "~/.ssh/main"
 recipientsFile = "~/.ssh/main.pub"
