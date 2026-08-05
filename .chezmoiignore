@@ -60,5 +60,6 @@ nix-config/modules/host-users.nix
 {{- if not .useEncryption }}
 .chezmoiscripts/01_setup-encryption-key.sh
 .ssh/*
+.config/omnyssh/hosts.toml
 {{- end }}
 

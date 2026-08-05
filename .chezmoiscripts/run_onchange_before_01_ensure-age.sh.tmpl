@@ -1,0 +1,68 @@
+#!/bin/sh
+# shellcheck shell=dash
+# Ensure the age binary is available BEFORE chezmoi applies (decrypts) .age files.
+#
+# Why this exists:
+#   - chezmoi decrypts .age files (e.g. omnyssh hosts, ssh config) during the file
+#     phase, which runs BEFORE run_onchange_after_02_init.sh builds the nix profile.
+#   - On a fresh machine the `age` command (nix-installed) therefore is not on PATH
+#     during the first apply, and chezmoi fails with:
+#       chezmoi: .config/omnyssh/hosts.toml: error at line 1: unknown identity type:
+#   - A script exporting PATH does NOT affect chezmoi's own process, so we also
+#     symlink age into /usr/local/bin (always on the macOS/Linux default PATH),
+#     same approach as run_once_symlink-mihomo.sh.
+
+set -eu
+
+info() { printf '\033[1;32minfo:\033[0m %s\n' "$1" >&2; }
+warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$1" >&2; }
+
+# Make the `nix` command available in this shell (fresh machines install nix in
+# run_onchange_before_00_install-nix.sh, but the current shell is not reloaded).
+ensure_nix_in_path() {
+    if command -v nix >/dev/null 2>&1; then
+        return
+    fi
+    if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    fi
+}
+
+ensure_age() {
+    if command -v age >/dev/null 2>&1; then
+        info "age already available: $(command -v age)"
+        return
+    fi
+
+    ensure_nix_in_path
+
+    if command -v nix >/dev/null 2>&1; then
+        info "installing age via nix..."
+        nix profile install nixpkgs#age || warn "failed to install age via nix"
+    elif command -v brew >/dev/null 2>&1; then
+        info "installing age via Homebrew..."
+        brew install age || warn "failed to install age via Homebrew"
+    fi
+
+    # Make age findable on the default PATH for chezmoi's own process. The nix
+    # profile dir (~/.nix-profile/bin) may not be on PATH until the shell config
+    # is applied, so link it into /usr/local/bin.
+    if ! command -v age >/dev/null 2>&1; then
+        for candidate in "$HOME/.nix-profile/bin/age" /opt/homebrew/bin/age /usr/local/bin/age; do
+            if [ -x "$candidate" ]; then
+                if sudo ln -sf "$candidate" /usr/local/bin/age; then
+                    info "linked /usr/local/bin/age -> $candidate"
+                else
+                    warn "could not symlink age into /usr/local/bin"
+                fi
+                break
+            fi
+        done
+    fi
+
+    if ! command -v age >/dev/null 2>&1; then
+        warn "age is still not available; encrypted (.age) files will fail to apply"
+    fi
+}
+
+ensure_age
