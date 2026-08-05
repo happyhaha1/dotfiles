@@ -14,11 +14,11 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.221
+  - name: anthropics/claude-code@v2.1.222
   - name: openai/codex@rust-v0.146.0
-  - name: anomalyco/opencode@v1.18.12
+  - name: anomalyco/opencode@v1.18.13
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.8.1
+  - name: jdx/mise@v2026.8.2
     tags:
       - bootstrap
   - name: timhartmann7/omnyssh@v1.1.1
@@ -41,7 +41,7 @@ packages:
   - name: charmbracelet/glow@v2.1.2
   - name: jqlang/jq@jq-1.8.2
   - name: casey/just@1.58.0
-  - name: jesseduffield/lazygit@v0.63.1
+  - name: jesseduffield/lazygit@v0.64.0
   - name: LuaLS/lua-language-server@3.18.2
   - name: tree-sitter/tree-sitter@v0.26.11
   - name: o2sh/onefetch@2.27.1
