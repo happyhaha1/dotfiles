@@ -1,5 +1,13 @@
 ---
 packages:
+  - name: crates.io/eza
+    type: cargo
+    crate: eza
+    files:
+      - name: eza
+    cargo:
+      locked: true
+
   - type: github_release
     repo_owner: timhartmann7
     repo_name: omnyssh
