@@ -40,13 +40,16 @@ jobs:
         run: |
           echo 'packages: []' > private_dot_config/aquaproj-aqua/aqua-agent-computer.yaml
 
-      - name: Update private_dot_config/aquaproj-aqua/aqua.yaml
+      - name: Update aqua registry and packages
         env:
           AQUA_GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           AQUA_CONFIG: private_dot_config/aquaproj-aqua/aqua.yaml
           AQUA_POLICY_CONFIG: private_dot_config/aquaproj-aqua/aqua-policy.yaml
         run: |
           aqua --version
+          # Keep the Standard Registry ref current. `aqua update -p` only
+          # updates package versions and leaves the registry ref unchanged.
+          aqua update -r
           aqua update -p
 
       - name: Check for changes
@@ -75,4 +78,4 @@ jobs:
           branch: update-aqua-packages
           labels: dependencies,automation,aqua
           body: |
-            Automated `aqua update -p` for `private_dot_config/aquaproj-aqua/aqua.yaml`.
+            Automated Standard Registry and package update for `private_dot_config/aquaproj-aqua/aqua.yaml`.
