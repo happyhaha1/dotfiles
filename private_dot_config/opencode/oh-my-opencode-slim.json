@@ -3,37 +3,37 @@
   "presets": {
     "openai": {
       "orchestrator": {
-        "model": "CLIProxyAPI/gpt-5.6-terra",
+        "model": "CLIProxyAPI/deepseek-v4-flash",
         "variant": "xhigh",
         "skills": ["*"],
         "mcps": ["*", "!context7"]
       },
       "oracle": {
-        "model": "CLIProxyAPI/gpt-5.6-sol",
+        "model": "CLIProxyAPI/deepseek-v4-flash",
         "variant": "xhigh",
         "skills": ["simplify"],
         "mcps": []
       },
       "librarian": {
-        "model": "CLIProxyAPI/gpt-5.6-luna",
+        "model": "opencode/deepseek-v4-flash-free",
         "variant": "low",
         "skills": [],
         "mcps": ["websearch", "context7", "gh_grep"]
       },
       "explorer": {
-        "model": "CLIProxyAPI/gpt-5.6-luna",
+        "model": "opencode/deepseek-v4-flash-free",
         "variant": "low",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "CLIProxyAPI/gpt-5.6-luna",
+        "model": "opencode/deepseek-v4-flash-free",
         "variant": "medium",
         "skills": [],
         "mcps": []
       },
       "fixer": {
-        "model": "CLIProxyAPI/gpt-5.6-luna",
+        "model": "opencode/deepseek-v4-flash-free",
         "variant": "xhigh",
         "skills": [],
         "mcps": []
