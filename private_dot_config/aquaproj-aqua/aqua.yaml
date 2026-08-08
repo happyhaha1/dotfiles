@@ -1,7 +1,7 @@
 ---
 registries:
   - type: standard
-    ref: v4.549.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.550.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
@@ -14,19 +14,19 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.223
+  - name: anthropics/claude-code@v2.1.225
   - name: openai/codex@rust-v0.147.0
-  - name: anomalyco/opencode@v1.18.14
-  - name: earendil-works/pi@v0.84.0
+  - name: anomalyco/opencode@v1.18.15
+  - name: earendil-works/pi@v0.84.1
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.8.2
+  - name: jdx/mise@v2026.8.3
     tags:
       - bootstrap
   - name: timhartmann7/omnyssh@v1.1.1
     registry: local
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
-  - name: Wilfred/difftastic@0.69.0
+  - name: Wilfred/difftastic@0.70.0
   - name: crates.io/eza@0.23.5
     registry: local
   - name: fastfetch-cli/fastfetch@2.67.0
@@ -40,7 +40,7 @@ packages:
   - name: jqlang/jq@jq-1.8.2
   - name: casey/just@1.58.0
   - name: jesseduffield/lazygit@v0.64.0
-  - name: LuaLS/lua-language-server@3.18.2
+  - name: LuaLS/lua-language-server@3.19.0
   - name: tree-sitter/tree-sitter@v0.26.11
   - name: o2sh/onefetch@2.27.1
   - name: ip7z/7zip@26.02
@@ -49,7 +49,7 @@ packages:
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.28.0
-  - name: skim-rs/skim@v5.6.1
+  - name: skim-rs/skim@v5.6.3
   - name: starship/starship@v1.26.0
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.13.1
