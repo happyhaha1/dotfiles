@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.83.0",
+  "lastChangelogVersion": "0.84.1",
   "theme": "dracula",
-  "defaultProvider": "cliproxyapi",
+  "defaultProvider": "CLIProxyAPI",
   "defaultModel": "deepseek-v4-flash",
   "packages": [
     "npm:@sherif-fanous/pi-dracula",
@@ -9,7 +9,8 @@
     "npm:@cortexkit/pi-magic-context",
     "npm:@juanibiapina/pi-powerbar",
     "npm:@juanibiapina/pi-extension-settings",
-    "npm:@narumitw/pi-goal"
+    "npm:@narumitw/pi-goal",
+    "npm:pi-web-access"
   ],
-  "defaultThinkingLevel": "medium"
+  "defaultThinkingLevel": "high"
 }

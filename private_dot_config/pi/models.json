@@ -11,6 +11,14 @@
       },
       "models": [
         {
+          "id": "ga-wa/kimi-k3",
+          "name": "Kimi K3",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 1000000,
+          "maxTokens": 131072
+        },
+        {
           "id": "deepseek-v4-flash",
           "name": "Deepseek v4 flash",
           "reasoning": true,
