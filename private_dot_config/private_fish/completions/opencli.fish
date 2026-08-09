@@ -1,5 +1,4 @@
-# Fish completion for opencli
-# Add to ~/.config/fish/config.fish:  opencli completion fish | source
+# Fish completion for opencli (auto-installed)
 complete -c opencli -f -a '(
   set -l tokens (commandline -cop)
   set -l cursor (count (commandline -cop))
