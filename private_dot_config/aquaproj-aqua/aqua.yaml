@@ -14,7 +14,7 @@ packages:
     # keep a known-good release pinned.
     update:
       enabled: false
-  - name: anthropics/claude-code@v2.1.228
+  # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.147.0
   - name: anomalyco/opencode@v1.18.16
   - name: earendil-works/pi@v0.84.1

@@ -20,7 +20,7 @@ homebrew:
       - keka
       - ghostty
       - orbstack
-      - electerm
+      # - electerm
       - chatgpt
       - zed
       - intellij-idea
