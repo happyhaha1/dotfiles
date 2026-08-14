@@ -40,7 +40,7 @@ packages:
   - name: jqlang/jq@jq-1.8.2
   - name: casey/just@1.58.0
   - name: jesseduffield/lazygit@v0.64.1
-  - name: LuaLS/lua-language-server@3.19.0
+  - name: LuaLS/lua-language-server@3.19.1
   - name: tree-sitter/tree-sitter@v0.26.12
   - name: o2sh/onefetch@2.27.1
   - name: ip7z/7zip@26.02
