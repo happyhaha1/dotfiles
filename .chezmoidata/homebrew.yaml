@@ -34,7 +34,6 @@ homebrew:
       - iina
       - telegram
       - wpsoffice-cn
-      - vnc-viewer
       - android-platform-tools
   masApps:
     shared: []
