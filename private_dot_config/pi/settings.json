@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.84.1",
+  "lastChangelogVersion": "0.84.2",
   "theme": "dracula",
   "defaultProvider": "CLIProxyAPI",
   "defaultModel": "deepseek-v4-flash",
