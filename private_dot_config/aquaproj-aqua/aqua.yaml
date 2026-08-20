@@ -15,11 +15,11 @@ packages:
     update:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
-  - name: openai/codex@rust-v0.147.0
+  - name: openai/codex@rust-v0.148.0
   - name: anomalyco/opencode@v1.18.18
   - name: earendil-works/pi@v0.84.2
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.8.8
+  - name: jdx/mise@v2026.8.9
     tags:
       - bootstrap
   - name: timhartmann7/omnyssh@v1.1.1
@@ -57,7 +57,7 @@ packages:
   - name: dduan/tre@v0.4.0
   - name: sxyazi/yazi@v26.8.15
   - name: ytdl-org/ytdl-nightly@2025.11.26
-  - name: mikefarah/yq@v4.53.3
+  - name: mikefarah/yq@v4.53.4
   - name: ajeetdsouza/zoxide@v0.10.0
   - name: zellij-org/zellij@v0.44.3
   - name: k3d-io/k3d@v5.9.0
