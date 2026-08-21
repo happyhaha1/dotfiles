@@ -10,7 +10,8 @@
     "npm:@juanibiapina/pi-powerbar",
     "npm:@juanibiapina/pi-extension-settings",
     "npm:@narumitw/pi-goal",
-    "npm:pi-web-access"
+    "npm:pi-web-access",
+    "npm:pi-extmgr"
   ],
   "defaultThinkingLevel": "high"
 }

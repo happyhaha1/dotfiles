@@ -9,31 +9,31 @@
         "mcps": ["*", "!context7"]
       },
       "oracle": {
-        "model": "CLIProxyAPI/deepseek-v4-flash",
+        "model": "CLIProxyAPI/deepseek-v4-pro",
         "variant": "xhigh",
         "skills": ["simplify"],
         "mcps": []
       },
       "librarian": {
-        "model": "opencode/deepseek-v4-flash-free",
+        "model": "CLIProxyAPI/deepseek-v4-flash",
         "variant": "low",
         "skills": [],
         "mcps": ["websearch", "context7", "gh_grep"]
       },
       "explorer": {
-        "model": "opencode/deepseek-v4-flash-free",
+        "model": "CLIProxyAPI/deepseek-v4-flash",
         "variant": "low",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "opencode/deepseek-v4-flash-free",
+        "model": "CLIProxyAPI/kimi-k3",
         "variant": "medium",
         "skills": [],
         "mcps": []
       },
       "fixer": {
-        "model": "opencode/deepseek-v4-flash-free",
+        "model": "CLIProxyAPI/deepseek-v4-flash",
         "variant": "xhigh",
         "skills": [],
         "mcps": []
