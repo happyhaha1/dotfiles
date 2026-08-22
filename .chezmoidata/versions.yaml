@@ -2,16 +2,16 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  nixInstaller: v3.22.1
+  nixInstaller: v3.22.2
   nixVersion: v2.35.2
   aquaInstaller: v4.0.5
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.62.3
   nixIndexDb: 2026-08-16-033510
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 0a64e398ec6bb34a494f0c347e8ccae53a862f8e
-  claudeAnthropicsSkillsSha256: 9312305bcd300e4f9174ca4c1b36341503e7c8d552dff41f14f0e2516c25977c
+  claudeAnthropicsSkillsRev: 3b3fad96af16a10759d930941b4520ba0c40edae
+  claudeAnthropicsSkillsSha256: 24e507b541cdec6f9007575b826babee7f5da196475ec7e0559cde78ad4a10cb
   uiUxProMaxSkillRev: bc826e2267a36d98a2dcf5231e16c30ff546770f
   uiUxProMaxSkillSha256: 955735ef304e8834b95aad0e756fc67e762412f2346a1faf6e67e87ff038a828
-  vercelLabsAgentSkillsRev: b8caa260a420a73042e35521de4b5c8baf6446cc
+  vercelLabsAgentSkillsRev: dd089a8c752c966dee8bf0f27cb625ba193ffd9e
   gcloudVersion: 562.0.0
