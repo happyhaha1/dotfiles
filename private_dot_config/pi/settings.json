@@ -11,7 +11,8 @@
     "npm:@juanibiapina/pi-extension-settings",
     "npm:@narumitw/pi-goal",
     "npm:pi-web-access",
-    "npm:pi-extmgr"
+    "npm:pi-extmgr",
+    "npm:remote-pi"
   ],
   "defaultThinkingLevel": "high"
 }
