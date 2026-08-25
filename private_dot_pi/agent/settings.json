@@ -1,0 +1,18 @@
+{
+  "lastChangelogVersion": "0.84.3",
+  "theme": "dracula",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-luna",
+  "packages": [
+    "npm:@sherif-fanous/pi-dracula",
+    "npm:@narumitw/pi-subagents",
+    "npm:@cortexkit/pi-magic-context",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:@juanibiapina/pi-extension-settings",
+    "npm:@narumitw/pi-goal",
+    "npm:pi-web-access",
+    "npm:pi-extmgr",
+    "npm:remote-pi"
+  ],
+  "defaultThinkingLevel": "max"
+}

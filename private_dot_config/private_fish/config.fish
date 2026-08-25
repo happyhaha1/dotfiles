@@ -3,7 +3,6 @@
 
 set -x LANG zh_CN.UTF-8
 set -x XDG_CONFIG_HOME "$HOME/.config"
-set -gx PI_CODING_AGENT_DIR "$XDG_CONFIG_HOME/pi"
 set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
 set -x XDG_CACHE_HOME "$HOME/.cache"
