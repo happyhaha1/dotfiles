@@ -12,7 +12,7 @@ fi
 echo ":: [fish] Checking fisher plugin manager..."
 
 # Check if fisher is installed
-if fish -c 'fisher -v' 2>/dev/null; then
+if fish -c 'fisher -v' >/dev/null 2>&1; then
     echo ":: [fish] fisher is already installed"
 else
     echo ":: [fish] fisher not found, installing..."
@@ -20,20 +20,11 @@ else
     echo ":: [fish] fisher installed successfully"
 fi
 
-# Check and install plugins
-echo ":: [fish] Checking plugins..."
-
-# Get installed plugins
-installed_plugins=$(fish -c 'fisher list 2>/dev/null')
-
-{{- range .fisher.shared }}
-plugin="{{ . }}"
-
-if echo "$installed_plugins" | grep -q "^$plugin$"; then
-    echo ":: [fish] Plugin $plugin is already installed"
-else
-    echo ":: [fish] Installing plugin $plugin..."
-    fish -c "fisher install $plugin"
-    echo ":: [fish] Plugin $plugin installed"
-fi
-{{- end }}
+# fish_plugins is rendered from .chezmoidata/fisher.yaml before this script.
+# Keep the list in this template so changes to the YAML retrigger run_onchange.
+# desired shared plugins:{{ range .fisher.shared }} {{ . }}{{ end }}
+# Fisher's no-argument update reconciles that manifest: it installs missing
+# plugins and removes plugins that are no longer listed.
+echo ":: [fish] Synchronizing plugins..."
+fish -c 'fisher update' >/dev/null
+echo ":: [fish] Fisher plugins synchronized"

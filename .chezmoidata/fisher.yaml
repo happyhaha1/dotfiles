@@ -1,5 +1,4 @@
 fisher:
   shared:
     - PatrickF1/fzf.fish
-    - givensuman/fish-eza
     - jhillyerd/plugin-git
