@@ -17,7 +17,7 @@ homebrew:
     shared:
       - bitwarden
       - cmux
-      - visual-studio-code
+      # - visual-studio-code
       - keka
       - ghostty
       - orbstack
@@ -28,8 +28,9 @@ homebrew:
       # - omniwm
       # - otty
       # - stablyai/orca/orca
-      - abue-ammar/tinycast/tinycast
+      # - abue-ammar/tinycast/tinycast
       - mactools
+      - macshot
     work: []
     private:
       - cherry-studio
