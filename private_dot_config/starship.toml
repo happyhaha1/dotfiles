@@ -136,9 +136,6 @@ symbol = "󰔷 "
 [nim]
 symbol = "󰆥 "
 
-[nix_shell]
-symbol = " "
-
 [nodejs]
 symbol = " "
 
@@ -171,7 +168,6 @@ Mariner = " "
 MidnightBSD = " "
 Mint = " "
 NetBSD = " "
-NixOS = " "
 OpenBSD = "󰈺 "
 openSUSE = " "
 OracleLinux = "󰌷 "

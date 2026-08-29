@@ -7,10 +7,6 @@ dot_zprofile.tmpl linguist-language=Shell
 *.conf linguist-language=Shell
 *.conf.tmpl linguist-language=Shell
 
-# Nix
-*.nix linguist-language=Nix
-*.nix.tmpl linguist-language=Nix
-
 # TOML (data type, need detectable to show in stats)
 *.toml linguist-language=TOML linguist-detectable=true
 *.toml.tmpl linguist-language=TOML linguist-detectable=true

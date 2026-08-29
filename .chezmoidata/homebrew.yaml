@@ -2,13 +2,24 @@ homebrew:
   taps:
     shared:
       - abue-ammar/tinycast
+      - steipete/tap
     work:
       - azure/functions
     private: []
   brews:
     shared:
+      # Bootstrap dependency: the age wrapper may need this before chezmoi can
+      # decrypt source state.
+      - age
+      - fish
       - mole
       - sing-box
+      # Keep an OpenSSL 3 CLI/library instead of relying on Apple's LibreSSL.
+      - openssl@3
+      # Aqua has no macOS ARM64 packages for these CLIs; Homebrew uses
+      # prebuilt bottles when available rather than compiling by default.
+      - zstd
+      - wget
       - steipete/tap/remindctl
     work: []
     private:
@@ -31,6 +42,22 @@ homebrew:
       # - abue-ammar/tinycast/tinycast
       - mactools
       - macshot
+      # Nerd fonts and symbol fonts used by the terminal.
+      - font-material-design-icons-webfont
+      - font-fontawesome
+      - font-hackgen-nerd
+      - font-plemol-jp-nf
+      - font-symbols-only-nerd-font
+      - font-fira-code-nerd-font
+      - font-caskaydia-cove-nerd-font
+      - font-caskaydia-mono-nerd-font
+      - font-jetbrains-mono-nerd-font
+      - font-iosevka-nerd-font
+      - font-iosevka-term-nerd-font
+      - font-iosevka-term-slab-nerd-font
+      - font-maple-mono
+      - font-maple-mono-nf
+      - font-maple-mono-nf-cn
     work: []
     private:
       - cherry-studio

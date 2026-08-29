@@ -23,9 +23,6 @@ encryption = "age"
 {{- $gitEmail := promptStringOnce . "gitEmail" "GitHub useremail" -}}{{/* set the github useremail */}}
 
 {{- $osID := .chezmoi.os -}}
-{{- if (and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id")) -}}
-{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-{{- end -}}
 
 {{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
 {{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
@@ -71,11 +68,6 @@ encryption = "age"
 
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $timezone = (output "sh" "-c" "readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##' || true") | trim -}}
-{{- else if eq .chezmoi.os "linux" -}}
-{{-   $timezone = (output "sh" "-c" "cat /etc/timezone 2>/dev/null || true") | trim -}}
-{{-   if eq $timezone "" -}}
-{{-     $timezone = (output "sh" "-c" "readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##' || true") | trim -}}
-{{-   end -}}
 {{- end -}}
 
 {{/* NOTE: ip-api.com free tier only supports HTTP (HTTPS requires paid plan) */}}
@@ -119,6 +111,10 @@ args = [
     "-c",
     "cp {{ "{{ .Target }}" }} {{ "{{ .Target }}" }}.base && code --new-window --wait --merge {{ "{{ .Destination }}" }} {{ "{{ .Target }}" }} {{ "{{ .Target }}" }}.base {{ "{{ .Source }}" }}",
 ]
+
+{{ $bootstrapCommand := joinPath .chezmoi.sourceDir ".chezmoi-bootstrap-macos.sh" -}}
+[hooks.read-source-state.pre]
+command = {{ $bootstrapCommand | quote }}
 
 [age]
 {{ $ageCommand := joinPath .chezmoi.sourceDir ".chezmoitemplates/shell/age_command_wrapper.sh" -}}

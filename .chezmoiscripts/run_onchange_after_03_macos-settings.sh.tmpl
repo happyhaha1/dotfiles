@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# Apply the macOS settings managed by this chezmoi repository.
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo "    Skipped (macOS only)"
+    exit 0
+fi
+
+user="${USER:-$(id -un)}"
+if [[ "$EUID" -eq 0 && -n "${SUDO_USER:-}" ]]; then
+    user="$SUDO_USER"
+fi
+
+run_as_user() {
+    if [[ "$(id -un)" == "$user" ]]; then
+        "$@"
+    else
+        sudo -u "$user" "$@"
+    fi
+}
+
+defaults_write() {
+    run_as_user defaults write "$@"
+}
+
+defaults_delete() {
+    run_as_user defaults delete "$@" 2>/dev/null || true
+}
+
+info() { printf '\033[1;32minfo:\033[0m %s\n' "$1" >&2; }
+warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$1" >&2; }
+
+info "applying macOS defaults"
+
+# Global preferences.
+defaults_write NSGlobalDomain _HIHideMenuBar -bool false
+defaults_write NSGlobalDomain com.apple.swipescrolldirection -bool false
+defaults_write NSGlobalDomain com.apple.sound.beep.feedback -int 0
+defaults_write NSGlobalDomain com.apple.keyboard.fnState -bool true
+defaults_delete NSGlobalDomain AppleInterfaceStyle
+defaults_write NSGlobalDomain AppleKeyboardUIMode -int 3
+defaults_write NSGlobalDomain ApplePressAndHoldEnabled -bool true
+defaults_write NSGlobalDomain InitialKeyRepeat -int 15
+defaults_write NSGlobalDomain KeyRepeat -int 3
+defaults_write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+defaults_write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+defaults_write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+defaults_write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+defaults_write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults_write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults_write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+defaults_write NSGlobalDomain AppleSpacesSwitchOnActivate -bool true
+defaults_write NSGlobalDomain WebKitDeveloperExtras -bool true
+
+# Dock.
+defaults_write com.apple.dock autohide -bool true
+defaults_write com.apple.dock show-recents -bool false
+defaults_write com.apple.dock wvous-tl-corner -int 2
+defaults_write com.apple.dock wvous-tr-corner -int 1
+defaults_write com.apple.dock wvous-bl-corner -int 3
+defaults_write com.apple.dock wvous-br-corner -int 4
+
+# Finder.
+defaults_write com.apple.finder _FXShowPosixPathInTitle -bool true
+defaults_write com.apple.finder AppleShowAllExtensions -bool true
+defaults_write com.apple.finder FXEnableExtensionChangeWarning -bool false
+defaults_write com.apple.finder QuitMenuItem -bool true
+defaults_write com.apple.finder ShowPathbar -bool true
+defaults_write com.apple.finder ShowStatusBar -bool true
+defaults_write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+defaults_write com.apple.finder ShowHardDrivesOnDesktop -bool true
+defaults_write com.apple.finder ShowMountedServersOnDesktop -bool true
+defaults_write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+defaults_write com.apple.finder _FXSortFoldersFirst -bool true
+defaults_write com.apple.finder FXDefaultSearchScope -string SCcf
+
+# Other application preferences.
+defaults_write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults_write com.apple.desktopservices DSDontWriteUSBStores -bool true
+defaults_write com.apple.spaces spans-displays -int 0
+defaults_write com.apple.WindowManager EnableStandardClickToShowDesktop -int 0
+defaults_write com.apple.WindowManager StandardHideDesktopIcons -int 0
+defaults_write com.apple.WindowManager HideDesktop -int 0
+defaults_write com.apple.WindowManager StageManagerHideWidgets -int 0
+defaults_write com.apple.WindowManager StandardHideWidgets -int 0
+defaults_write com.apple.screensaver askForPassword -int 1
+defaults_write com.apple.screensaver askForPasswordDelay -int 0
+defaults_write com.apple.screencapture location -string "{{ .chezmoi.homeDir }}/Documents"
+defaults_write com.apple.screencapture type -string png
+defaults_write com.apple.AdLib allowApplePersonalizedAdvertising -bool false
+defaults_write com.apple.ImageCapture disableHotPlug -bool true
+defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 '<dict><key>enabled</key><false/></dict>'
+defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 '<dict><key>enabled</key><false/></dict>'
+defaults_write com.apple.loginwindow GuestEnabled -bool false
+defaults_write com.apple.loginwindow SHOWFULLNAME -bool true
+
+{{- if .isMacbook }}
+# MacBook trackpad.
+defaults_write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults_write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
+defaults_write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
+{{- end }}
+
+# Host names.
+hostname="{{ .hostname }}"
+if command -v scutil >/dev/null 2>&1; then
+    sudo scutil --set HostName "$hostname"
+    sudo scutil --set ComputerName "$hostname"
+    sudo scutil --set LocalHostName "$hostname"
+    sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$hostname"
+fi
+
+# Time zone.
+if command -v systemsetup >/dev/null 2>&1; then
+    sudo systemsetup -settimezone "{{ .timezone }}" >/dev/null
+fi
+
+# Power management.
+if command -v pmset >/dev/null 2>&1; then
+    sudo pmset -a displaysleep 3
+{{- if .isMacbook }}
+    sudo pmset -a sleep 15
+    sudo pmset -a disksleep 30
+{{- else }}
+    sudo pmset -a sleep 0
+    sudo pmset -a disksleep 0
+{{- end }}
+fi
+
+# Touch ID for sudo. Keep the vendor-managed sudo_local file intact and add
+# the rule only when it is not already present.
+pam_file=/etc/pam.d/sudo_local
+if ! sudo test -f "$pam_file" || ! sudo grep -Eq '^[[:space:]]*auth[[:space:]]+sufficient[[:space:]]+pam_tid\.so([[:space:]]|$)' "$pam_file"; then
+    printf '%s\n' 'auth       sufficient     pam_tid.so' | sudo tee -a "$pam_file" >/dev/null
+fi
+
+# Homebrew fish provides the login shell. Resolve Homebrew explicitly because
+# this script runs before the new Fish configuration has updated PATH.
+brew_cmd=""
+if command -v brew >/dev/null 2>&1; then
+    brew_cmd="$(command -v brew)"
+elif [[ -x /opt/homebrew/bin/brew ]]; then
+    brew_cmd=/opt/homebrew/bin/brew
+elif [[ -x /usr/local/bin/brew ]]; then
+    brew_cmd=/usr/local/bin/brew
+fi
+
+fish_bin=""
+if [[ -n "$brew_cmd" ]]; then
+    fish_bin="$("$brew_cmd" --prefix fish 2>/dev/null || true)/bin/fish"
+fi
+if [[ -x "$fish_bin" ]]; then
+    if ! sudo grep -Fxq "$fish_bin" /etc/shells; then
+        printf '%s\n' "$fish_bin" | sudo tee -a /etc/shells >/dev/null
+    fi
+    current_shell="$(dscl . -read "/Users/$user" UserShell 2>/dev/null | awk '{print $2}' || true)"
+    if [[ "$current_shell" != "$fish_bin" ]]; then
+        chsh -s "$fish_bin" "$user"
+    fi
+else
+    warn "Homebrew fish is not installed; run brew bundle install before changing the login shell"
+fi
+
+# Refresh settings owned by the affected applications.
+if [[ -x /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings ]]; then
+    run_as_user /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+fi
+run_as_user killall Dock 2>/dev/null || true
+run_as_user killall Finder 2>/dev/null || true

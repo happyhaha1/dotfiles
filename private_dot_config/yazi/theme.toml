@@ -102,7 +102,6 @@ use = "dracula"
 #   { name = "*.ts", fg = "#8be9fd" },
 #   { name = "*.tsx", fg = "#8be9fd" },
 #   { name = "*.jsx", fg = "#f1fa8c" },
-#   { name = "*.nix", fg = "#bd93f9" },
 #   { name = "*.sh", fg = "#50fa7b" },
 
 #   # Config files

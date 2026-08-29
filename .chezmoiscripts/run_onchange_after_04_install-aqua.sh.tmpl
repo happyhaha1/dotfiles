@@ -13,13 +13,10 @@ AQUA_TARGET_VERSION="${AQUA_VERSION:-$AQUA_PINNED_VERSION}"
 AQUA_BIN_DIR="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 AQUA_BIN="${AQUA_BIN_DIR}/aqua"
 
-case "$(uname -s)" in
-Darwin | Linux) ;;
-*)
-    echo "    Skipped (unsupported OS: $(uname -s))"
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo "    Skipped (unsupported OS: $(uname -s); this repository currently targets macOS)"
     exit 0
-    ;;
-esac
+fi
 
 AQUA_INSTALLER_URL="https://raw.githubusercontent.com/aquaproj/aqua-installer/${AQUA_INSTALLER_VERSION}/aqua-installer"
 
@@ -103,14 +100,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if command -v curl &>/dev/null; then
-    curl -fsSL "$AQUA_INSTALLER_URL" -o "$installer_file"
-elif command -v wget &>/dev/null; then
-    wget -qO "$installer_file" "$AQUA_INSTALLER_URL"
-else
-    echo "    Error: curl or wget is required to install aqua"
+if ! command -v curl &>/dev/null; then
+    echo "    Error: curl is required to install aqua on macOS"
     exit 1
 fi
+curl -fsSL "$AQUA_INSTALLER_URL" -o "$installer_file"
 
 if ! installer_sha256="$(calc_sha256 "$installer_file")"; then
     echo "    Error: no SHA-256 tool is available (need sha256sum/shasum/openssl)"

@@ -203,13 +203,6 @@ function create_direnv_venv
     direnv allow
 end
 
-# 创建 Nix flake 的 direnv 环境
-# 用法: create_direnv_nix
-function create_direnv_nix
-    echo 'use flake' >.envrc
-    direnv allow
-end
-
 # 创建 mise 的 direnv 环境
 # 用法: create_direnv_mise
 function create_direnv_mise

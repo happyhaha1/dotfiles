@@ -22,6 +22,16 @@ packages:
   - name: jdx/mise@v2026.8.14
     tags:
       - bootstrap
+
+  # Standalone release binaries avoid Homebrew dependency trees when a
+  # package publishes a macOS ARM64 artifact in the Standard Registry.
+  - name: Kitware/CMake@v4.4.3
+  - name: twpayne/chezmoi@v2.72.0
+  - name: Tyrrrz/FFmpegBin@8.1.2
+  - name: neovim/neovim@v0.12.5
+  - name: ouch-org/ouch@0.8.1
+  - name: linebender/resvg@v0.48.1
+
   - name: timhartmann7/omnyssh@v1.1.2
     registry: local
   - name: muesli/duf@v0.9.1

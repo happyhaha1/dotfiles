@@ -2,14 +2,28 @@
 # https://specifications.freedesktop.org/basedir-spec/latest/
 
 set -x LANG zh_CN.UTF-8
+set -gx EDITOR nvim
+set -gx VISUAL nvim
 set -x XDG_CONFIG_HOME "$HOME/.config"
 set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
 set -x XDG_CACHE_HOME "$HOME/.cache"
 
-# aqua
+# Keep Aqua binaries first, followed by the official Homebrew prefix. This
+# avoids accidentally selecting stale binaries after migration.
 if test -d "$XDG_DATA_HOME/aquaproj-aqua/bin"
     fish_add_path "$XDG_DATA_HOME/aquaproj-aqua/bin"
+end
+for brew_bin in /opt/homebrew/bin /usr/local/bin
+    if test -d "$brew_bin"
+        fish_add_path "$brew_bin"
+    end
+end
+if type -q brew
+    set -l openssl_prefix (brew --prefix openssl@3 2>/dev/null)
+    if test -d "$openssl_prefix/bin"
+        fish_add_path "$openssl_prefix/bin"
+    end
 end
 
 set -l aqua_config "$XDG_CONFIG_HOME/aquaproj-aqua/aqua.yaml"

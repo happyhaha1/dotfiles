@@ -11,12 +11,6 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger update-flake-lock
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run update-flake-lock.yml --repo ${{ github.repository }}
-          echo "Triggered update-flake-lock.yml"
       - name: Trigger update-versions
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

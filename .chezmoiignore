@@ -4,9 +4,6 @@
 *.tmp
 README.md
 
-# OS-specific lock files (used by flake.lock.tmpl)
-nix-config/.flake-darwin.lock
-nix-config/.flake-linux.lock
 README.ja.md
 README.zh-CN.md
 .editorconfig
@@ -19,28 +16,6 @@ node_modules/
 selene.toml
 stylua.toml
 treefmt.toml
-
-# ─────────────────────────────────────────────────────────────────────────────
-# macOS-only exclusions (skip on Linux)
-# ─────────────────────────────────────────────────────────────────────────────
-{{- if ne .chezmoi.os "darwin" }}
-# macOS-specific nix modules (these are source paths, OK for non-script files)
-nix-config/modules/system.nix
-nix-config/modules/apps.nix
-nix-config/modules/host-users.nix
-
-# macOS-specific scripts (target paths)
-.chezmoiscripts/02_init.sh
-.chezmoiscripts/04_update_homebrew_packages.sh
-.chezmoiscripts/07_install-paperlib.sh
-
-# macOS-only GUI apps (target paths)
-.config/aerospace/
-.config/borders/
-.config/karabiner/
-.config/ghostty/
-.config/hammerspoon/
-{{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Headless/server exclusions (no GUI, reserved for future use)

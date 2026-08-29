@@ -43,8 +43,6 @@ rules = [
   { url = "*.{txt,md,json,yaml,yml,toml,ini,conf,sh,zsh,bash,fish}", use = ["edit", "reveal"] },
   # Code files
   { url = "*.{rs,go,py,js,ts,tsx,jsx,c,cpp,h,hpp,java,kt,swift}", use = ["edit", "reveal"] },
-  # Nix files
-  { url = "*.nix", use = ["edit", "reveal"] },
   # Fallback
   { url = "*", use = ["open", "reveal"] },
 ]

@@ -2,12 +2,9 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  nixInstaller: v3.22.2
-  nixVersion: v2.35.2
   aquaInstaller: v4.0.5
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.62.3
-  nixIndexDb: 2026-08-23-033710
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: 3b3fad96af16a10759d930941b4520ba0c40edae
   claudeAnthropicsSkillsSha256: 24e507b541cdec6f9007575b826babee7f5da196475ec7e0559cde78ad4a10cb

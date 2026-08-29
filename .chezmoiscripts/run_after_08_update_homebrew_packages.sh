@@ -3,9 +3,10 @@
 set -eufo pipefail
 
 # Periodic upgrade check (7-day interval)
-# New packages are installed by nix-darwin (script 02)
+# The declarative package set is installed by the Homebrew bundle script (02).
 
 LAST_UPDATE_FILE="$HOME/.cache/brew-last-update"
+mkdir -p "$(dirname "$LAST_UPDATE_FILE")"
 CURRENT_TIME=$(date +%s)
 LAST_UPDATE=0
 UPDATE_INTERVAL=$((7 * 86400)) # 7 days
@@ -14,6 +15,11 @@ UPDATE_INTERVAL=$((7 * 86400)) # 7 days
 DAYS_AGO=$(((CURRENT_TIME - LAST_UPDATE) / 86400))
 
 echo ":: [08] Updating Homebrew packages"
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "    Skipped (Homebrew is not installed)"
+    exit 0
+fi
 
 if ((CURRENT_TIME - LAST_UPDATE > UPDATE_INTERVAL)); then
     echo "    Last update: ${DAYS_AGO} days ago, checking for updates..."

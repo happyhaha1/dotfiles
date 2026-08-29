@@ -3,20 +3,28 @@
 
 set -eufo pipefail
 
-# Only run if using fish shell
-if [[ "$SHELL" != *"fish"* ]]; then
-    echo ":: [fish] Not using fish shell (current: $SHELL), skipping fisher check"
+# The login shell may still be the previous shell during the first apply;
+# detect the installed binary instead of relying on $SHELL.
+fish_cmd=""
+if command -v fish >/dev/null 2>&1; then
+    fish_cmd="$(command -v fish)"
+elif [[ -x /opt/homebrew/bin/fish ]]; then
+    fish_cmd=/opt/homebrew/bin/fish
+elif [[ -x /usr/local/bin/fish ]]; then
+    fish_cmd=/usr/local/bin/fish
+else
+    echo ":: [fish] fish is not installed, skipping fisher check"
     exit 0
 fi
 
 echo ":: [fish] Checking fisher plugin manager..."
 
 # Check if fisher is installed
-if fish -c 'fisher -v' >/dev/null 2>&1; then
+if "$fish_cmd" -c 'fisher -v' >/dev/null 2>&1; then
     echo ":: [fish] fisher is already installed"
 else
     echo ":: [fish] fisher not found, installing..."
-    fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
+    "$fish_cmd" -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
     echo ":: [fish] fisher installed successfully"
 fi
 
@@ -26,5 +34,5 @@ fi
 # Fisher's no-argument update reconciles that manifest: it installs missing
 # plugins and removes plugins that are no longer listed.
 echo ":: [fish] Synchronizing plugins..."
-fish -c 'fisher update' >/dev/null
+"$fish_cmd" -c 'fisher update' >/dev/null
 echo ":: [fish] Fisher plugins synchronized"
