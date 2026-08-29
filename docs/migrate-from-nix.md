@@ -259,14 +259,35 @@ rm -rf \
   "$HOME/.local/state/nix"
 ```
 
-最后清理空目录：
+最后清理卸载残留配置：
 
 ```bash
 sudo rm -rf /etc/nix
-sudo rmdir /nix
 ```
 
-`sudo rmdir /nix` 只会删除空目录；如果失败并提示目录繁忙，重启后再执行。
+在现代 macOS 中，根目录位于 sealed、read-only 的系统卷。卸载后暂时看到空的 `/nix` 是正常现象；直接执行 `sudo rmdir /nix` 会得到：
+
+```text
+Read-only file system
+```
+
+不要强制删除它。nix-darwin 卸载器会移除 `/etc/synthetic.conf` 中的 `nix` 配置；重启一次后，macOS 会自动移除这个 synthetic mountpoint：
+
+```bash
+sudo reboot
+```
+
+重启后验证：
+
+```bash
+test ! -e /nix && echo '/nix cleanup complete'
+```
+
+如果 `/etc/synthetic.conf` 仍然存在，只删除其中独立的 `nix` 行，不要删除其他 synthetic entries：
+
+```bash
+sudo sed -i '' '/^nix$/d' /etc/synthetic.conf
+```
 
 ## 4. 包迁移对照
 
