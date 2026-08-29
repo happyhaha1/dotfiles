@@ -353,10 +353,19 @@ exec fish -l
 just bundle       # Homebrew Bundle
 just aqua-install # Aqua 固定版本 CLI
 aqua install
+just aqua-clean   # 清理超过保留期的 Aqua 包（默认 7 天）
 just mise-install
 mise install
 just update-all
 ```
+
+`aqua vacuum` 按“最后使用时间”清理，而不是只按配置版本清理；如果一个已配置的 CLI 长时间未使用，它也可能被清理，之后运行 `aqua install` 即可恢复。可以临时调整保留天数：
+
+```bash
+AQUA_VACUUM_DAYS=30 just aqua-clean
+```
+
+Aqua 自身的旧版本会在每次 chezmoi apply 时自动保留当前版本并清理。
 
 Homebrew 没有 Nix flake 的精确回滚能力，因此重要变更前应保留：
 

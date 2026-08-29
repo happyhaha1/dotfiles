@@ -10,7 +10,8 @@ AQUA_INSTALLER_SHA256="{{ .versions.aquaInstallerSha256 }}"
 AQUA_PINNED_VERSION="{{ .versions.aquaVersion }}"
 AQUA_TARGET_VERSION="${AQUA_VERSION:-$AQUA_PINNED_VERSION}"
 
-AQUA_BIN_DIR="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+AQUA_ROOT_DIR="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+AQUA_BIN_DIR="${AQUA_ROOT_DIR}/bin"
 AQUA_BIN="${AQUA_BIN_DIR}/aqua"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
@@ -61,6 +62,36 @@ current_aqua_version() {
     "$cmd" -v 2>/dev/null | awk '{print $3}'
 }
 
+cleanup_old_aqua_versions() {
+    local current_version="${1#v}"
+    local current_version_dir="v${current_version}"
+    local package_dir
+    local metadata_dir
+
+    # aqua keeps every self-update under internal/. Retain only the binary that
+    # the bin/aqua symlink currently targets; old copies are not needed for the
+    # pinned installation and can otherwise accumulate over time.
+    if [[ -z "$current_version" ]]; then
+        return 0
+    fi
+
+    for package_dir in \
+        "$AQUA_ROOT_DIR/internal/pkgs/github_release/github.com/aquaproj/aqua"/v*; do
+        [[ -d "$package_dir" ]] || continue
+        if [[ "${package_dir##*/}" != "$current_version_dir" ]]; then
+            rm -rf "$package_dir"
+        fi
+    done
+
+    for metadata_dir in \
+        "$AQUA_ROOT_DIR/metadata/internal/pkgs/github_release/github.com/aquaproj/aqua"/v*; do
+        [[ -d "$metadata_dir" ]] || continue
+        if [[ "${metadata_dir##*/}" != "$current_version_dir" ]]; then
+            rm -rf "$metadata_dir"
+        fi
+    done
+}
+
 aqua_cmd=""
 if aqua_cmd="$(detect_aqua_cmd)"; then
     current_version="$(current_aqua_version "$aqua_cmd")"
@@ -70,6 +101,7 @@ if aqua_cmd="$(detect_aqua_cmd)"; then
 
     if [[ -n "$AQUA_TARGET_VERSION" ]] && [[ "$current_normalized" == "$target_normalized" ]]; then
         echo "    Skipped (already on pinned version)"
+        cleanup_old_aqua_versions "$current_version"
         exit 0
     fi
 
@@ -83,6 +115,7 @@ if aqua_cmd="$(detect_aqua_cmd)"; then
         if "$aqua_cmd" update-aqua "$AQUA_TARGET_VERSION"; then
             installed_version="$(current_aqua_version "$aqua_cmd")"
             echo "    Installed: ${installed_version:-unknown}"
+            cleanup_old_aqua_versions "$installed_version"
             exit 0
         fi
         echo "    update-aqua failed, falling back to full installer"
@@ -125,7 +158,7 @@ fi
 # tty.  The tarball ships third_party_licenses/* as read-only, so the cleanup
 # stalls indefinitely in interactive terminals.  Patch to `rm -rf`.
 # Ref: https://github.com/aquaproj/aqua-installer (as of v4.0.4)
-sed -i.bak 's/rm -R "\$tempdir"/rm -rf "\$tempdir"/' "$installer_file"
+sed -i.bak "s/rm -R \\\"\\\$tempdir\\\"/rm -rf \\\"\\\$tempdir\\\"/" "$installer_file"
 
 chmod +x "$installer_file"
 if [[ -n "$AQUA_TARGET_VERSION" ]]; then
@@ -137,6 +170,7 @@ fi
 if aqua_cmd="$(detect_aqua_cmd)"; then
     installed_version="$(current_aqua_version "$aqua_cmd")"
     echo "    Installed: ${installed_version:-unknown}"
+    cleanup_old_aqua_versions "$installed_version"
 else
     echo "    Error: aqua installation failed (command not found after install)"
     exit 1

@@ -49,6 +49,13 @@ bundle:
 aqua-install:
     aqua install
 
+# Remove Aqua package versions not used within the retention window.
+# Override with AQUA_VACUUM_DAYS (default: 7).
+[group('packages')]
+aqua-clean:
+    aqua vacuum --init
+    AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum
+
 # Install language runtimes and tools declared by mise
 [group('packages')]
 mise-install:
@@ -127,6 +134,8 @@ info:
 update-all:
     chezmoi update || true
     aqua install || true
+    aqua vacuum --init || true
+    AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum || true
     mise upgrade || true
     sheldon lock --update || true
     brew update && brew upgrade
@@ -135,27 +144,33 @@ update-all:
 [group('utils')]
 full-upgrade:
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 1/5: Updating chezmoi..."
+    @echo "Step 1/6: Updating chezmoi..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     chezmoi update || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 2/5: Installing pinned Aqua tools..."
+    @echo "Step 2/6: Installing pinned Aqua tools..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     aqua install || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 3/5: Updating mise tools..."
+    @echo "Step 3/6: Cleaning old Aqua packages..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    aqua vacuum --init || true
+    AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum || true
+    @echo ""
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "Step 4/6: Updating mise tools..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     mise upgrade || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 4/5: Updating Sheldon plugins..."
+    @echo "Step 5/6: Updating Sheldon plugins..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     sheldon lock --update || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 5/5: Updating Homebrew..."
+    @echo "Step 6/6: Updating Homebrew..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     brew update && brew upgrade
     brew cleanup --prune=7
@@ -165,4 +180,6 @@ full-upgrade:
 # Clean Homebrew caches and old versions
 [group('utils')]
 clean-all:
+    aqua vacuum --init
+    AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum
     brew cleanup --prune=7
