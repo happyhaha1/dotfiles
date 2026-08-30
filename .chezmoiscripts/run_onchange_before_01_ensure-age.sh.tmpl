@@ -17,6 +17,9 @@ ensure_age() {
     if command -v brew >/dev/null 2>&1; then
         info "installing age via Homebrew..."
         brew install age || warn "failed to install age via Homebrew"
+    elif command -v pacman >/dev/null 2>&1; then
+        info "installing age via pacman..."
+        sudo pacman -S --noconfirm --needed age || warn "failed to install age via pacman"
     fi
 
     # Make age findable on the default PATH for chezmoi's own process. The

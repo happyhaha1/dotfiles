@@ -1,0 +1,22 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pacman packages (Linux / Omarchy)
+# Rendered into .chezmoiscripts/run_onchange_after_02_pacman.sh.tmpl.
+# Keep this list limited to things Aqua/mise cannot provide: shells,
+# GUI apps, and system-level crypto. System upgrades belong to
+# `omarchy update` — this only ever installs with --needed.
+# ─────────────────────────────────────────────────────────────────────────────
+pacman:
+  # Official Arch repos (installed via omarchy-pkg-add or pacman --needed)
+  official:
+    shared:
+      - fish # Login shell (Omarchy defaults to bash)
+      - age # age encryption needed before chezmoi can decrypt source state
+      - ghostty # Terminal shared with the macOS setup
+    work: []
+    private:
+      - bitwarden
+  # AUR packages (installed via yay/paru --needed; keep short and deliberate)
+  aur:
+    shared: []
+    work: []
+    private: []

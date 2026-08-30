@@ -17,6 +17,15 @@ if command -v age >/dev/null 2>&1; then
     exec "$(command -v age)" "$@"
 fi
 
+# Linux: try the distro package manager (Omarchy/Arch).
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --noconfirm --needed age >/dev/null 2>&1 || true
+fi
+
+if command -v age >/dev/null 2>&1; then
+    exec "$(command -v age)" "$@"
+fi
+
 if command -v brew >/dev/null 2>&1; then
     brew install age >/dev/null 2>&1 || true
 fi

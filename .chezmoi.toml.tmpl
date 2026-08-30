@@ -24,6 +24,14 @@ encryption = "age"
 
 {{- $osID := .chezmoi.os -}}
 
+{{/* Omarchy detection: Arch-based Hyprland distro. v4+ is package-backed,
+     so /usr/share/omarchy is the marker. */}}
+{{- $omarchy := false -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $omarchyCheck := output "sh" "-c" "test -d /usr/share/omarchy && echo true || echo false" | trim -}}
+{{-   $omarchy = eq $omarchyCheck "true" -}}
+{{- end -}}
+
 {{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
 {{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
 {{-   $headless = true -}}
@@ -66,7 +74,7 @@ encryption = "age"
 {{/* timezone: prefer local config, fallback to ip-api.com */}}
 {{- $timezone := "" -}}
 
-{{- if eq .chezmoi.os "darwin" -}}
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") -}}
 {{-   $timezone = (output "sh" "-c" "readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##' || true") | trim -}}
 {{- end -}}
 
@@ -94,6 +102,7 @@ agentComputer = {{ $agentComputer }}
 installMasApps = {{ $installMasApps }}
 homeWifiSSIDs = {{ $homeWifiSSIDs | quote }}
 osid = {{ $osID | quote }}
+omarchy = {{ $omarchy }}
 isMacbook = {{ $isMacbook }}
 timezone = {{ $timezone | quote }}
 claudeProviderAccount = {{ $claudeProviderAccount | quote }}

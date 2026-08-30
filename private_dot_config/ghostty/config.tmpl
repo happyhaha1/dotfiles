@@ -1,12 +1,16 @@
 # # https://ghostty.zerebos.com/
 theme = Dracula
 font-family = "Maple Mono NF CN"
+{{- if eq .chezmoi.os "darwin" }}
 macos-titlebar-proxy-icon = hidden
 macos-titlebar-style = tabs
+{{- end }}
 font-size = 14
 mouse-hide-while-typing = true
 window-decoration = true
+{{- if eq .chezmoi.os "darwin" }}
 macos-option-as-alt = true
+{{- end }}
 window-padding-y = 0,2
 window-padding-x = 12,8
 keybind = shift+enter=text:\n

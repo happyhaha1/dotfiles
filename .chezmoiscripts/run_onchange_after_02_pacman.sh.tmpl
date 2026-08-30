@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Install the pacman packages declared in .chezmoidata/pacman.yaml.
+# --needed only, never a system upgrade: system updates belong to
+# `omarchy update` (raw `pacman -Syu` is blocked by Omarchy's ALPM guard).
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Linux only)"
+    exit 0
+fi
+
+OFFICIAL_PKGS=(
+{{- range .pacman.official.shared }}
+    "{{ . }}"
+{{- end }}
+{{- if .work }}
+{{- range .pacman.official.work }}
+    "{{ . }}"
+{{- end }}
+{{- else }}
+{{- range .pacman.official.private }}
+    "{{ . }}"
+{{- end }}
+{{- end }}
+)
+
+AUR_PKGS=(
+{{- range .pacman.aur.shared }}
+    "{{ . }}"
+{{- end }}
+{{- if .work }}
+{{- range .pacman.aur.work }}
+    "{{ . }}"
+{{- end }}
+{{- else }}
+{{- range .pacman.aur.private }}
+    "{{ . }}"
+{{- end }}
+{{- end }}
+)
+
+if (( ${#OFFICIAL_PKGS[@]} > 0 )); then
+    echo ":: [02] Installing pacman packages: ${OFFICIAL_PKGS[*]}"
+    if command -v omarchy-pkg-add >/dev/null 2>&1; then
+        omarchy-pkg-add "${OFFICIAL_PKGS[@]}"
+    else
+        sudo pacman -S --noconfirm --needed "${OFFICIAL_PKGS[@]}"
+    fi
+fi
+
+if (( ${#AUR_PKGS[@]} > 0 )); then
+    echo ":: [02] Installing AUR packages: ${AUR_PKGS[*]}"
+    if command -v yay >/dev/null 2>&1; then
+        yay -S --needed --noconfirm "${AUR_PKGS[@]}"
+    elif command -v paru >/dev/null 2>&1; then
+        paru -S --needed --noconfirm "${AUR_PKGS[@]}"
+    else
+        echo "error: no AUR helper found (install one with: omarchy-pkg-add yay)" >&2
+        exit 1
+    fi
+fi
+
+echo ":: [02] Pacman packages up to date"

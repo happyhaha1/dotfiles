@@ -1,0 +1,15 @@
+-- Keep only your personal keybinding overrides here. Add new bindings or
+-- unbind defaults before replacing them.
+--
+-- See current bindings and descriptions:
+--   omarchy menu keybindings --print
+--
+-- Add a new binding:
+--   o.bind("SUPER + SHIFT + R", "SSH", "ghostty -e ssh your-server")
+--
+-- Change an existing binding (unbind first, then bind again):
+--   hl.unbind("SUPER + SPACE")
+--   o.bind("SUPER + SPACE", "Omarchy menu", "omarchy-menu toggle root")
+--
+-- Disable a default binding without replacing it:
+--   hl.unbind("SUPER + SHIFT + B")
