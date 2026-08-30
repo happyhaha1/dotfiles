@@ -15,7 +15,7 @@ packages:
     update:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
-  - name: openai/codex@rust-v0.150.1
+  - name: openai/codex@rust-v0.151.0
   - name: anomalyco/opencode@v1.18.25
   - name: earendil-works/pi@v0.84.4
   - name: direnv/direnv@v2.37.1
