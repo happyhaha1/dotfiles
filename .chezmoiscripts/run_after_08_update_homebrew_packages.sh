@@ -14,7 +14,7 @@ UPDATE_INTERVAL=$((7 * 86400)) # 7 days
 [[ -f "$LAST_UPDATE_FILE" ]] && LAST_UPDATE=$(cat "$LAST_UPDATE_FILE")
 DAYS_AGO=$(((CURRENT_TIME - LAST_UPDATE) / 86400))
 
-echo ":: [08] Updating Homebrew packages"
+echo ":: [08] Homebrew update check (at most once every 7 days)"
 
 if ! command -v brew >/dev/null 2>&1; then
     echo "    Skipped (Homebrew is not installed)"
@@ -22,7 +22,7 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 if ((CURRENT_TIME - LAST_UPDATE > UPDATE_INTERVAL)); then
-    echo "    Last update: ${DAYS_AGO} days ago, checking for updates..."
+    echo "    Last checked ${DAYS_AGO} days ago — overdue, checking for updates..."
     brew update
     echo "$CURRENT_TIME" >"$LAST_UPDATE_FILE"
 
@@ -35,5 +35,5 @@ if ((CURRENT_TIME - LAST_UPDATE > UPDATE_INTERVAL)); then
         brew cleanup
     fi
 else
-    echo "    Skipped (last update: ${DAYS_AGO} days ago)"
+    echo "    Skipped (last checked ${DAYS_AGO} days ago; interval is 7 days)"
 fi
