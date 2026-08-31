@@ -15,7 +15,7 @@ exit 0
 # aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
 
-echo ":: [08] Installing remaining aqua tools"
+echo ":: [07] Installing remaining aqua tools"
 
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then

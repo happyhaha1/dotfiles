@@ -5,7 +5,7 @@
 # intentionally interactive. After install, run `mihoro init` yourself.
 set -euo pipefail
 
-echo ":: [11] mihoro install"
+echo ":: [10] mihoro install"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "    Skipped (Linux only)"
@@ -33,7 +33,7 @@ TARBALL="mihoro-${VERSION}-${ARCH}-unknown-linux-gnu.tar.gz"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-echo ":: [11] Installing mihoro ${VERSION} (${ARCH})"
+echo ":: [10] Installing mihoro ${VERSION} (${ARCH})"
 curl -fsSL --retry 3 -o "$TMP_DIR/$TARBALL" \
     "$BASE/spencerwooo/mihoro/releases/download/${VERSION}/${TARBALL}"
 echo "${SHA256}  ${TMP_DIR}/${TARBALL}" | sha256sum -c -
@@ -51,4 +51,4 @@ if [[ -d "$HOME/.config/fish" ]]; then
 fi
 
 "$HOME/.local/bin/mihoro" --version
-echo ":: [11] mihoro installed. Next step: run 'mihoro init' (asks for your subscription URL)."
+echo ":: [10] mihoro installed. Next step: run 'mihoro init' (asks for your subscription URL)."
