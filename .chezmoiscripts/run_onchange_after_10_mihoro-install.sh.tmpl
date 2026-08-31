@@ -54,11 +54,14 @@ fi
 
 echo ":: [10] Checking mihoro initialization state"
 MIHORO_CONFIG="$HOME/.config/mihoro.toml"
-MIHOMO_CONFIG="$HOME/.config/mihomo/config.yaml"
 
-if [[ -f "$MIHOMO_CONFIG" ]]; then
-    # init already ran (its remote-config stage creates config.yaml) — nothing to do.
-    echo "    Already initialized (config.yaml present), skipping init"
+# NOTE: do NOT use ~/.config/mihomo/config.yaml existence as the signal —
+# it is a generated artifact (rewritten by every `mihoro update`) and may
+# itself be chezmoi-managed. Service enablement can only come from a real
+# init (systemctl --user enable), which file deployment cannot fake.
+if systemctl --user is-enabled --quiet mihomo.service 2>/dev/null; then
+    # init already ran (service written, enabled and started) — nothing to do.
+    echo "    Already initialized (mihomo.service enabled), skipping init"
 elif [[ -f "$MIHORO_CONFIG" ]] && grep -Eq '^remote_config_url[[:space:]]*=[[:space:]]*"[^"]+"' "$MIHORO_CONFIG"; then
     # mihoro.toml deployed (by chezmoi) with a subscription URL: init is
     # fully non-interactive in this state.
