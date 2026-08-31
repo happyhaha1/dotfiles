@@ -18,6 +18,16 @@ stylua.toml
 treefmt.toml
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Omarchy (Linux): manual-migration mode — manage nothing by default.
+# Files are adopted gradually from the Omarchy machine via `chezmoi add`.
+# To manage a target there, delete this block or add an exception AFTER it
+# (last matching pattern wins), e.g. `!/.config/fish`.
+# ─────────────────────────────────────────────────────────────────────────────
+{{- if and (hasKey . "omarchy") .omarchy }}
+**
+{{- end }}
+
 # Headless/server exclusions (no GUI, reserved for future use)
 # ─────────────────────────────────────────────────────────────────────────────
 {{- if .headless }}
