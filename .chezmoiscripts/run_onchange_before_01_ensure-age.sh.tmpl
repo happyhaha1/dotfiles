@@ -5,6 +5,8 @@
 
 set -eu
 
+echo ":: [01] Ensuring age is available"
+
 info() { printf '\033[1;32minfo:\033[0m %s\n' "$1" >&2; }
 warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$1" >&2; }
 

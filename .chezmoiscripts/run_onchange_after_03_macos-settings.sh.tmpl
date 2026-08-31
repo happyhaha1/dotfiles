@@ -2,6 +2,8 @@
 # Apply the macOS settings managed by this chezmoi repository.
 set -euo pipefail
 
+echo ":: [03] Applying macOS settings"
+
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "    Skipped (macOS only)"
     exit 0
