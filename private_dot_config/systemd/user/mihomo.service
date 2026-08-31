@@ -3,14 +3,19 @@ Description=mihomo (liuran001 fork: smart + eBPF + Tailscale)
 After=network-online.target nss-lookup.target
 Wants=network-online.target
 
+# NOTE: do NOT add CapabilityBoundingSet=/AmbientCapabilities= here.
+# The systemd USER manager lacks CAP_SETPCAP, so any bounding-set edit
+# fails with "Failed to drop capabilities / Failed at step CAPABILITIES
+# spawning". Privileges come from file capabilities on the binary instead
+# (the install script runs: setcap cap_net_admin,cap_net_bind_service,
+# cap_net_raw,cap_bpf+ep ~/.local/bin/mihomo) — re-applied by the script
+# whenever the kernel binary is replaced.
+
 [Service]
 Type=simple
 ExecStart=%h/.local/bin/mihomo -d %h/.config/mihomo
 Restart=on-failure
 RestartSec=3
-# eBPF cgroup attach / TC attach, DNS hijack bind on :53
-AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF
-CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF
 
 [Install]
 WantedBy=default.target
