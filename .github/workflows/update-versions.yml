@@ -32,6 +32,9 @@ jobs:
           paperlib=$(gh release view --repo Future-Scholars/paperlib --json tagName -q '.tagName' | sed 's/release-electron-//')
           # google-cloud-sdk mirror repo publishes tags (not GitHub Releases)
           gcloud_version=$(gh api repos/twistedpair/google-cloud-sdk/tags --jq '.[0].name')
+          mihoro_version=$(gh release view --repo spencerwooo/mihoro --json tagName -q '.tagName')
+          mihoro_sha256_x86_64=$(curl_sha256 "https://github.com/spencerwooo/mihoro/releases/download/${mihoro_version}/mihoro-${mihoro_version}-x86_64-unknown-linux-gnu.tar.gz")
+          mihoro_sha256_aarch64=$(curl_sha256 "https://github.com/spencerwooo/mihoro/releases/download/${mihoro_version}/mihoro-${mihoro_version}-aarch64-unknown-linux-gnu.tar.gz")
 
           claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
           claude_wshobson_agents_sha256=$(curl_sha256 "https://github.com/wshobson/agents/archive/${claude_wshobson_agents_rev}.tar.gz")
@@ -65,6 +68,9 @@ jobs:
             echo "aqua_version=$aqua_version"
             echo "paperlib=$paperlib"
             echo "gcloud_version=$gcloud_version"
+            echo "mihoro_version=$mihoro_version"
+            echo "mihoro_sha256_x86_64=$mihoro_sha256_x86_64"
+            echo "mihoro_sha256_aarch64=$mihoro_sha256_aarch64"
             echo "claude_wshobson_agents_rev=$claude_wshobson_agents_rev"
             echo "claude_wshobson_agents_sha256=$claude_wshobson_agents_sha256"
             echo "claude_superpowers_rev=$claude_superpowers_rev"
@@ -98,6 +104,9 @@ jobs:
           sed -i 's/aquaVersion: .*/aquaVersion: ${{ steps.versions.outputs.aqua_version }}/' .chezmoidata/versions.yaml
           sed -i 's/paperlib: .*/paperlib: ${{ steps.versions.outputs.paperlib }}/' .chezmoidata/versions.yaml
           sed -i 's/gcloudVersion: .*/gcloudVersion: ${{ steps.versions.outputs.gcloud_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/mihoroVersion: .*/mihoroVersion: ${{ steps.versions.outputs.mihoro_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/mihoroSha256X86_64: .*/mihoroSha256X86_64: ${{ steps.versions.outputs.mihoro_sha256_x86_64 }}/' .chezmoidata/versions.yaml
+          sed -i 's/mihoroSha256Aarch64: .*/mihoroSha256Aarch64: ${{ steps.versions.outputs.mihoro_sha256_aarch64 }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeWshobsonAgentsRev: .*/claudeWshobsonAgentsRev: ${{ steps.versions.outputs.claude_wshobson_agents_rev }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeWshobsonAgentsSha256: .*/claudeWshobsonAgentsSha256: ${{ steps.versions.outputs.claude_wshobson_agents_sha256 }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeSuperpowersRev: .*/claudeSuperpowersRev: ${{ steps.versions.outputs.claude_superpowers_rev }}/' .chezmoidata/versions.yaml
@@ -154,6 +163,7 @@ jobs:
             | aqua | `${{ steps.versions.outputs.aqua_version }}` |
              | paperlib | `${{ steps.versions.outputs.paperlib }}` |
              | google-cloud-sdk | `${{ steps.versions.outputs.gcloud_version }}` |
+            | mihoro | `${{ steps.versions.outputs.mihoro_version }}` |
             | openai/skills | `${{ steps.versions.outputs.openai_skills_rev }}` |
             | huggingface/skills | `${{ steps.versions.outputs.huggingface_skills_rev }}` |
             | getsentry/skills | `${{ steps.versions.outputs.getsentry_skills_rev }}` |

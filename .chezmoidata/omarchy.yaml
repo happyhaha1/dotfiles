@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Targets NOT managed on Omarchy (manual-migration mode).
+#
+# Semantics: on an Omarchy machine, chezmoi manages everything in this repo
+# EXCEPT the entries below. ~/.config/mihoro.toml is deliberately absent, so
+# it IS managed there. To adopt a file on Omarchy, delete its line here.
+# ─────────────────────────────────────────────────────────────────────────────
+omarchyIgnoreList:
+  # macOS-only software
+  - .Brewfile
+  - .config/aerospace
+  - .config/raycast
+  - .config/cmux
+  - .config/surge
+  # Not yet adopted on Omarchy (remove a line to opt in)
+  - Justfile
+  - .pi
+  - .ssh
+  - .config/aquaproj-aqua
+  - .config/atuin
+  - .config/bat
+  - .config/delta
+  - .config/direnv
+  - .config/fish
+  - .config/fzf
+  - .config/gh
+  - .config/gh-dash
+  - .config/ghostty
+  - .config/git
+  - .config/herdr
+  - .config/lazygit
+  - .config/mise
+  - .config/nvim
+  - .config/omnyssh
+  - .config/opencode
+  - .config/yazi
+  - .config/zellij
+  - .config/starship.toml

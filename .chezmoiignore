@@ -18,14 +18,15 @@ stylua.toml
 treefmt.toml
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Omarchy (Linux): manual-migration mode.
+# Everything listed in .chezmoidata/omarchy.yaml (omarchyIgnoreList) is NOT
+# managed on Omarchy; anything NOT listed (e.g. ~/.config/mihoro.toml) is.
+# To adopt a file on Omarchy, remove its line from that list.
 # ─────────────────────────────────────────────────────────────────────────────
-# Omarchy (Linux): manual-migration mode — manage nothing by default.
-# Files are adopted gradually from the Omarchy machine via `chezmoi add`.
-# To manage a target there, delete this block or add an exception AFTER it
-# (last matching pattern wins), e.g. `!/.config/fish`.
-# ─────────────────────────────────────────────────────────────────────────────
-{{- if and (hasKey . "omarchy") .omarchy }}
-**
+{{- if and (hasKey . "omarchy") .omarchy -}}
+{{- range .omarchyIgnoreList }}
+{{ . }}
+{{- end }}
 {{- end }}
 
 # Headless/server exclusions (no GUI, reserved for future use)
@@ -47,4 +48,3 @@ treefmt.toml
 .ssh/*
 .config/omnyssh/hosts.toml
 {{- end }}
-

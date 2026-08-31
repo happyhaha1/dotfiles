@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Install pinned mihoro (mihomo CLI manager) with checksum verification.
+# Linux only; binary goes to ~/.local/bin (already on PATH via fish config).
+# mihoro init is NOT run here: it asks for your subscription URL, which is
+# intentionally interactive. After install, run `mihoro init` yourself.
+set -euo pipefail
+
+echo ":: [11] mihoro install"
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Linux only)"
+    exit 0
+fi
+
+VERSION="{{ .versions.mihoroVersion }}"
+case "$(uname -m)" in
+    x86_64)  ARCH="x86_64";  SHA256="{{ .versions.mihoroSha256X86_64 }}" ;;
+    aarch64) ARCH="aarch64"; SHA256="{{ .versions.mihoroSha256Aarch64 }}" ;;
+    *)
+        echo "error: unsupported architecture: $(uname -m)" >&2
+        exit 1
+        ;;
+esac
+
+# MIHORO_GITHUB_MIRROR: optional mirror for GitHub downloads, e.g.
+#   MIHORO_GITHUB_MIRROR=https://gh-proxy.org chezmoi apply
+BASE="https://github.com"
+if [[ -n "${MIHORO_GITHUB_MIRROR:-}" ]]; then
+    BASE="${MIHORO_GITHUB_MIRROR}/https://github.com"
+fi
+
+TARBALL="mihoro-${VERSION}-${ARCH}-unknown-linux-gnu.tar.gz"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+echo ":: [11] Installing mihoro ${VERSION} (${ARCH})"
+curl -fsSL --retry 3 -o "$TMP_DIR/$TARBALL" \
+    "$BASE/spencerwooo/mihoro/releases/download/${VERSION}/${TARBALL}"
+echo "${SHA256}  ${TMP_DIR}/${TARBALL}" | sha256sum -c -
+
+# The tarball contains a bare `mihoro` binary at its root.
+tar -xzf "$TMP_DIR/$TARBALL" -C "$TMP_DIR"
+mkdir -p "$HOME/.local/bin"
+install -m 0755 "$TMP_DIR/mihoro" "$HOME/.local/bin/mihoro"
+
+# Fish completions (only when fish is in use, to avoid stray directories).
+if [[ -d "$HOME/.config/fish" ]]; then
+    mkdir -p "$HOME/.config/fish/completions"
+    "$HOME/.local/bin/mihoro" completions fish \
+        > "$HOME/.config/fish/completions/mihoro.fish" 2>/dev/null || true
+fi
+
+"$HOME/.local/bin/mihoro" --version
+echo ":: [11] mihoro installed. Next step: run 'mihoro init' (asks for your subscription URL)."
