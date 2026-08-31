@@ -17,6 +17,12 @@ ensure_age() {
     if command -v brew >/dev/null 2>&1; then
         info "installing age via Homebrew..."
         brew install age || warn "failed to install age via Homebrew"
+    elif command -v omarchy-pkg-add >/dev/null 2>&1; then
+        info "installing age via omarchy pkg add..."
+        omarchy-pkg-add age || warn "failed to install age via omarchy pkg add"
+    elif command -v pacman >/dev/null 2>&1; then
+        info "installing age via pacman..."
+        sudo pacman -S --needed --noconfirm age || warn "failed to install age via pacman"
     fi
 
     # Make age findable on the default PATH for chezmoi's own process. The
