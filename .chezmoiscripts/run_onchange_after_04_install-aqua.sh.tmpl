@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+{{- if and (hasKey . "omarchy") .omarchy }}
+echo "    Skipped (Omarchy: aqua managed-off — delete this guard in source to opt in)"
+exit 0
+{{- end }}
+
 echo ":: [04] Installing aqua"
 
 # --- Version (pinned in .chezmoidata/versions.yaml, auto-updated by GitHub Actions) ---

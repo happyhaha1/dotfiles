@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+{{- if and (hasKey . "omarchy") .omarchy }}
+echo "    Skipped (Omarchy: aqua bootstrap managed-off — delete this guard in source to opt in)"
+exit 0
+{{- end }}
+
 {{ $aquaConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua.yaml" -}}
 {{ $aquaRegistry := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/registry.yaml" -}}
 {{ $aquaPolicy := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-policy.yaml" -}}

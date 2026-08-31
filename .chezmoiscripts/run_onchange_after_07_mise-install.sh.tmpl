@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+{{- if and (hasKey . "omarchy") .omarchy }}
+echo "    Skipped (Omarchy: mise install managed-off — Omarchy ships its own mise; delete this guard in source to opt in)"
+exit 0
+{{- end }}
+
 {{ $miseConfig := joinPath .chezmoi.homeDir ".config/mise/config.toml" -}}
 {{ $aquaConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua.yaml" -}}
 {{ $aquaPolicy := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-policy.yaml" -}}
