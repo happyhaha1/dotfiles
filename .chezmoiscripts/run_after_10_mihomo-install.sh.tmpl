@@ -77,11 +77,13 @@ else
     echo "$BUILD" > "$STAMP"
 fi
 
-# eBPF (cgroup/TC attach), DNS hijack (:53) need capabilities. File caps on
-# the binary cover direct runs AND the user service; they are lost whenever
-# the binary is replaced — re-applied on every install above.
+# eBPF (cgroup/TC attach), DNS hijack (:53) need capabilities. cap_sys_admin
+# is required by the kernel's privileged-load check for this fork's BPF
+# programs (without it the verifier treats the process as !root and rejects
+# the program). File caps cover direct runs AND the user service; they are
+# lost whenever the binary is replaced — re-applied on every install above.
 if command -v setcap >/dev/null 2>&1; then
-    sudo setcap cap_net_admin,cap_net_bind_service,cap_net_raw,cap_bpf+ep "$BIN" \
+    sudo setcap cap_net_admin,cap_net_bind_service,cap_net_raw,cap_bpf,cap_sys_admin+ep "$BIN" \
         || echo "warn: setcap failed — eBPF inbound and DNS :53 will not work" >&2
 else
     echo "warn: setcap not found (install libcap) — eBPF inbound and DNS :53 will not work" >&2
