@@ -51,4 +51,20 @@ if [[ -d "$HOME/.config/fish" ]]; then
 fi
 
 "$HOME/.local/bin/mihoro" --version
-echo ":: [10] mihoro installed. Next step: run 'mihoro init' (asks for your subscription URL)."
+
+echo ":: [10] Checking mihoro initialization state"
+MIHORO_CONFIG="$HOME/.config/mihoro.toml"
+MIHOMO_CONFIG="$HOME/.config/mihomo/config.yaml"
+
+if [[ -f "$MIHOMO_CONFIG" ]]; then
+    # init already ran (its remote-config stage creates config.yaml) — nothing to do.
+    echo "    Already initialized (config.yaml present), skipping init"
+elif [[ -f "$MIHORO_CONFIG" ]] && grep -Eq '^remote_config_url[[:space:]]*=[[:space:]]*"[^"]+"' "$MIHORO_CONFIG"; then
+    # mihoro.toml deployed (by chezmoi) with a subscription URL: init is
+    # fully non-interactive in this state.
+    echo "    Not initialized yet, running: mihoro init --yes"
+    "$HOME/.local/bin/mihoro" init --yes
+else
+    echo "    Not initialized and no subscription URL found in ~/.config/mihoro.toml"
+    echo "    → edit remote_config_url there, then run: mihoro init --yes"
+fi
