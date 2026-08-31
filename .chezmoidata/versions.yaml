@@ -12,6 +12,5 @@ versions:
   uiUxProMaxSkillSha256: 4516deaaafeacadc1c373b63c43fd580b2446f65cdc990a0e5f9a522cedf7b52
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
-  mihoroVersion: v0.14.0
-  mihoroSha256X86_64: 7cb55db40ff2faad583593f1c527f5d292656ee0915fe3bcff1001c5972b434a
-  mihoroSha256Aarch64: 8aa977e6da619719ecacab60295b835c19a3975c1e4562e2d8f6813b79f4861d
+  mihomoForkBuild: 60558cf
+  zashboardVersion: v3.24.0

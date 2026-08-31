@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Install the liuran001/mihomo fork kernel (smart + eBPF + Tailscale), the
+# zashboard web UI, and bring up the mihomo.service user unit.
+#
+# The kernel config (~/.config/mihomo/config.yaml) is a FULL static config
+# managed by chezmoi — do NOT run `mihomo update --config/--all` (it would
+# overwrite it via remote_config_url) or `mihomo update --core` (it would
+# replace this fork with official MetaCubeX). Kernel updates = bump
+# mihomoForkBuild in .chezmoidata/versions.yaml (CI does this) and re-apply.
+set -euo pipefail
+
+echo ":: [10] mihomo (fork kernel) install"
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Linux only)"
+    exit 0
+fi
+
+BUILD="{{ .versions.mihomoForkBuild }}"
+ZASHABOARD_VERSION="{{ .versions.zashboardVersion }}"
+TAG="Prerelease-Alpha"
+REPO="liuran001/mihomo"
+
+# --- arch / x86-64 microarch level ---
+case "$(uname -m)" in
+    x86_64)
+        if grep -qw avx2 /proc/cpuinfo 2>/dev/null; then MARCH="amd64-v3"; else MARCH="amd64-compatible"; fi
+        ;;
+    aarch64) MARCH="arm64" ;;
+    *)
+        echo "error: unsupported architecture: $(uname -m)" >&2
+        exit 1
+        ;;
+esac
+
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+asset_url() {
+    echo "https://github.com/${REPO}/releases/download/${TAG}/mihomo-linux-${MARCH}-alpha-smart-${1}.gz"
+}
+
+ASSET_URL="$(asset_url "$BUILD")"
+# The rolling tag replaces assets on every build; if the pinned build is gone,
+# resolve the current one via the GitHub API.
+if ! curl -fsIL -o /dev/null "${ASSET_URL}"; then
+    echo "    pinned build ${BUILD} no longer present, resolving latest via GitHub API"
+    BUILD=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/tags/${TAG}" \
+        | grep -oE "mihomo-linux-${MARCH}-alpha-smart-[0-9a-f]+\.gz" \
+        | head -1 | sed -E 's/.*smart-([0-9a-f]+)\.gz/\1/')
+    if [[ -z "$BUILD" ]]; then
+        echo "error: could not resolve a kernel build from ${TAG}" >&2
+        exit 1
+    fi
+    ASSET_URL="$(asset_url "$BUILD")"
+fi
+
+echo "    downloading kernel build ${BUILD} (${MARCH})"
+curl -fsSL --retry 3 -o "$TMP_DIR/kernel.gz" "$ASSET_URL"
+gunzip -c "$TMP_DIR/kernel.gz" > "$TMP_DIR/mihomo"
+
+mkdir -p "$HOME/.local/bin"
+install -m 0755 "$TMP_DIR/mihomo" "$HOME/.local/bin/mihomo"
+
+# eBPF (cgroup/TC attach), DNS hijack (:53) need capabilities. The unit also
+# declares AmbientCapabilities; file caps cover non-systemd direct runs.
+# NOTE: caps are lost whenever the binary is replaced — re-run to re-apply.
+if command -v setcap >/dev/null 2>&1; then
+    sudo setcap cap_net_admin,cap_net_bind_service,cap_net_raw,cap_bpf+ep \
+        "$HOME/.local/bin/mihomo" \
+        || echo "warn: setcap failed — eBPF inbound and DNS :53 will not work" >&2
+else
+    echo "warn: setcap not found (install libcap) — eBPF inbound and DNS :53 will not work" >&2
+fi
+
+# --- zashboard web UI -> served at http://127.0.0.1:9090/ui ---
+ZURL="https://github.com/Zephyruso/zashboard/releases/download/${ZASHABOARD_VERSION}/dist.zip"
+if [[ "$(curl -fsIL -o /dev/null -w '%{http_code}' "$ZURL" 2>/dev/null || true)" == 404 ]]; then
+    echo "warn: zashboard ${ZASHABOARD_VERSION} not found, falling back to latest"
+    ZURL="https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+fi
+echo "    downloading zashboard ${ZASHABOARD_VERSION}"
+curl -fsSL --retry 3 -o "$TMP_DIR/dist.zip" "$ZURL"
+mkdir -p "$HOME/.config/mihomo/ui"
+if command -v unzip >/dev/null 2>&1; then
+    unzip -oq "$TMP_DIR/dist.zip" -d "$TMP_DIR/ui"
+elif command -v python3 >/dev/null 2>&1; then
+    python3 -m zipfile -e "$TMP_DIR/dist.zip" "$TMP_DIR/ui"
+else
+    echo "warn: neither unzip nor python3 available — skipping zashboard deploy" >&2
+fi
+[[ -d "$TMP_DIR/ui/dist" ]] && cp -R "$TMP_DIR/ui/dist/." "$HOME/.config/mihomo/ui/"
+
+# --- bring up the user service (unit deployed by chezmoi) ---
+systemctl --user daemon-reload
+systemctl --user enable --now mihomo.service
+
+"$HOME/.local/bin/mihomo" -v | head -1
+echo ":: [10] done — dashboard: http://127.0.0.1:9090/ui"

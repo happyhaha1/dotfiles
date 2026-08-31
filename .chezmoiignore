@@ -30,10 +30,11 @@ treefmt.toml
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────────────
-# macOS: mihoro is Linux-only (macOS uses Surge) — never deploy its config here
+# macOS: mihomo (fork kernel) is Linux-only (macOS uses Surge)
 # ─────────────────────────────────────────────────────────────────────────────────────
 {{- if eq .chezmoi.os "darwin" }}
-.config/mihoro.toml
+.config/mihomo/
+.config/systemd/
 {{- end }}
 
 # Headless/server exclusions (no GUI, reserved for future use)

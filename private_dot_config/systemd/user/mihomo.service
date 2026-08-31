@@ -1,0 +1,16 @@
+[Unit]
+Description=mihomo (liuran001 fork: smart + eBPF + Tailscale)
+After=network-online.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/mihomo -d %h/.config/mihomo
+Restart=on-failure
+RestartSec=3
+# eBPF cgroup attach / TC attach, DNS hijack bind on :53
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF
+
+[Install]
+WantedBy=default.target
