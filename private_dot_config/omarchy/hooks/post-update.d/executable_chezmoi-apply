@@ -1,7 +1,0 @@
-#!/bin/bash
-# Restore chezmoi-managed state after `omarchy update`.
-# Omarchy migrations may modify ~/.config files that this dotfiles repo
-# owns; re-applying keeps our overrides canonical. Runs via the Omarchy
-# post-update hook (~/.config/omarchy/hooks/post-update.d/).
-command -v chezmoi >/dev/null 2>&1 || exit 0
-chezmoi apply

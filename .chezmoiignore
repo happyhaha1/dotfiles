@@ -18,25 +18,6 @@ stylua.toml
 treefmt.toml
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ─────────────────────────────────────────────────────────────────────────────
-# Platform: macOS-only software (skip on Linux)
-# ─────────────────────────────────────────────────────────────────────────────
-{{- if ne .chezmoi.os "darwin" }}
-.Brewfile
-.config/aerospace/
-.config/raycast/
-.config/cmux/
-.config/surge/
-{{- end }}
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Platform: Linux/Omarchy-only software (skip on macOS)
-# ─────────────────────────────────────────────────────────────────────────────
-{{- if ne .chezmoi.os "linux" }}
-.config/hypr/
-.config/omarchy/
-{{- end }}
-
 # Headless/server exclusions (no GUI, reserved for future use)
 # ─────────────────────────────────────────────────────────────────────────────
 {{- if .headless }}
