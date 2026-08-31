@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# Ensure the liuran001/mihomo fork kernel (smart + eBPF + Tailscale) and the
-# zashboard web UI are installed, then bring up the mihomo.service user unit.
+# Install the liuran001/mihomo fork kernel (smart + eBPF + Tailscale) as a
+# ROOT system service, plus the zashboard web UI.
 #
-# Runs on EVERY apply (plain run_after_): self-heals a missing binary,
-# re-downloads when CI bumps mihomoForkBuild, skips when already current.
+# Root is required: the fork's eBPF cgroup/TC programs are rejected by the
+# BPF verifier for unprivileged processes ("prohibited for !root"), and
+# file-capability workarounds under a systemd user service don't survive
+# its capability checks.
 #
-# ⚠️ The kernel config (~/.config/mihomo/config.yaml) is a FULL static config
-# managed by chezmoi — never fetch a remote subscription as the main config,
-# and never replace this fork with official MetaCubeX (no eBPF/smart/tailscale).
+# ⚠️ The kernel config is a FULL static config managed by chezmoi at
+# $HOME/.config/mihomo/config.yaml — never fetch a remote subscription as
+# the main config, and never replace this fork with official MetaCubeX.
 set -euo pipefail
 
-echo ":: [10] mihomo (fork kernel) ensure"
+echo ":: [10] mihomo (fork kernel, system service) install"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "    Skipped (Linux only)"
@@ -21,8 +23,8 @@ BUILD="{{ .versions.mihomoForkBuild }}"
 ZASHABOARD_VERSION="{{ .versions.zashboardVersion }}"
 TAG="Prerelease-Alpha"
 REPO="liuran001/mihomo"
-BIN="$HOME/.local/bin/mihomo"
-STAMP="$HOME/.cache/mihomo-fork-build"
+BIN="/usr/local/bin/mihomo"
+CONFIG_DIR="$HOME/.config/mihomo"
 
 # --- arch / x86-64 microarch level ---
 case "$(uname -m)" in
@@ -41,13 +43,14 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 # --- kernel: install when missing or older than the pinned build ---
 INSTALLED_BUILD=""
-[[ -x "$BIN" ]] && INSTALLED_BUILD=$(cat "$STAMP" 2>/dev/null || echo "unknown")
+[[ -x "$BIN" ]] && INSTALLED_BUILD=$(cat "$HOME/.cache/mihomo-fork-build" 2>/dev/null || echo "unknown")
 
 if [[ -x "$BIN" && "$INSTALLED_BUILD" == "$BUILD" ]]; then
     echo "    kernel ${BUILD} already installed, skipping download"
 else
-    [[ -x "$BIN" ]] || echo "    kernel binary missing — reinstalling"
-    [[ "$INSTALLED_BUILD" != "$BUILD" ]] && echo "    updating kernel: ${INSTALLED_BUILD:-none} -> ${BUILD}"
+    [[ -x "$BIN" ]] || echo "    kernel binary missing — installing"
+    [[ "$INSTALLED_BUILD" != "$BUILD" && "$INSTALLED_BUILD" != "unknown" ]] \
+        && echo "    updating kernel: ${INSTALLED_BUILD} -> ${BUILD}"
 
     asset_url() {
         echo "https://github.com/${REPO}/releases/download/${TAG}/mihomo-linux-${MARCH}-alpha-smart-${1}.gz"
@@ -71,26 +74,12 @@ else
     echo "    downloading kernel build ${BUILD} (${MARCH})"
     curl -fsSL --retry 3 -o "$TMP_DIR/kernel.gz" "$ASSET_URL"
     gunzip -c "$TMP_DIR/kernel.gz" > "$TMP_DIR/mihomo"
-
-    mkdir -p "$HOME/.local/bin" "$(dirname "$STAMP")"
-    install -m 0755 "$TMP_DIR/mihomo" "$BIN"
-    echo "$BUILD" > "$STAMP"
-fi
-
-# eBPF (cgroup/TC attach), DNS hijack (:53) need capabilities. cap_sys_admin
-# is required by the kernel's privileged-load check for this fork's BPF
-# programs (without it the verifier treats the process as !root and rejects
-# the program). File caps cover direct runs AND the user service; they are
-# lost whenever the binary is replaced — re-applied on every install above.
-if command -v setcap >/dev/null 2>&1; then
-    sudo setcap cap_net_admin,cap_net_bind_service,cap_net_raw,cap_bpf,cap_sys_admin+ep "$BIN" \
-        || echo "warn: setcap failed — eBPF inbound and DNS :53 will not work" >&2
-else
-    echo "warn: setcap not found (install libcap) — eBPF inbound and DNS :53 will not work" >&2
+    sudo install -m 0755 "$TMP_DIR/mihomo" "$BIN"
+    echo "$BUILD" | sudo tee "$HOME/.cache/mihomo-fork-build" >/dev/null
 fi
 
 # --- zashboard web UI -> served at http://127.0.0.1:9090/ui ---
-if [[ -f "$HOME/.config/mihomo/ui/index.html" ]]; then
+if [[ -f "$CONFIG_DIR/ui/index.html" ]]; then
     echo "    zashboard already deployed, skipping"
 else
     ZURL="https://github.com/Zephyruso/zashboard/releases/download/${ZASHABOARD_VERSION}/dist.zip"
@@ -100,7 +89,7 @@ else
     fi
     echo "    downloading zashboard ${ZASHABOARD_VERSION}"
     curl -fsSL --retry 3 -o "$TMP_DIR/dist.zip" "$ZURL"
-    mkdir -p "$HOME/.config/mihomo/ui"
+    mkdir -p "$CONFIG_DIR/ui"
     if command -v unzip >/dev/null 2>&1; then
         unzip -oq "$TMP_DIR/dist.zip" -d "$TMP_DIR/ui"
     elif command -v python3 >/dev/null 2>&1; then
@@ -108,12 +97,33 @@ else
     else
         echo "warn: neither unzip nor python3 available — skipping zashboard deploy" >&2
     fi
-    [[ -d "$TMP_DIR/ui/dist" ]] && cp -R "$TMP_DIR/ui/dist/." "$HOME/.config/mihomo/ui/"
+    [[ -d "$TMP_DIR/ui/dist" ]] && cp -R "$TMP_DIR/ui/dist/." "$CONFIG_DIR/ui/"
 fi
 
-# --- bring up the user service (unit deployed by chezmoi) ---
-systemctl --user daemon-reload
-systemctl --user enable --now mihomo.service
+# --- clean up the old user-service era ---
+systemctl --user disable --now mihomo.service 2>/dev/null || true
+rm -f "$HOME/.local/bin/mihomo"
+
+# --- system unit (root) ---
+sudo tee /etc/systemd/system/mihomo.service >/dev/null <<UNIT
+[Unit]
+Description=mihomo (liuran001 fork: smart + eBPF + Tailscale)
+After=network-online.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mihomo -d ${CONFIG_DIR}
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now mihomo.service
 
 "$BIN" -v | head -1
 echo ":: [10] done — dashboard: http://127.0.0.1:9090/ui"
+echo "    service: sudo systemctl status mihomo | journalctl -u mihomo"
