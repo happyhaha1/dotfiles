@@ -33,6 +33,12 @@ warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$1" >&2; }
 
 info "applying macOS defaults"
 
+# Menu bar clock.
+defaults_write com.apple.menuextra.clock Show24Hour -bool true
+defaults_write com.apple.menuextra.clock ShowSeconds -bool false
+defaults_write com.apple.menuextra.clock ShowDayOfWeek -bool true
+defaults_write com.apple.menuextra.clock ShowDate -int 1
+
 # Global preferences.
 defaults_write NSGlobalDomain _HIHideMenuBar -bool false
 defaults_write NSGlobalDomain com.apple.swipescrolldirection -bool false
@@ -92,6 +98,9 @@ defaults_write com.apple.AdLib allowApplePersonalizedAdvertising -bool false
 defaults_write com.apple.ImageCapture disableHotPlug -bool true
 defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 '<dict><key>enabled</key><false/></dict>'
 defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 '<dict><key>enabled</key><false/></dict>'
+# Keep Mission Control Spaces navigation on Ctrl+Left/Right.
+defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 79 '<dict><key>enabled</key><true/><key>value</key><dict><key>parameters</key><array><integer>65535</integer><integer>123</integer><integer>8650752</integer></array><key>type</key><string>standard</string></dict></dict>'
+defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 81 '<dict><key>enabled</key><true/><key>value</key><dict><key>parameters</key><array><integer>65535</integer><integer>124</integer><integer>8650752</integer></array><key>type</key><string>standard</string></dict></dict>'
 defaults_write com.apple.loginwindow GuestEnabled -bool false
 defaults_write com.apple.loginwindow SHOWFULLNAME -bool true
 
@@ -112,8 +121,12 @@ if command -v scutil >/dev/null 2>&1; then
 fi
 
 # Time zone.
-if command -v systemsetup >/dev/null 2>&1; then
-    sudo systemsetup -settimezone "{{ .timezone }}" >/dev/null
+desired_timezone="{{ .timezone }}"
+current_timezone="$(readlink /etc/localtime 2>/dev/null | sed -E 's#.*/zoneinfo/##')"
+if command -v systemsetup >/dev/null 2>&1 && [[ "$current_timezone" != "$desired_timezone" ]]; then
+    if ! sudo systemsetup -settimezone "$desired_timezone" >/dev/null 2>/dev/null; then
+        warn "failed to set timezone to $desired_timezone"
+    fi
 fi
 
 # Power management.
