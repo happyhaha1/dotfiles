@@ -8,7 +8,7 @@ exit 0
 {{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
-{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml" -}}
+{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
 {{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
 # Changing any managed Fcitx/Rime file reruns this pre-apply stop.
 # profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}

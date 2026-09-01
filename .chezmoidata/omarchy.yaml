@@ -7,9 +7,19 @@ omarchyPackages:
     # Fcitx5 Chinese input components managed by this dotfiles repository.
     - fcitx5-chinese-addons
     - fcitx5-configtool
-    # Rime engine; its librime-data dependency pulls luna_pinyin_simp.
+    # Rime engine; librime-data provides the baseline Rime schemas.
     - fcitx5-rime
     # age and voxtype-bin are intentionally not managed by this list.
+  work: []
+  private: []
+
+# AUR packages managed by this dotfiles repository. These are kept separate
+# from official packages because installation uses `omarchy pkg aur add`.
+omarchyAurPackages:
+  shared:
+    # 雾凇拼音全拼及万象简体语法模型。
+    - rime-ice-pinyin-git
+    - rime-wanxiang-gram-zh-hans
   work: []
   private: []
 

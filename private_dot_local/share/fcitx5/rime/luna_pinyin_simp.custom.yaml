@@ -1,7 +1,0 @@
-# Use CapsLock to toggle Chinese/English without changing the hardware lock.
-# Hyprland maps physical CapsLock to Menu; the Lua processor consumes Menu.
-patch:
-  ascii_composer/switch_key/Shift_L: noop
-  ascii_composer/switch_key/Shift_R: noop
-  ascii_composer/switch_key/Menu: noop
-  "engine/processors/@before 0": lua_processor@*capslock_toggle

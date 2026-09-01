@@ -1,5 +1,4 @@
 # Fcitx5-Rime user overrides.
-# Keep a single simplified full-pinyin schema.
+# Enable the 雾凇拼音 full-pinyin schema and its upstream defaults.
 patch:
-  schema_list:
-    - schema: luna_pinyin_simp
+  __include: rime_ice_suggestion:/

@@ -8,7 +8,7 @@ exit 0
 {{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
-{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml" -}}
+{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
 {{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
 # Changing the package list or any managed Fcitx/Rime file reruns this script.
 # profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
@@ -27,10 +27,24 @@ if [[ -e "$legacy_shift_lua" ]]; then
     rm -f "$legacy_shift_lua"
 fi
 
+# The old schema-specific override is no longer managed after switching from
+# luna_pinyin_simp to rime_ice, so remove the stale target explicitly.
+legacy_luna_config="$HOME/.local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml"
+if [[ -e "$legacy_luna_config" ]]; then
+    echo "    Removing obsolete luna_pinyin_simp override"
+    rm -f "$legacy_luna_config"
+fi
+
 packages=(
 {{ range .omarchyPackages.shared }}    {{ . | quote }}
 {{ end }}{{ if .work }}{{ range .omarchyPackages.work }}    {{ . | quote }}
 {{ end }}{{ end }}{{ if .private }}{{ range .omarchyPackages.private }}    {{ . | quote }}
+{{ end }}{{ end }})
+
+aur_packages=(
+{{ range .omarchyAurPackages.shared }}    {{ . | quote }}
+{{ end }}{{ if .work }}{{ range .omarchyAurPackages.work }}    {{ . | quote }}
+{{ end }}{{ end }}{{ if .private }}{{ range .omarchyAurPackages.private }}    {{ . | quote }}
 {{ end }}{{ end }})
 
 if ! command -v omarchy >/dev/null 2>&1; then
@@ -44,9 +58,12 @@ fi
 # manually installed packages untouched.
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
 state_file="$state_dir/omarchy-packages"
+aur_state_file="$state_dir/omarchy-aur-packages"
 state_tmp=""
+aur_state_tmp=""
 cleanup() {
     [[ -z "$state_tmp" ]] || rm -f "$state_tmp"
+    [[ -z "$aur_state_tmp" ]] || rm -f "$aur_state_tmp"
 }
 trap cleanup EXIT
 
@@ -55,11 +72,23 @@ for pkg in "${packages[@]}"; do
     [[ -n "$pkg" ]] && desired["$pkg"]=1
 done
 
+declare -A desired_aur=()
+for pkg in "${aur_packages[@]}"; do
+    [[ -n "$pkg" ]] && desired_aur["$pkg"]=1
+done
+
 declare -A previous=()
 if [[ -f "$state_file" ]]; then
     while IFS= read -r pkg; do
         [[ -n "$pkg" ]] && previous["$pkg"]=1
     done < "$state_file"
+fi
+
+declare -A previous_aur=()
+if [[ -f "$aur_state_file" ]]; then
+    while IFS= read -r pkg; do
+        [[ -n "$pkg" ]] && previous_aur["$pkg"]=1
+    done < "$aur_state_file"
 fi
 
 # Never infer ownership from pacman's explicit/dependency reason. Protect both
@@ -84,14 +113,21 @@ for manifest in \
     done < <(sed -E 's/[[:space:]]*#.*$//' "$manifest" | awk 'NF { print $1 }')
 done
 
-removed=()
+declare -A removed_set=()
 for pkg in "${!previous[@]}"; do
-    if [[ -z ${desired[$pkg]+x} && -z ${omarchy_base[$pkg]+x} ]]; then
-        removed+=("$pkg")
+    if [[ -z ${desired[$pkg]+x} && -z ${desired_aur[$pkg]+x} && -z ${omarchy_base[$pkg]+x} ]]; then
+        removed_set["$pkg"]=1
     fi
 done
-if ((${#removed[@]} > 0)); then
-    mapfile -t removed < <(printf '%s\n' "${removed[@]}" | sort -u)
+for pkg in "${!previous_aur[@]}"; do
+    if [[ -z ${desired[$pkg]+x} && -z ${desired_aur[$pkg]+x} && -z ${omarchy_base[$pkg]+x} ]]; then
+        removed_set["$pkg"]=1
+    fi
+done
+
+removed=()
+if ((${#removed_set[@]} > 0)); then
+    mapfile -t removed < <(printf '%s\n' "${!removed_set[@]}" | sort -u)
 fi
 
 if ((${#removed[@]} > 0)); then
@@ -107,22 +143,65 @@ if ((${#packages[@]} > 0)); then
     echo "    Ensuring declared packages: ${packages[*]}"
     omarchy pkg add "${packages[@]}"
 else
-    echo "    No Omarchy packages declared"
+    echo "    No official Omarchy packages declared"
 fi
 
-# Record ownership only after both removal and installation succeed. The state
-# file is machine-local and intentionally not part of the dotfiles repository.
+if ((${#aur_packages[@]} > 0)); then
+    echo "    Ensuring declared AUR packages: ${aur_packages[*]}"
+    omarchy pkg aur add "${aur_packages[@]}"
+else
+    echo "    No AUR packages declared"
+fi
+
+# Record ownership only after removal and both installation operations succeed.
+# These machine-local files are intentionally not part of the dotfiles repo.
 install -d -m 700 "$state_dir"
 state_tmp=$(mktemp "$state_dir/omarchy-packages.XXXXXX")
-chmod 600 "$state_tmp"
+aur_state_tmp=$(mktemp "$state_dir/omarchy-aur-packages.XXXXXX")
+chmod 600 "$state_tmp" "$aur_state_tmp"
 if ((${#packages[@]} > 0)); then
     printf '%s\n' "${packages[@]}" | sort -u > "$state_tmp"
 fi
+if ((${#aur_packages[@]} > 0)); then
+    printf '%s\n' "${aur_packages[@]}" | sort -u > "$aur_state_tmp"
+fi
 mv -f "$state_tmp" "$state_file"
 state_tmp=""
+mv -f "$aur_state_tmp" "$aur_state_file"
+aur_state_tmp=""
+
+fcitx_bus_ready() {
+    # Query the bus without calling fcitx5-remote. The latter can trigger the
+    # D-Bus activated fallback service while the Omarchy unit is still starting.
+    command -v busctl >/dev/null 2>&1 \
+        && busctl --user status org.fcitx.Fcitx5 >/dev/null 2>&1
+}
+
+wait_for_fcitx() {
+    for _ in {1..30}; do
+        if fcitx_bus_ready; then
+            return 0
+        fi
+        sleep 0.1
+    done
+    return 1
+}
+
+stop_dbus_activated_fcitx() {
+    local unit
+    while IFS= read -r unit; do
+        [[ -n "$unit" ]] || continue
+        echo "    Stopping competing D-Bus activated Fcitx5 unit: $unit"
+        systemctl --user stop "$unit" >/dev/null 2>&1 || true
+    done < <(
+        systemctl --user list-units --all --type=service --no-legend --no-pager \
+            | awk '$1 ~ /^dbus-.*org\\.fcitx\\.Fcitx5/ { print $1 }'
+    )
+}
 
 select_rime() {
     command -v fcitx5-remote >/dev/null 2>&1 || return 1
+    fcitx_bus_ready || return 1
 
     # systemd may report the service started just before its DBus name is
     # available, so retry briefly before giving up.
@@ -136,13 +215,28 @@ select_rime() {
     return 1
 }
 
-# Rime reads its schema and Lua processor when the engine starts. Restart the
-# Omarchy-managed service after installation or any managed config change,
-# then explicitly select Rime for the current Fcitx session.
+# Rime reads its schema and Lua processor when the engine starts. Remove the
+# generated default config so the next reload performs a fresh deployment.
+rime_dir="$HOME/.local/share/fcitx5/rime"
+if [[ -d "$rime_dir" ]]; then
+    rm -f "$rime_dir/default.yaml" "$rime_dir/build/default.yaml"
+fi
+
+# A D-Bus activation can race the Omarchy unit after it was stopped. Remove
+# transient fallback units first, then wait for the intended service to own the
+# name before sending any fcitx5-remote command (which otherwise can activate
+# another instance).
+stop_dbus_activated_fcitx
+
+# Restart the Omarchy-managed service after installation or any managed config
+# change, then wait for its D-Bus name before reloading Rime.
 if systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1; then
     echo "    Restarted omarchy-fcitx5.service"
-elif command -v fcitx5-remote >/dev/null 2>&1 && fcitx5-remote -r >/dev/null 2>&1; then
-    echo "    Reloaded the running Fcitx5 instance"
+    if wait_for_fcitx && fcitx5-remote -r >/dev/null 2>&1; then
+        echo "    Deployed Rime configuration"
+    fi
+elif wait_for_fcitx && fcitx5-remote -r >/dev/null 2>&1; then
+    echo "    Reloaded the running Fcitx5 instance and deployed Rime configuration"
 else
     echo "    Fcitx5 service is not running; it will use the config on next start"
 fi
