@@ -29,6 +29,13 @@ treefmt.toml
 {{- end }}
 {{- end }}
 
+# Fcitx5/Rime and Hyprland input integration are managed only on Omarchy.
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+.config/fcitx5/
+.local/share/fcitx5/
+.config/hypr/input.lua
+{{- end }}
+
 # ─────────────────────────────────────────────────────────────────────────────────────
 # macOS: mihomo (fork kernel) is Linux-only (macOS uses Surge)
 # ─────────────────────────────────────────────────────────────────────────────────────

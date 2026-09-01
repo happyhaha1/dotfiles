@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{- else }}
+{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
+{{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
+{{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
+{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml" -}}
+{{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
+# Changing any managed Fcitx/Rime file reruns this pre-apply stop.
+# profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
+# fcitx config: {{ if stat $fcitxConfig }}{{ output "sha256sum" $fcitxConfig | trim }}{{ else }}n/a{{ end }}
+# Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
+# schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
+# CapsLock workaround: {{ if stat $rimeLua }}{{ output "sha256sum" $rimeLua | trim }}{{ else }}n/a{{ end }}
+
+# Fcitx saves its active group when it exits. Stop it before chezmoi writes the
+# declarative profile, otherwise the old pinyin group can overwrite the new one.
+if systemctl --user is-active --quiet omarchy-fcitx5.service; then
+    echo ":: [11] Stopping Fcitx5 before applying its declarative config"
+    systemctl --user stop omarchy-fcitx5.service
+fi
+{{- end }}

@@ -1,0 +1,5 @@
+# Fcitx5-Rime user overrides.
+# Keep a single simplified full-pinyin schema.
+patch:
+  schema_list:
+    - schema: luna_pinyin_simp

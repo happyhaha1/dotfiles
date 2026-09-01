@@ -1,3 +1,18 @@
+# Omarchy packages are managed by this dotfiles repository. Missing entries are
+# installed, and entries removed from a previous manifest are uninstalled. Only
+# packages previously recorded by this repository are eligible for cleanup; keep
+# Omarchy base packages out of this list.
+omarchyPackages:
+  shared:
+    # Fcitx5 Chinese input components managed by this dotfiles repository.
+    - fcitx5-chinese-addons
+    - fcitx5-configtool
+    # Rime engine; its librime-data dependency pulls luna_pinyin_simp.
+    - fcitx5-rime
+    # age and voxtype-bin are intentionally not managed by this list.
+  work: []
+  private: []
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Targets NOT managed on Omarchy (manual-migration mode).
 #

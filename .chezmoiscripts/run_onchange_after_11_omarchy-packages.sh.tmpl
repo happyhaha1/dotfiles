@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{- else }}
+{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
+{{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
+{{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
+{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml" -}}
+{{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
+# Changing the package list or any managed Fcitx/Rime file reruns this script.
+# profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
+# fcitx config: {{ if stat $fcitxConfig }}{{ output "sha256sum" $fcitxConfig | trim }}{{ else }}n/a{{ end }}
+# Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
+# schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
+# CapsLock workaround: {{ if stat $rimeLua }}{{ output "sha256sum" $rimeLua | trim }}{{ else }}n/a{{ end }}
+
+echo ":: [11] Synchronizing Omarchy packages"
+
+# The previous revision used a Shift Lua workaround. Remove its generated
+# target now that CapsLock is the only language toggle.
+legacy_shift_lua="$HOME/.local/share/fcitx5/rime/lua/shift_toggle.lua"
+if [[ -e "$legacy_shift_lua" ]]; then
+    echo "    Removing obsolete Shift workaround"
+    rm -f "$legacy_shift_lua"
+fi
+
+packages=(
+{{ range .omarchyPackages.shared }}    {{ . | quote }}
+{{ end }}{{ if .work }}{{ range .omarchyPackages.work }}    {{ . | quote }}
+{{ end }}{{ end }}{{ if .private }}{{ range .omarchyPackages.private }}    {{ . | quote }}
+{{ end }}{{ end }})
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Error: omarchy command not found" >&2
+    exit 1
+fi
+
+# omarchy pkg does not record who owns an installed package. Keep a local
+# manifest of the packages declared by this repository, then reconcile only
+# entries that were present in the previous manifest. This leaves unrelated
+# manually installed packages untouched.
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
+state_file="$state_dir/omarchy-packages"
+state_tmp=""
+cleanup() {
+    [[ -z "$state_tmp" ]] || rm -f "$state_tmp"
+}
+trap cleanup EXIT
+
+declare -A desired=()
+for pkg in "${packages[@]}"; do
+    [[ -n "$pkg" ]] && desired["$pkg"]=1
+done
+
+declare -A previous=()
+if [[ -f "$state_file" ]]; then
+    while IFS= read -r pkg; do
+        [[ -n "$pkg" ]] && previous["$pkg"]=1
+    done < "$state_file"
+fi
+
+# Never infer ownership from pacman's explicit/dependency reason. Protect both
+# Omarchy ISO manifests when deciding which removed entries may be dropped.
+base_manifest_available=true
+# These package names are Omarchy's own meta/config packages but are not
+# repeated in the ISO package lists themselves.
+declare -A omarchy_base=(
+    [omarchy]=1
+    [omarchy-keyring]=1
+    [omarchy-settings]=1
+)
+for manifest in \
+    /usr/share/omarchy/install/omarchy-base.packages \
+    /usr/share/omarchy/install/omarchy-other.packages; do
+    if [[ ! -r "$manifest" ]]; then
+        base_manifest_available=false
+        continue
+    fi
+    while IFS= read -r pkg; do
+        [[ -n "$pkg" ]] && omarchy_base["$pkg"]=1
+    done < <(sed -E 's/[[:space:]]*#.*$//' "$manifest" | awk 'NF { print $1 }')
+done
+
+removed=()
+for pkg in "${!previous[@]}"; do
+    if [[ -z ${desired[$pkg]+x} && -z ${omarchy_base[$pkg]+x} ]]; then
+        removed+=("$pkg")
+    fi
+done
+if ((${#removed[@]} > 0)); then
+    mapfile -t removed < <(printf '%s\n' "${removed[@]}" | sort -u)
+fi
+
+if ((${#removed[@]} > 0)); then
+    if [[ "$base_manifest_available" != true ]]; then
+        echo "    Error: Omarchy base manifests are unavailable; refusing package cleanup" >&2
+        exit 1
+    fi
+    echo "    Removing no-longer-managed packages: ${removed[*]}"
+    omarchy pkg drop "${removed[@]}"
+fi
+
+if ((${#packages[@]} > 0)); then
+    echo "    Ensuring declared packages: ${packages[*]}"
+    omarchy pkg add "${packages[@]}"
+else
+    echo "    No Omarchy packages declared"
+fi
+
+# Record ownership only after both removal and installation succeed. The state
+# file is machine-local and intentionally not part of the dotfiles repository.
+install -d -m 700 "$state_dir"
+state_tmp=$(mktemp "$state_dir/omarchy-packages.XXXXXX")
+chmod 600 "$state_tmp"
+if ((${#packages[@]} > 0)); then
+    printf '%s\n' "${packages[@]}" | sort -u > "$state_tmp"
+fi
+mv -f "$state_tmp" "$state_file"
+state_tmp=""
+
+select_rime() {
+    command -v fcitx5-remote >/dev/null 2>&1 || return 1
+
+    # systemd may report the service started just before its DBus name is
+    # available, so retry briefly before giving up.
+    for _ in {1..20}; do
+        if fcitx5-remote -s rime >/dev/null 2>&1 \
+            && [[ "$(fcitx5-remote -n 2>/dev/null)" == "rime" ]]; then
+            return 0
+        fi
+        sleep 0.1
+    done
+    return 1
+}
+
+# Rime reads its schema and Lua processor when the engine starts. Restart the
+# Omarchy-managed service after installation or any managed config change,
+# then explicitly select Rime for the current Fcitx session.
+if systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1; then
+    echo "    Restarted omarchy-fcitx5.service"
+elif command -v fcitx5-remote >/dev/null 2>&1 && fcitx5-remote -r >/dev/null 2>&1; then
+    echo "    Reloaded the running Fcitx5 instance"
+else
+    echo "    Fcitx5 service is not running; it will use the config on next start"
+fi
+
+if [[ -n ${desired[fcitx5-rime]+x} ]] && select_rime; then
+    echo "    Selected Rime as the current input method"
+elif [[ -n ${desired[fcitx5-rime]+x} ]]; then
+    echo "    Could not select Rime in the current Fcitx session; it will be the default on next start"
+fi
+{{- end }}
