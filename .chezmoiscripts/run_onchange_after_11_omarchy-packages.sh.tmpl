@@ -7,12 +7,14 @@ exit 0
 {{- else }}
 {{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
+{{ $classicUIConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/conf/private_classicui.conf" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
 {{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
 {{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
 # Changing the package list or any managed Fcitx/Rime file reruns this script.
 # profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
 # fcitx config: {{ if stat $fcitxConfig }}{{ output "sha256sum" $fcitxConfig | trim }}{{ else }}n/a{{ end }}
+# Classic UI config: {{ if stat $classicUIConfig }}{{ output "sha256sum" $classicUIConfig | trim }}{{ else }}n/a{{ end }}
 # Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
 # schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
 # CapsLock workaround: {{ if stat $rimeLua }}{{ output "sha256sum" $rimeLua | trim }}{{ else }}n/a{{ end }}
