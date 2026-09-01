@@ -13,8 +13,9 @@ omarchyIgnoreList:
   - .config/cmux
   - .config/surge
   # Not yet adopted on Omarchy (remove a line to opt in)
+  # pi 已采纳（~/.pi 配置 + web-search 在 Omarchy 生效）；auth.json 和
+  # sessions 仍不归仓库管（前者需 pi 登录，后者按机器独立）
   - Justfile
-  - .pi
   - .ssh
   - .config/aquaproj-aqua
   - .config/atuin
