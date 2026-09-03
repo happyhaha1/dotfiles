@@ -6,11 +6,11 @@ versions:
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.62.3
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 3b3fad96af16a10759d930941b4520ba0c40edae
-  claudeAnthropicsSkillsSha256: 24e507b541cdec6f9007575b826babee7f5da196475ec7e0559cde78ad4a10cb
-  uiUxProMaxSkillRev: 8bd29e775453ebcae52b6e6514fbf134df0c5770
-  uiUxProMaxSkillSha256: 4516deaaafeacadc1c373b63c43fd580b2446f65cdc990a0e5f9a522cedf7b52
+  claudeAnthropicsSkillsRev: 53048666b05b4799081517d00e09e0a2dd688678
+  claudeAnthropicsSkillsSha256: b9fe7d7213edaab26636c494271bb5bc7dc0a361e689d53fc33724d3a1b058f2
+  uiUxProMaxSkillRev: 58c220ff9d02be80523b06c03471925c52e8ab5d
+  uiUxProMaxSkillSha256: d56c3610d11b396499e8566448b4170dc064366187ea03e00947558a508fbe59
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
   mihomoForkBuild: 60558cf
-  zashboardVersion: v3.24.0
+  zashboardVersion: v3.25.0
