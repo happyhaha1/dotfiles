@@ -5,8 +5,14 @@ set -euo pipefail
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{- else }}
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end }}
 # UFW ports are declared in .chezmoidata/omarchy.yaml. The rendered manifest
 # changes whenever that list changes, so chezmoi reruns this reconciliation.
+# The machine profile is included so changing profiles reruns this reconciliation.
+# machine profile: {{ $machineProfile }}
 # Only entries in the local state file are eligible for cleanup.
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
 state_file="$state_dir/omarchy-ufw-ports"
@@ -53,13 +59,8 @@ add_desired() {
 {{ range .omarchyUfwPorts.shared -}}
 add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
 {{ end -}}
-{{ if .omarchyUfwPorts.work -}}
-{{ range .omarchyUfwPorts.work -}}
-add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
-{{ end -}}
-{{ end -}}
-{{ if .omarchyUfwPorts.private -}}
-{{ range .omarchyUfwPorts.private -}}
+{{ if and (hasKey .omarchyUfwPorts "profiles") (hasKey .omarchyUfwPorts.profiles $machineProfile) -}}
+{{ range index .omarchyUfwPorts.profiles $machineProfile -}}
 add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
 {{ end -}}
 {{ end -}}

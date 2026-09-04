@@ -1,16 +1,22 @@
+# Shared entries are installed on every macOS machine. Profile entries are
+# selected by machineProfile in each machine's chezmoi config.
 homebrew:
   taps:
     shared:
       - abue-ammar/tinycast
       - steipete/tap
-    work:
-      - azure/functions
-    private: []
+    profiles:
+      daily: []
+      home-server: []
+      office-server:
+        - azure/functions
   brews:
     shared:
       # Bootstrap dependency: the age wrapper may need this before chezmoi can
       # decrypt source state.
       - age
+      # Herdr's macOS reconciliation script uses associative arrays (Bash 4+).
+      - bash
       - fish
       - mosh
       - mole
@@ -22,9 +28,11 @@ homebrew:
       - zstd
       - wget
       - steipete/tap/remindctl
-    work: []
-    private:
-      - mas # Required for masApps installation
+    profiles:
+      daily:
+        - mas # Required for masApps installation
+      home-server: []
+      office-server: []
   casks:
     shared:
       - bitwarden
@@ -36,7 +44,6 @@ homebrew:
       # - electerm
       - chatgpt
       - zed
-      - intellij-idea
       # - omniwm
       # - otty
       # - stablyai/orca/orca
@@ -59,14 +66,19 @@ homebrew:
       - font-maple-mono
       - font-maple-mono-nf
       - font-maple-mono-nf-cn
-    work: []
-    private:
-      - cherry-studio
-      - iina
-      - telegram
-      - wpsoffice-cn
-      - android-platform-tools
+    profiles:
+      daily:
+        - intellij-idea
+        - cherry-studio
+        - iina
+        - telegram
+        - wpsoffice-cn
+        - android-platform-tools
+      home-server: []
+      office-server: []
   masApps:
     shared: []
-    work: []
-    private: []
+    profiles:
+      daily: []
+      home-server: []
+      office-server: []

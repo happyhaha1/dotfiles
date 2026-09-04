@@ -12,8 +12,7 @@ omarchyPackages:
     # RustDesk remote desktop host (service enablement remains separate).
     - rustdesk
     # age and voxtype-bin are intentionally not managed by this list.
-  work: []
-  private: []
+  profiles: {}
 
 # AUR packages managed by this dotfiles repository. These are kept separate
 # from official packages because installation uses `omarchy pkg aur add`.
@@ -22,8 +21,7 @@ omarchyAurPackages:
     # 雾凇拼音全拼及万象简体语法模型。
     - rime-ice-pinyin-git
     - rime-wanxiang-gram-zh-hans
-  work: []
-  private: []
+  profiles: {}
 
 # UFW rules managed by this dotfiles repository. Only entries recorded in the
 # local manifest are eligible for cleanup when removed from this list.
@@ -34,8 +32,7 @@ omarchyUfwPorts:
       port: 21118
       protocol: tcp
       from: 192.168.50.0/24
-  work: []
-  private: []
+  profiles: {}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Targets NOT managed on Omarchy (manual-migration mode).

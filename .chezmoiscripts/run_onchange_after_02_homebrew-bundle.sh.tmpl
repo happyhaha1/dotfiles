@@ -7,6 +7,11 @@ set -euo pipefail
 {{ $brewfileTemplate := joinPath .chezmoi.sourceDir "private_dot_Brewfile.tmpl" -}}
 # homebrew data: {{ if stat $homebrewData }}{{ output "sha256sum" $homebrewData | trim }}{{ else }}n/a{{ end }}
 # Brewfile template: {{ if stat $brewfileTemplate }}{{ output "sha256sum" $brewfileTemplate | trim }}{{ else }}n/a{{ end }}
+# machine profile: {{ if hasKey . "machineProfile" }}{{ .machineProfile }}{{ else }}other{{ end }}
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end }}
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "    Skipped (unsupported OS: $(uname -s); this repository targets macOS)"
@@ -39,8 +44,10 @@ fi
 # entries in its trust.json rather than in a Brewfile.
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap abue-ammar/tinycast
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap steipete/tap
-{{- if .work }}
-HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap azure/functions
+{{- if and (hasKey .homebrew.taps "profiles") (hasKey .homebrew.taps.profiles $machineProfile) }}
+{{- range index .homebrew.taps.profiles $machineProfile }}
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap {{ . }}
+{{- end }}
 {{- end }}
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula steipete/tap/remindctl
 

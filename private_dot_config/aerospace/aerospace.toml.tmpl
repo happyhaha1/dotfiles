@@ -2,6 +2,11 @@
 # Docs: https://nikitabobko.github.io/AeroSpace/guide
 # Managed by chezmoi - floating apps from .chezmoidata.yaml
 
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end }}
+
 config-version = 2
 start-at-login = true
 enable-normalization-flatten-containers = true
@@ -52,18 +57,9 @@ run = 'layout floating'
 if.app-id = '{{ .id }}'
 run = 'layout floating'
 {{ end }}
-{{- if .work }}
-# Work floating apps
-{{- range .aerospace.floatingApps.work }}
-# {{ .comment }}
-[[on-window-detected]]
-if.app-id = '{{ .id }}'
-run = 'layout floating'
-{{ end }}
-{{- end }}
-{{- if .private }}
-# Private floating apps
-{{- range .aerospace.floatingApps.private }}
+{{- if and (hasKey .aerospace.floatingApps "profiles") (hasKey .aerospace.floatingApps.profiles $machineProfile) }}
+# {{ $machineProfile }} floating apps
+{{- range index .aerospace.floatingApps.profiles $machineProfile }}
 # {{ .comment }}
 [[on-window-detected]]
 if.app-id = '{{ .id }}'

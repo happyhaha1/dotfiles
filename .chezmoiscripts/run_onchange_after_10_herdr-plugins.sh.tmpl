@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
+
+# macOS ships Bash 3.2, which lacks associative arrays. Homebrew Bash is
+# installed by the earlier Homebrew bundle step; re-exec with it when needed.
+if (( BASH_VERSINFO[0] < 4 )); then
+    for bash_cmd in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+        if [[ -x "$bash_cmd" ]]; then
+            exec "$bash_cmd" "$0" "$@"
+        fi
+    done
+    echo "    Error: Herdr plugin sync requires Bash 4+; install Homebrew bash and retry" >&2
+    exit 1
+fi
+
 set -euo pipefail
+
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end }}
 
 echo ":: [10] Synchronizing Herdr plugins"
 
@@ -7,9 +25,8 @@ echo ":: [10] Synchronizing Herdr plugins"
 # manifest instead of copying Herdr's generated plugins.json. The registry
 # contains machine-specific paths and is written by Herdr itself.
 # desired shared:{{ range .herdrPlugins.shared }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
-{{ if .work -}}# desired work:{{ range .herdrPlugins.work }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
-{{ end -}}{{ if .private -}}# desired private:{{ range .herdrPlugins.private }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
-{{ end -}}
+# machine profile: {{ $machineProfile }}
+
 
 declare -a desired_sources=()
 declare -A desired_refs=()
@@ -41,13 +58,8 @@ add_desired() {
 {{ range .herdrPlugins.shared -}}
 add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
 {{ end -}}
-{{ if .work -}}
-{{ range .herdrPlugins.work -}}
-add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
-{{ end -}}
-{{ end -}}
-{{ if .private -}}
-{{ range .herdrPlugins.private -}}
+{{ if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $machineProfile) -}}
+{{ range index .herdrPlugins.profiles $machineProfile -}}
 add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
 {{ end -}}
 {{ end -}}

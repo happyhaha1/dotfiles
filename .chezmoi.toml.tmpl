@@ -1,8 +1,12 @@
 encryption = "age"
 
-{{/* boolean feature tags */}}
-{{- $work := promptBoolOnce . "work" "Is this a work machine" -}}{{/* true if this machine is a work machine */}}
-{{- $private := not $work -}}{{/* true if this machine should have private configuration  */}}
+{{/* Machine profile and boolean feature tags */}}
+{{- $machineProfile := "other" -}}{{/* daily, home-server, or office-server on macOS */}}
+{{- if and (eq .chezmoi.os "darwin") (stdinIsATTY) -}}
+{{-   $machineProfile = promptStringOnce . "machineProfile" "Machine profile (daily/home-server/office-server)" -}}
+{{- else if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
 {{- $headless := false -}}{{/* true if this machine does not have a screen and keyboard */}}
 {{- $useEncryption := false -}}{{/* default false for users without encryption key */}}
 {{- $agentComputer := false -}}{{/* true if this machine should have agent-computer setup */}}
@@ -13,8 +17,10 @@ encryption = "age"
 {{- "" -}}
 
 {{- $hostname := .chezmoi.hostname -}}
-{{- if not $work -}}
-{{- $hostname = promptStringOnce . "hostname" "Hostname" -}}{{/* set the hostname */}}
+{{- if hasKey . "hostname" -}}
+{{-   $hostname = .hostname -}}{{/* preserve an explicitly configured hostname */}}
+{{- else if stdinIsATTY -}}
+{{-   $hostname = promptStringOnce . "hostname" "Hostname" -}}{{/* set the hostname */}}
 {{- end -}}
 
 {{/* prompt for user specific configuration */}}
@@ -94,8 +100,7 @@ platform = {{ .chezmoi.os | quote }}
 useremail = {{ $useremail | quote }}
 gitUsername = {{ $gitUsername | quote }}
 gitEmail = {{ $gitEmail | quote }}
-work = {{ $work }}
-private = {{ $private }}
+machineProfile = {{ $machineProfile | quote }}
 headless = {{ $headless }}
 useEncryption = {{ $useEncryption }}
 agentComputer = {{ $agentComputer }}

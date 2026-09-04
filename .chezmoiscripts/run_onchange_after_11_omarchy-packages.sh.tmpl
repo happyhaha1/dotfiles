@@ -11,7 +11,12 @@ exit 0
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
 {{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
 {{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
-# Changing the package list or any managed Fcitx/Rime file reruns this script.
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
+# Changing the package list, machine profile, or any managed Fcitx/Rime file reruns this script.
+# machine profile: {{ $machineProfile }}
 # profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
 # fcitx config: {{ if stat $fcitxConfig }}{{ output "sha256sum" $fcitxConfig | trim }}{{ else }}n/a{{ end }}
 # Classic UI config: {{ if stat $classicUIConfig }}{{ output "sha256sum" $classicUIConfig | trim }}{{ else }}n/a{{ end }}
@@ -39,14 +44,12 @@ fi
 
 packages=(
 {{ range .omarchyPackages.shared }}    {{ . | quote }}
-{{ end }}{{ if .work }}{{ range .omarchyPackages.work }}    {{ . | quote }}
-{{ end }}{{ end }}{{ if .private }}{{ range .omarchyPackages.private }}    {{ . | quote }}
+{{ end }}{{ if and (hasKey .omarchyPackages "profiles") (hasKey .omarchyPackages.profiles $machineProfile) }}{{ range index .omarchyPackages.profiles $machineProfile }}    {{ . | quote }}
 {{ end }}{{ end }})
 
 aur_packages=(
 {{ range .omarchyAurPackages.shared }}    {{ . | quote }}
-{{ end }}{{ if .work }}{{ range .omarchyAurPackages.work }}    {{ . | quote }}
-{{ end }}{{ end }}{{ if .private }}{{ range .omarchyAurPackages.private }}    {{ . | quote }}
+{{ end }}{{ if and (hasKey .omarchyAurPackages "profiles") (hasKey .omarchyAurPackages.profiles $machineProfile) }}{{ range index .omarchyAurPackages.profiles $machineProfile }}    {{ . | quote }}
 {{ end }}{{ end }})
 
 if ! command -v omarchy >/dev/null 2>&1; then

@@ -3,8 +3,7 @@
 # `ref` is optional; pin it when reproducible plugin versions are desired.
 herdrPlugins:
   shared: []
-  work: []
-  private: []
+  profiles: {}
   # Example:
   # shared:
   #   - source: owner/repository
