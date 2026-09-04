@@ -1,9 +1,15 @@
 # https://wiki.archlinux.org/title/XDG_Base_Directory
 # https://specifications.freedesktop.org/basedir-spec/latest/
 
-set -x LANG zh_CN.UTF-8
+# Borrow the small, useful Omarchy-Fish defaults while keeping this file
+# portable across the macOS machines managed by this repository.
+set -gx LANG zh_CN.UTF-8
 set -gx EDITOR nvim
 set -gx VISUAL nvim
+set -gx SUDO_EDITOR "$EDITOR"
+set -gx BAT_THEME ansi
+set -g fish_greeting
+set -g fish_history_max_size 32768
 set -x XDG_CONFIG_HOME "$HOME/.config"
 set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
@@ -70,8 +76,9 @@ set -gx DOCKER_CONFIG "$XDG_CONFIG_HOME/docker"
 # less
 # set -gx LESSHISTFILE "$XDG_STATE_HOME/less/history"
 
-# man
-# set -x MANPAGER "nvim +Man!"
+# man (same pager used by Omarchy-Fish)
+set -gx MANROFFOPT -c
+set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
 
 # npm / node
 set -gx NPM_CONFIG_USERCONFIG "$XDG_CONFIG_HOME/npm/npmrc"
@@ -134,8 +141,18 @@ set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
 
 # setup
 
+set -gx FZF_DEFAULT_OPTS_FILE "$XDG_CONFIG_HOME/fzf/default_ops"
+# Keep an existing options file or inherited value authoritative. Otherwise use
+# the same sensible defaults as Omarchy-Fish.
+if not set -q FZF_DEFAULT_OPTS; and not test -f "$FZF_DEFAULT_OPTS_FILE"
+    set -gx FZF_DEFAULT_OPTS '--cycle --layout=default --height=90% --preview-window=wrap --marker="*"'
+end
+
 if status is-interactive
-    # Commands to run in interactive sessions can go here
+    # Commands and key bindings below are intentionally interactive-only, as in
+    # Omarchy-Fish, so SSH commands and automation remain quiet and fast.
+    fish_vi_key_bindings
+
     if type -q mise
         mise activate fish | source
     end
@@ -156,28 +173,33 @@ if status is-interactive
         direnv hook fish | source
     end
 
-    if test -d (brew --prefix)"/share/fish/completions"
-        set -p fish_complete_path (brew --prefix)/share/fish/completions
+    # Homebrew completions are macOS-only; avoid invoking brew on other hosts.
+    if type -q brew
+        set -l brew_prefix (brew --prefix 2>/dev/null)
+        if test -n "$brew_prefix"
+            for brew_fish_dir in \
+                "$brew_prefix/share/fish/completions" \
+                "$brew_prefix/share/fish/vendor_completions.d"
+                if test -d "$brew_fish_dir"
+                    set -p fish_complete_path "$brew_fish_dir"
+                end
+            end
+        end
     end
 
-    if test -d (brew --prefix)"/share/fish/vendor_completions.d"
-        set -p fish_complete_path (brew --prefix)/share/fish/vendor_completions.d
+    # Keep the repository's preferred fzf bindings when fzf.fish is available.
+    if type -q fzf_configure_bindings
+        fzf_configure_bindings --directory=\cf --history=\e\cr
     end
+
+    if type -q _atuin_search
+        bind \cr _atuin_search
+        bind -M insert \cr _atuin_search
+    end
+
+    # Repository picker from functions/_ghq_fzf_cd.fish.
+    bind \cg _ghq_fzf_cd
+    bind -M insert \cg _ghq_fzf_cd
 end
-
-set -x FZF_DEFAULT_OPTS_FILE $XDG_CONFIG_HOME/fzf/default_ops
-# fzf --fish | source
-#direnv hook fish | source
-
-# 更改 fzf 默认按键
-fzf_configure_bindings --directory=\cf --history=\e\cr
-
-if type -q atuin
-    bind \cr _atuin_search
-    bind -M insert \cr _atuin_search
-end
-
-# 设置vim模式
-set -g fish_key_bindings fish_vi_key_bindings
 
 fish_add_path "$HOME/.local/bin"
