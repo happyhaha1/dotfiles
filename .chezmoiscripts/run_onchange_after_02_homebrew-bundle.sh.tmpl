@@ -3,6 +3,11 @@
 
 set -euo pipefail
 
+{{ $homebrewData := joinPath .chezmoi.sourceDir ".chezmoidata/homebrew.yaml" -}}
+{{ $brewfileTemplate := joinPath .chezmoi.sourceDir "private_dot_Brewfile.tmpl" -}}
+# homebrew data: {{ if stat $homebrewData }}{{ output "sha256sum" $homebrewData | trim }}{{ else }}n/a{{ end }}
+# Brewfile template: {{ if stat $brewfileTemplate }}{{ output "sha256sum" $brewfileTemplate | trim }}{{ else }}n/a{{ end }}
+
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "    Skipped (unsupported OS: $(uname -s); this repository targets macOS)"
     exit 0
