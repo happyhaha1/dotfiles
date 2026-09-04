@@ -12,6 +12,7 @@ homebrew:
       # decrypt source state.
       - age
       - fish
+      - mosh
       - mole
       - sing-box
       # Keep an OpenSSL 3 CLI/library instead of relying on Apple's LibreSSL.
