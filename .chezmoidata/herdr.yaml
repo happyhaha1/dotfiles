@@ -1,0 +1,11 @@
+# Herdr plugins managed by this dotfiles repository.
+# Each entry is a GitHub source accepted by `herdr plugin install`.
+# `ref` is optional; pin it when reproducible plugin versions are desired.
+herdrPlugins:
+  shared: []
+  work: []
+  private: []
+  # Example:
+  # shared:
+  #   - source: owner/repository
+  #     ref: v1.0.0

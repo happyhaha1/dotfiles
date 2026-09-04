@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ":: [10] Synchronizing Herdr plugins"
+
+# Herdr plugin installation is intentionally driven by this small declarative
+# manifest instead of copying Herdr's generated plugins.json. The registry
+# contains machine-specific paths and is written by Herdr itself.
+# desired shared:{{ range .herdrPlugins.shared }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
+{{ if .work -}}# desired work:{{ range .herdrPlugins.work }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
+{{ end -}}{{ if .private -}}# desired private:{{ range .herdrPlugins.private }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
+{{ end -}}
+
+declare -a desired_sources=()
+declare -A desired_refs=()
+
+add_desired() {
+    local plugin_source="$1"
+    local plugin_ref="$2"
+
+    if [[ -z "$plugin_source" ]]; then
+        echo "    Error: Herdr plugin source must not be empty" >&2
+        exit 1
+    fi
+    # The state file uses tabs and newlines as delimiters. Herdr performs the
+    # authoritative GitHub source validation when the install command runs.
+    if [[ "$plugin_source" == *$'\t'* || "$plugin_source" == *$'\n'* || "$plugin_source" == *$'\r'* \
+        || "$plugin_ref" == *$'\t'* || "$plugin_ref" == *$'\n'* || "$plugin_ref" == *$'\r'* ]]; then
+        echo "    Error: Herdr plugin source/ref contains a line delimiter" >&2
+        exit 1
+    fi
+    if [[ -n ${desired_refs[$plugin_source]+x} ]]; then
+        echo "    Error: duplicate Herdr plugin source: $plugin_source" >&2
+        exit 1
+    fi
+
+    desired_sources+=("$plugin_source")
+    desired_refs["$plugin_source"]="$plugin_ref"
+}
+
+{{ range .herdrPlugins.shared -}}
+add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
+{{ end -}}
+{{ if .work -}}
+{{ range .herdrPlugins.work -}}
+add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
+{{ end -}}
+{{ end -}}
+{{ if .private -}}
+{{ range .herdrPlugins.private -}}
+add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
+{{ end -}}
+{{ end -}}
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
+state_file="$state_dir/herdr-plugins"
+
+# Herdr is a prerequisite, not something the plugin manifest can install.
+# Keep chezmoi apply usable on machines where Herdr is not installed yet; the
+# next apply after installing Herdr will perform the reconciliation.
+if ! command -v herdr >/dev/null 2>&1; then
+    if ((${#desired_sources[@]} > 0)) || [[ -s "$state_file" ]]; then
+        echo "    Herdr is not installed; skipping plugin reconciliation" >&2
+        echo "    Install Herdr, then run chezmoi apply again" >&2
+    fi
+    exit 0
+fi
+
+declare -a previous_sources=()
+declare -A previous_refs=()
+if [[ -f "$state_file" ]]; then
+    while IFS=$'\t' read -r plugin_source plugin_ref extra; do
+        [[ -n "$plugin_source" ]] || continue
+        if [[ -n "$extra" ]]; then
+            echo "    Error: malformed Herdr plugin state entry: $plugin_source" >&2
+            exit 1
+        fi
+        if [[ -n ${previous_refs[$plugin_source]+x} ]]; then
+            echo "    Error: duplicate Herdr plugin state entry: $plugin_source" >&2
+            exit 1
+        fi
+        previous_sources+=("$plugin_source")
+        previous_refs["$plugin_source"]="$plugin_ref"
+    done < "$state_file"
+fi
+
+# Keep manually installed plugins safe. The human-readable list includes the
+# canonical github source, so it is sufficient to identify an existing source
+# without depending on jq or the generated plugins.json schema.
+installed_plugins=""
+if ! installed_plugins="$(herdr plugin list 2>&1)"; then
+    echo "$installed_plugins" >&2
+    exit 1
+fi
+
+plugin_is_installed_from_source() {
+    local plugin_source="$1"
+    local plugin_ref="${2:-}"
+
+    if [[ -z "$plugin_ref" ]]; then
+        grep -Fq -- "github:${plugin_source}@" <<<"$installed_plugins"
+    else
+        # Human-readable output terminates the source with either `]` or `;`
+        # (when warnings follow). Match the complete requested ref so v1 does
+        # not accidentally match v10.
+        grep -Fq -- "github:${plugin_source}@${plugin_ref}]" <<<"$installed_plugins" \
+            || grep -Fq -- "github:${plugin_source}@${plugin_ref};" <<<"$installed_plugins"
+    fi
+}
+
+install_plugin() {
+    local plugin_source="$1"
+    local plugin_ref="$2"
+    local -a args=(plugin install "$plugin_source")
+
+    if [[ -n "$plugin_ref" ]]; then
+        args+=(--ref "$plugin_ref")
+    fi
+    args+=(--yes)
+    echo "    Installing Herdr plugin: $plugin_source${plugin_ref:+@$plugin_ref}"
+    herdr "${args[@]}"
+}
+
+uninstall_plugin() {
+    local plugin_source="$1"
+    local output
+
+    echo "    Uninstalling removed Herdr plugin: $plugin_source"
+    if output="$(herdr plugin uninstall "$plugin_source" 2>&1)"; then
+        printf '%s\n' "$output"
+    elif grep -Fq -- "plugin not installed" <<<"$output"; then
+        # The user may have removed it manually; the desired state is already
+        # satisfied, so do not block the rest of the reconciliation.
+        echo "    Herdr plugin already absent: $plugin_source"
+    else
+        printf '%s\n' "$output" >&2
+        return 1
+    fi
+}
+
+# Only entries from the previous dotfiles-owned state are eligible for
+# uninstall. A manually installed plugin that was never recorded here is left
+# alone, even if it is not in the desired list.
+declare -a next_sources=()
+declare -A next_refs=()
+for plugin_source in "${previous_sources[@]}"; do
+    if [[ -z ${desired_refs[$plugin_source]+x} ]]; then
+        uninstall_plugin "$plugin_source"
+    fi
+done
+
+for plugin_source in "${desired_sources[@]}"; do
+    plugin_ref="${desired_refs[$plugin_source]}"
+    was_managed=false
+    if [[ -n ${previous_refs[$plugin_source]+x} ]]; then
+        was_managed=true
+    fi
+
+    if [[ "$was_managed" == true \
+        && "${previous_refs[$plugin_source]}" == "$plugin_ref" ]] \
+        && plugin_is_installed_from_source "$plugin_source" "$plugin_ref"; then
+        echo "    Herdr plugin already synchronized: $plugin_source"
+    elif [[ "$was_managed" == false ]] && plugin_is_installed_from_source "$plugin_source"; then
+        # Do not silently adopt or replace a plugin installed outside this
+        # manifest. Remove it manually first if this list should own it.
+        echo "    Herdr plugin already exists outside dotfiles; leaving it unmanaged: $plugin_source" >&2
+        continue
+    else
+        install_plugin "$plugin_source" "$plugin_ref"
+    fi
+
+    next_sources+=("$plugin_source")
+    next_refs["$plugin_source"]="$plugin_ref"
+done
+
+# Save ownership only after all install/uninstall operations succeed. This is
+# a chezmoi-owned manifest, separate from Herdr's plugins.json registry.
+install -d -m 700 "$state_dir"
+state_tmp="$(mktemp "$state_dir/herdr-plugins.XXXXXX")"
+trap 'rm -f "$state_tmp"' EXIT
+chmod 600 "$state_tmp"
+for plugin_source in "${next_sources[@]}"; do
+    printf '%s\t%s\n' "$plugin_source" "${next_refs[$plugin_source]}"
+done | sort -t $'\t' -k1,1 > "$state_tmp"
+mv -f "$state_tmp" "$state_file"
+trap - EXIT
+
+echo "    Herdr plugins synchronized"
