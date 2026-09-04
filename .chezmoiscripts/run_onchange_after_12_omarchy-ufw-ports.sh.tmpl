@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{- else }}
+# UFW ports are declared in .chezmoidata/omarchy.yaml. The rendered manifest
+# changes whenever that list changes, so chezmoi reruns this reconciliation.
+# Only entries in the local state file are eligible for cleanup.
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
+state_file="$state_dir/omarchy-ufw-ports"
+
+if ! command -v ufw >/dev/null 2>&1; then
+    echo "    UFW is not installed; skipping managed firewall ports"
+    exit 0
+fi
+
+declare -a desired_names=()
+declare -A desired_port=()
+declare -A desired_protocol=()
+declare -A desired_source=()
+
+add_desired() {
+    local name="$1"
+    local port="$2"
+    local protocol="$3"
+    local source="$4"
+
+    if [[ ! "$name" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "    Error: invalid UFW port entry name: $name" >&2
+        exit 1
+    fi
+    if [[ ! "$port" =~ ^[0-9]+(:[0-9]+)?$ ]]; then
+        echo "    Error: invalid UFW port for $name: $port" >&2
+        exit 1
+    fi
+    if [[ "$protocol" != tcp && "$protocol" != udp ]]; then
+        echo "    Error: invalid UFW protocol for $name: $protocol" >&2
+        exit 1
+    fi
+    if [[ -n ${desired_port[$name]+x} ]]; then
+        echo "    Error: duplicate UFW port entry name: $name" >&2
+        exit 1
+    fi
+
+    desired_names+=("$name")
+    desired_port["$name"]="$port"
+    desired_protocol["$name"]="$protocol"
+    desired_source["$name"]="$source"
+}
+
+{{ range .omarchyUfwPorts.shared -}}
+add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
+{{ end -}}
+{{ if .omarchyUfwPorts.work -}}
+{{ range .omarchyUfwPorts.work -}}
+add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
+{{ end -}}
+{{ end -}}
+{{ if .omarchyUfwPorts.private -}}
+{{ range .omarchyUfwPorts.private -}}
+add_desired {{ .name | quote }} {{ .port | quote }} {{ .protocol | quote }} {{ .from | quote }}
+{{ end -}}
+{{ end -}}
+
+declare -a previous_names=()
+declare -A previous_port=()
+declare -A previous_protocol=()
+declare -A previous_source=()
+if [[ -f "$state_file" ]]; then
+    while IFS=$'\t' read -r name port protocol source; do
+        [[ -n "$name" ]] || continue
+        previous_names+=("$name")
+        previous_port["$name"]="$port"
+        previous_protocol["$name"]="$protocol"
+        previous_source["$name"]="$source"
+    done < "$state_file"
+fi
+
+UFW_RULE=()
+build_rule() {
+    local port="$1"
+    local protocol="$2"
+    local source="$3"
+
+    UFW_RULE=(allow in proto "$protocol")
+    if [[ -n "$source" && "$source" != any ]]; then
+        UFW_RULE+=(from "$source")
+    fi
+    UFW_RULE+=(to any port "$port")
+}
+
+remove_rule() {
+    local name="$1"
+    local port="$2"
+    local protocol="$3"
+    local source="$4"
+
+    build_rule "$port" "$protocol" "$source"
+    # Include our unique comment when deleting so an otherwise identical rule
+    # created manually is never mistaken for the dotfiles-owned rule.
+    UFW_RULE+=(comment "chezmoi-ufw:$name")
+    echo "    Removing managed UFW port: $name ($protocol/$port from ${source:-any})"
+
+    local output
+    if ! output="$(LC_ALL=C sudo ufw --force delete "${UFW_RULE[@]}" 2>&1)"; then
+        if [[ "$output" == *"Could not delete non-existent rule"* ]]; then
+            echo "    Managed UFW port already absent: $name"
+        else
+            printf '%s\n' "$output" >&2
+            return 1
+        fi
+    fi
+}
+
+add_rule() {
+    local name="$1"
+    local port="$2"
+    local protocol="$3"
+    local source="$4"
+
+    build_rule "$port" "$protocol" "$source"
+    echo "    Adding managed UFW port: $name ($protocol/$port from ${source:-any})"
+    sudo ufw "${UFW_RULE[@]}" comment "chezmoi-ufw:$name" >/dev/null
+}
+
+changed=false
+declare -A needs_add=()
+for name in "${previous_names[@]}"; do
+    if [[ -z ${desired_port[$name]+x} ]]; then
+        remove_rule "$name" "${previous_port[$name]}" "${previous_protocol[$name]}" "${previous_source[$name]}"
+        changed=true
+    elif [[ "${previous_port[$name]}" != "${desired_port[$name]}" \
+        || "${previous_protocol[$name]}" != "${desired_protocol[$name]}" \
+        || "${previous_source[$name]}" != "${desired_source[$name]}" ]]; then
+        remove_rule "$name" "${previous_port[$name]}" "${previous_protocol[$name]}" "${previous_source[$name]}"
+        needs_add["$name"]=1
+        changed=true
+    fi
+done
+
+for name in "${desired_names[@]}"; do
+    if [[ -z ${previous_port[$name]+x} ]]; then
+        needs_add["$name"]=1
+    fi
+done
+
+for name in "${desired_names[@]}"; do
+    if [[ -n ${needs_add[$name]+x} ]]; then
+        add_rule "$name" "${desired_port[$name]}" "${desired_protocol[$name]}" "${desired_source[$name]}"
+        changed=true
+    fi
+done
+
+if [[ "$changed" == true ]]; then
+    sudo ufw reload >/dev/null
+fi
+
+# Record ownership only after all requested UFW operations succeed. This is a
+# machine-local manifest, not a copy of /etc/ufw/user.rules.
+install -d -m 700 "$state_dir"
+state_tmp=$(mktemp "$state_dir/omarchy-ufw-ports.XXXXXX")
+trap 'rm -f "$state_tmp"' EXIT
+chmod 600 "$state_tmp"
+for name in "${desired_names[@]}"; do
+    printf '%s\t%s\t%s\t%s\n' \
+        "$name" "${desired_port[$name]}" "${desired_protocol[$name]}" "${desired_source[$name]}"
+done | sort > "$state_tmp"
+mv -f "$state_tmp" "$state_file"
+trap - EXIT
+{{- end }}

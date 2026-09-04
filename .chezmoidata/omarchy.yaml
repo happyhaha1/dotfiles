@@ -9,6 +9,8 @@ omarchyPackages:
     - fcitx5-configtool
     # Rime engine; librime-data provides the baseline Rime schemas.
     - fcitx5-rime
+    # RustDesk remote desktop host (service enablement remains separate).
+    - rustdesk
     # age and voxtype-bin are intentionally not managed by this list.
   work: []
   private: []
@@ -20,6 +22,18 @@ omarchyAurPackages:
     # 雾凇拼音全拼及万象简体语法模型。
     - rime-ice-pinyin-git
     - rime-wanxiang-gram-zh-hans
+  work: []
+  private: []
+
+# UFW rules managed by this dotfiles repository. Only entries recorded in the
+# local manifest are eligible for cleanup when removed from this list.
+omarchyUfwPorts:
+  shared:
+    # RustDesk direct-IP access from the current home LAN.
+    - name: rustdesk-direct-lan
+      port: 21118
+      protocol: tcp
+      from: 192.168.50.0/24
   work: []
   private: []
 
