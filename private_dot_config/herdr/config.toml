@@ -1,3 +1,4 @@
+onboarding = false
 # herdr configuration
 # Place this file at ~/.config/herdr/config.toml
 
@@ -143,6 +144,19 @@ command = "lazygit"
 width = "80%"
 height = "80%"
 
+# Managed plugin shortcuts. These do not overlap the existing scratch terminal
+# (prefix+t) or lazygit (prefix+alt+g) bindings.
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "herdr-navigator.open"
+description = "Navigator: jump to an agent or workspace"
+[[keys.command]]
+key = "prefix+u"
+type = "plugin_action"
+command = "usagebar.open-limits"
+description = "Agent Usage: open limits"
+
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
 # [keys.indexed]
@@ -267,10 +281,14 @@ height = "80%"
 # Custom values reported through pane metadata use a $name token.
 # A token occurrence may be styled with { token = "workspace", fg = "#89b4fa", bold = true, dim = false }.
 # Omitted style fields preserve the contextual default.
-# [ui.sidebar.agents]
-# Blank rows between agent entries. Set to 1 to restore the previous spacing.
-# row_gap = 0
-# rows = [["state_icon", "workspace", "tab"], ["agent"]]
+[ui.sidebar.agents]
+# Agent Usage publishes these metadata tokens after each completed turn.
+row_gap = 0
+rows = [
+  ["state_icon", "$title"],
+  ["$provider", "$limit"],
+  ["$context"],
+]
 # Optional canonical agent IDs replace the default rows for matching agents.
 # [ui.sidebar.agents.rows_by_agent]
 # claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]
@@ -296,6 +314,7 @@ height = "80%"
 # delivery = "off"
 # delay_seconds = 1
 
+delivery = "off"
 [ui.toast.herdr]
 # position = "bottom-right"
 
@@ -333,8 +352,8 @@ height = "80%"
 # manage_ssh_config = true
 
 [experimental]
-# Allow launching herdr from inside a herdr-managed pane.
-# allow_nested = false
+# Navigator's remote handoff launches a second Herdr client from its plugin pane.
+allow_nested = true
 # Experimental local Kitty graphics rendering for attached clients.
 # Requires a Kitty graphics-compatible outer terminal.
 # kitty_graphics = false

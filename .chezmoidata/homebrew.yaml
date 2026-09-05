@@ -6,7 +6,8 @@ homebrew:
       - abue-ammar/tinycast
       - steipete/tap
     profiles:
-      daily: []
+      daily:
+        - vjeantet/tap
       home-server: []
       office-server:
         - azure/functions
@@ -31,6 +32,7 @@ homebrew:
     profiles:
       daily:
         - mas # Required for masApps installation
+        - vjeantet/tap/alerter
       home-server: []
       office-server: []
   casks:

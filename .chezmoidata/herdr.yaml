@@ -2,8 +2,18 @@
 # Each entry is a GitHub source accepted by `herdr plugin install`.
 # `ref` is optional; pin it when reproducible plugin versions are desired.
 herdrPlugins:
-  shared: []
-  profiles: {}
+  # These plugins are useful on every machine where Herdr is enabled.
+  shared:
+    - source: senna-lang/herdr-agent-usage
+      ref: v0.5.12
+    - source: thanhdat77/herdr-navigator
+      ref: v0.3.6
+  # Focus notifications require a graphical macOS terminal, so keep them on
+  # the daily desktop profile instead of installing them on headless hosts.
+  profiles:
+    daily:
+      - source: yankewei/herdr-focus-notify
+        ref: v0.4.0
   # Example:
   # shared:
   #   - source: owner/repository

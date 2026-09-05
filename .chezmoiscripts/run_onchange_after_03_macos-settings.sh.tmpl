@@ -98,6 +98,8 @@ defaults_write com.apple.screencapture location -string "{{ .chezmoi.homeDir }}/
 defaults_write com.apple.screencapture type -string png
 defaults_write com.apple.AdLib allowApplePersonalizedAdvertising -bool false
 defaults_write com.apple.ImageCapture disableHotPlug -bool true
+# Disable the default Ctrl+Space input-source shortcut.
+defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 60 '<dict><key>enabled</key><false/></dict>'
 defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 '<dict><key>enabled</key><false/></dict>'
 defaults_write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 '<dict><key>enabled</key><false/></dict>'
 # Keep Mission Control Spaces navigation on Ctrl+Left/Right.

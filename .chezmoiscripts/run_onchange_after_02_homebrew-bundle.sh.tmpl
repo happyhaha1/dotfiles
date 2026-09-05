@@ -50,6 +50,10 @@ HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap {{ . }}
 {{- end }}
 {{- end }}
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula steipete/tap/remindctl
+{{- if eq $machineProfile "daily" }}
+# alerter is only installed on the daily desktop profile for focus notifications.
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula vjeantet/tap/alerter
+{{- end }}
 
 # The bundle is declarative, but must not unexpectedly upgrade unrelated tools
 # during chezmoi apply. The weekly update script remains responsible for that.
