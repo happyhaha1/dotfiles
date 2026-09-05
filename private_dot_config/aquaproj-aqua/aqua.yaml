@@ -15,9 +15,9 @@ packages:
     update:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
-  - name: openai/codex@rust-v0.153.0
-  - name: anomalyco/opencode@v1.18.27
-  - name: earendil-works/pi@v0.84.4
+  - name: openai/codex@rust-v0.153.4
+  - name: anomalyco/opencode@v1.18.29
+  - name: earendil-works/pi@v0.85.0
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.9.1
     tags:
@@ -42,7 +42,7 @@ packages:
   - name: fastfetch-cli/fastfetch@2.68.1
   - name: sharkdp/fd@v10.5.0
   - name: junegunn/fzf@v0.74.3
-  - name: cli/cli@v2.99.0
+  - name: cli/cli@v2.100.0
   - name: dlvhdr/gh-dash@v4.25.2
   - name: x-motemen/ghq@v1.10.1
   - name: git-lfs/git-lfs@v3.8.0
@@ -53,7 +53,7 @@ packages:
   - name: LuaLS/lua-language-server@3.19.1
   - name: tree-sitter/tree-sitter@v0.27.0
   - name: o2sh/onefetch@2.28.1
-  - name: ip7z/7zip@26.02
+  - name: ip7z/7zip@26.03
   - name: Nukesor/pueue/pueue@v4.0.4
   - name: BurntSushi/ripgrep@15.2.0
   - name: phiresky/ripgrep-all@v0.10.10
