@@ -53,4 +53,4 @@ HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula steipete/tap/remindctl
 
 # The bundle is declarative, but must not unexpectedly upgrade unrelated tools
 # during chezmoi apply. The weekly update script remains responsible for that.
-HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" bundle install --file "$brewfile" --no-upgrade
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" bundle install --file "$brewfile" --no-upgrade --force-cleanup
