@@ -44,12 +44,14 @@ fi
 # entries in its trust.json rather than in a Brewfile.
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap abue-ammar/tinycast
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap steipete/tap
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap RizRiyz/luvus
 {{- if and (hasKey .homebrew.taps "profiles") (hasKey .homebrew.taps.profiles $machineProfile) }}
 {{- range index .homebrew.taps.profiles $machineProfile }}
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --tap {{ . }}
 {{- end }}
 {{- end }}
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula steipete/tap/remindctl
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula RizRiyz/luvus/luvus
 {{- if eq $machineProfile "daily" }}
 # alerter is only installed on the daily desktop profile for focus notifications.
 HOMEBREW_NO_AUTO_UPDATE=1 "$brew_cmd" trust --formula vjeantet/tap/alerter

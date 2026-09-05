@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "theme": "terminal",
+  "language": "zh",
+  "shell": "default",
+  "sidebar_width": 26,
+  "sidebars": null,
+  "layout": {
+    "col_gap": 1,
+    "row_gap": 0,
+    "show_titles": true,
+    "pane_title_path": false,
+    "agent_title": false,
+    "resume_in_new_workspace": true,
+    "new_pane_to_workspace_root": false,
+    "file_open": "nvim",
+    "file_click": "tab",
+    "scrollback_bytes": 10485760,
+    "files_show_hidden": true,
+    "diff_layout": "auto",
+    "diff_wrap": false,
+    "diff_context_lines": 3,
+    "diff_show_line_numbers": true,
+    "diff_marker_style": "symbols",
+    "diff_color_mode": "theme",
+    "diff_live_refresh": true,
+    "mobile_width": 64,
+    "shift_enter": "esc-cr"
+  },
+  "notifications": {
+    "sound_style": "retro",
+    "sound_on_done": false,
+    "sound_on_blocked": false
+  },
+  "check_updates": true,
+  "resume_launch_flags": false,
+  "agents_active_only": false,
+  "keybindings": {},
+  "direct_keybindings": {},
+  "prefix": "ctrl+b",
+  "mission_pricing": {},
+  "mission_budget": null,
+  "docks_off": [],
+  "bars": {
+    "top_right": [],
+    "bottom_right": [
+      "core:runtime-status"
+    ],
+    "off": []
+  }
+}

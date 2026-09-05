@@ -5,6 +5,7 @@ homebrew:
     shared:
       - abue-ammar/tinycast
       - steipete/tap
+      - RizRiyz/luvus
     profiles:
       daily:
         - vjeantet/tap
@@ -18,6 +19,8 @@ homebrew:
       - age
       # Herdr's macOS reconciliation script uses associative arrays (Bash 4+).
       - bash
+      # Luvus is the AI coding-agent multiplexer.
+      - RizRiyz/luvus/luvus
       - fish
       - mosh
       - mole
