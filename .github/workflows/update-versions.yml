@@ -35,6 +35,32 @@ jobs:
           mihomo_fork_build=$(gh api repos/liuran001/mihomo/releases/tags/Prerelease-Alpha --jq '.assets[].name' | grep -oE 'smart-[0-9a-f]+\.gz' | head -1 | sed -E 's/.*smart-([0-9a-f]+)\.gz/\1/')
           zashboard_version=$(gh release view --repo Zephyruso/zashboard --json tagName -q '.tagName')
 
+          latest_stable_release_ref() {
+            local repo="$1"
+            local ref
+
+            ref="$(gh release list \
+              --repo "$repo" \
+              --exclude-drafts \
+              --exclude-pre-releases \
+              --limit 1 \
+              --json tagName \
+              --jq '.[0].tagName // empty')"
+            if [[ -z "$ref" ]]; then
+              echo "No stable GitHub release found for $repo" >&2
+              return 1
+            fi
+            if [[ ! "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+              echo "Unexpected non-semver release tag for $repo: $ref" >&2
+              return 1
+            fi
+            printf '%s\n' "$ref"
+          }
+
+          herdr_agent_usage_ref="$(latest_stable_release_ref senna-lang/herdr-agent-usage)"
+          herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
+          herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
+
           claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
           claude_wshobson_agents_sha256=$(curl_sha256 "https://github.com/wshobson/agents/archive/${claude_wshobson_agents_rev}.tar.gz")
           claude_superpowers_rev=$(gh api repos/obra/superpowers/commits/main -q '.sha')
@@ -69,6 +95,9 @@ jobs:
             echo "gcloud_version=$gcloud_version"
             echo "mihomo_fork_build=$mihomo_fork_build"
             echo "zashboard_version=$zashboard_version"
+            echo "herdr_agent_usage_ref=$herdr_agent_usage_ref"
+            echo "herdr_navigator_ref=$herdr_navigator_ref"
+            echo "herdr_focus_notify_ref=$herdr_focus_notify_ref"
             echo "claude_wshobson_agents_rev=$claude_wshobson_agents_rev"
             echo "claude_wshobson_agents_sha256=$claude_wshobson_agents_sha256"
             echo "claude_superpowers_rev=$claude_superpowers_rev"
@@ -129,10 +158,59 @@ jobs:
           sed -i 's/stopSlopEnRev: .*/stopSlopEnRev: ${{ steps.versions.outputs.stop_slop_en_rev }}/' .chezmoidata/versions.yaml
           sed -i 's/humanizerZhRev: .*/humanizerZhRev: ${{ steps.versions.outputs.humanizer_zh_rev }}/' .chezmoidata/versions.yaml
           sed -i 's/humanizerJaRev: .*/humanizerJaRev: ${{ steps.versions.outputs.humanizer_ja_rev }}/' .chezmoidata/versions.yaml
+      - name: Update Herdr plugin refs
+        env:
+          HERDR_AGENT_USAGE_REF: ${{ steps.versions.outputs.herdr_agent_usage_ref }}
+          HERDR_NAVIGATOR_REF: ${{ steps.versions.outputs.herdr_navigator_ref }}
+          HERDR_FOCUS_NOTIFY_REF: ${{ steps.versions.outputs.herdr_focus_notify_ref }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          manifest = Path(".chezmoidata/herdr.yaml")
+          lines = manifest.read_text(encoding="utf-8").splitlines(keepends=True)
+          updates = {
+              "senna-lang/herdr-agent-usage": os.environ["HERDR_AGENT_USAGE_REF"],
+              "thanhdat77/herdr-navigator": os.environ["HERDR_NAVIGATOR_REF"],
+              "yankewei/herdr-focus-notify": os.environ["HERDR_FOCUS_NOTIFY_REF"],
+          }
+
+          for source, ref in updates.items():
+              matches = [
+                  index
+                  for index, line in enumerate(lines)
+                  if line.strip() == f"- source: {source}"
+              ]
+              if len(matches) != 1:
+                  raise SystemExit(
+                      f"Expected exactly one Herdr plugin entry for {source}, found {len(matches)}"
+                  )
+
+              ref_index = matches[0] + 1
+              if ref_index >= len(lines):
+                  raise SystemExit(f"Missing ref after Herdr plugin entry: {source}")
+              ref_line = lines[ref_index]
+              if not ref_line.lstrip().startswith("ref:"):
+                  raise SystemExit(f"Missing ref after Herdr plugin entry: {source}")
+
+              indent = ref_line[: len(ref_line) - len(ref_line.lstrip())]
+              if ref_line.endswith("\r\n"):
+                  newline = "\r\n"
+              elif ref_line.endswith("\n"):
+                  newline = "\n"
+              else:
+                  newline = ""
+              old_ref = ref_line.strip()
+              lines[ref_index] = f"{indent}ref: {ref}{newline}"
+              print(f"{source}: {old_ref} -> ref: {ref}")
+
+          manifest.write_text("".join(lines), encoding="utf-8")
+          PY
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet .chezmoidata/versions.yaml; then
+          if git diff --quiet -- .chezmoidata/versions.yaml .chezmoidata/herdr.yaml; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -146,6 +224,9 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          add-paths: |
+            .chezmoidata/versions.yaml
+            .chezmoidata/herdr.yaml
           commit-message: "chore(versions): update pinned versions"
           title: "chore(versions): update pinned versions (${{ steps.date.outputs.date }})"
           branch: update-pinned-versions
@@ -179,3 +260,6 @@ jobs:
             | stop-slop-en | `${{ steps.versions.outputs.stop_slop_en_rev }}` |
             | humanizer-zh | `${{ steps.versions.outputs.humanizer_zh_rev }}` |
             | humanizer-ja | `${{ steps.versions.outputs.humanizer_ja_rev }}` |
+            | senna-lang/herdr-agent-usage | `${{ steps.versions.outputs.herdr_agent_usage_ref }}` |
+            | thanhdat77/herdr-navigator | `${{ steps.versions.outputs.herdr_navigator_ref }}` |
+            | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
