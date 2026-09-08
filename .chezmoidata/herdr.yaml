@@ -5,7 +5,7 @@ herdrPlugins:
   # These plugins are useful on every machine where Herdr is enabled.
   shared:
     - source: senna-lang/herdr-agent-usage
-      ref: v0.5.12
+      ref: v0.5.13
     - source: thanhdat77/herdr-navigator
       ref: v0.3.6
   # Focus notifications require a graphical macOS terminal, so keep them on
