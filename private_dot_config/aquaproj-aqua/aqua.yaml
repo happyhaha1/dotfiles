@@ -7,7 +7,7 @@ registries:
     path: registry.yaml
 packages:
   - name: nektos/act@v0.2.89
-  - name: atuinsh/atuin@v18.21.0
+  - name: atuinsh/atuin@v18.22.0
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
     # aqua update can downgrade to v20200408 due semver ordering;
@@ -15,11 +15,11 @@ packages:
     update:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
-  - name: openai/codex@rust-v0.153.4
-  - name: anomalyco/opencode@v1.18.29
+  - name: openai/codex@rust-v0.154.0
+  - name: anomalyco/opencode@v1.18.30
   - name: earendil-works/pi@v0.85.1
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.9.2
+  - name: jdx/mise@v2026.9.4
     tags:
       - bootstrap
 
@@ -59,7 +59,7 @@ packages:
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.29.0
-  - name: skim-rs/skim@v5.6.6
+  - name: skim-rs/skim@v5.7.0
   - name: starship/starship@v1.26.0
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.14.1
