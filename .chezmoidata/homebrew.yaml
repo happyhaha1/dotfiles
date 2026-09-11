@@ -36,6 +36,7 @@ homebrew:
       daily:
         - mas # Required for masApps installation
         - vjeantet/tap/alerter
+        - skopeo
       home-server: []
       office-server: []
   casks:
