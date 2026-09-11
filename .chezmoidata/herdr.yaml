@@ -17,7 +17,7 @@ herdrPlugins:
     office-server:
       # Collie exposes the local Herdr server to a trusted LAN/Tailscale subnet.
       - source: AltanS/collie
-        ref: v1.6.0
+        ref: v1.8.0
   # Example:
   # shared:
   #   - source: owner/repository
