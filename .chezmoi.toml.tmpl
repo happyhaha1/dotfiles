@@ -77,6 +77,12 @@ encryption = "age"
 {{-   $claudeProviderAccount = .claudeProvider -}}{{/* backward compatibility */}}
 {{- end -}}
 
+{{/* Collie LAN host is machine-local data; never commit the address to the repo. */}}
+{{- $collieHost := "" -}}
+{{- if hasKey . "collieHost" -}}
+{{-   $collieHost = .collieHost -}}
+{{- end -}}
+
 {{/* timezone: prefer local config, fallback to ip-api.com */}}
 {{- $timezone := "" -}}
 
@@ -111,6 +117,7 @@ omarchy = {{ $omarchy }}
 isMacbook = {{ $isMacbook }}
 timezone = {{ $timezone | quote }}
 claudeProviderAccount = {{ $claudeProviderAccount | quote }}
+collieHost = {{ $collieHost | quote }}
 
 [edit]
 command = "zed"

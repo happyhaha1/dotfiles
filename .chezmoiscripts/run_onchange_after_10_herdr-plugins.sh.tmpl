@@ -120,6 +120,8 @@ plugin_is_installed_from_source() {
     fi
 }
 
+collie_needs_restart=false
+
 install_plugin() {
     local plugin_source="$1"
     local plugin_ref="$2"
@@ -131,6 +133,9 @@ install_plugin() {
     args+=(--yes)
     echo "    Installing Herdr plugin: $plugin_source${plugin_ref:+@$plugin_ref}"
     herdr "${args[@]}"
+    if [[ "$plugin_source" == "AltanS/collie" ]]; then
+        collie_needs_restart=true
+    fi
 }
 
 uninstall_plugin() {
@@ -184,6 +189,13 @@ for plugin_source in "${desired_sources[@]}"; do
     next_sources+=("$plugin_source")
     next_refs["$plugin_source"]="$plugin_ref"
 done
+
+# Reinstalling a Herdr-managed Collie checkout does not restart its service. Restart only when
+# Collie was actually installed/updated; unrelated Herdr plugin changes must not interrupt it.
+if [[ "$collie_needs_restart" == true ]]; then
+    echo "    Restarting Collie after plugin install/update"
+    herdr plugin action invoke restart --plugin herdr.collie
+fi
 
 # Save ownership only after all install/uninstall operations succeed. This is
 # a chezmoi-owned manifest, separate from Herdr's plugins.json registry.

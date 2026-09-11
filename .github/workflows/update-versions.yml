@@ -60,6 +60,7 @@ jobs:
           herdr_agent_usage_ref="$(latest_stable_release_ref senna-lang/herdr-agent-usage)"
           herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
           herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
+          herdr_collie_ref="$(latest_stable_release_ref AltanS/collie)"
 
           claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
           claude_wshobson_agents_sha256=$(curl_sha256 "https://github.com/wshobson/agents/archive/${claude_wshobson_agents_rev}.tar.gz")
@@ -98,6 +99,7 @@ jobs:
             echo "herdr_agent_usage_ref=$herdr_agent_usage_ref"
             echo "herdr_navigator_ref=$herdr_navigator_ref"
             echo "herdr_focus_notify_ref=$herdr_focus_notify_ref"
+            echo "herdr_collie_ref=$herdr_collie_ref"
             echo "claude_wshobson_agents_rev=$claude_wshobson_agents_rev"
             echo "claude_wshobson_agents_sha256=$claude_wshobson_agents_sha256"
             echo "claude_superpowers_rev=$claude_superpowers_rev"
@@ -163,6 +165,7 @@ jobs:
           HERDR_AGENT_USAGE_REF: ${{ steps.versions.outputs.herdr_agent_usage_ref }}
           HERDR_NAVIGATOR_REF: ${{ steps.versions.outputs.herdr_navigator_ref }}
           HERDR_FOCUS_NOTIFY_REF: ${{ steps.versions.outputs.herdr_focus_notify_ref }}
+          HERDR_COLLIE_REF: ${{ steps.versions.outputs.herdr_collie_ref }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -174,6 +177,7 @@ jobs:
               "senna-lang/herdr-agent-usage": os.environ["HERDR_AGENT_USAGE_REF"],
               "thanhdat77/herdr-navigator": os.environ["HERDR_NAVIGATOR_REF"],
               "yankewei/herdr-focus-notify": os.environ["HERDR_FOCUS_NOTIFY_REF"],
+              "AltanS/collie": os.environ["HERDR_COLLIE_REF"],
           }
 
           for source, ref in updates.items():
@@ -263,3 +267,4 @@ jobs:
             | senna-lang/herdr-agent-usage | `${{ steps.versions.outputs.herdr_agent_usage_ref }}` |
             | thanhdat77/herdr-navigator | `${{ steps.versions.outputs.herdr_navigator_ref }}` |
             | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
+            | AltanS/collie | `${{ steps.versions.outputs.herdr_collie_ref }}` |

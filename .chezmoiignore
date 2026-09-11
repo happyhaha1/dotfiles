@@ -55,6 +55,11 @@ treefmt.toml
 .config/hammerspoon/
 {{- end }}
 
+# Collie is enabled only for the office-server profile on macOS for now.
+{{- if ne .machineProfile "office-server" }}
+.config/herdr/plugins/config/herdr.collie/
+{{- end }}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Encryption-related exclusions (skip when useEncryption is false)
 # ─────────────────────────────────────────────────────────────────────────────

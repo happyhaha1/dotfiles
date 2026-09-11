@@ -1,0 +1,13 @@
+# Collie LAN-only configuration. Tailscale Serve is intentionally disabled;
+# the subnet router/firewall controls which clients can reach this host.
+COLLIE_MUX=herdr
+COLLIE_SKIP_SERVE=1
+COLLIE_HOST={{ .collieHost }}
+COLLIE_ALLOW_NON_LOOPBACK_BIND=1
+COLLIE_PORT=8787
+
+# Keep Host/origin validation enabled for the routed LAN address.
+COLLIE_PUBLIC_HOSTS={{ .collieHost }}
+COLLIE_ALLOWED_ORIGINS=http://{{ .collieHost }}:8787
+COLLIE_PUBLIC_URL=http://{{ .collieHost }}:8787
+COLLIE_MULTI_SESSION=on
