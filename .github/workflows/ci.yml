@@ -1,0 +1,151 @@
+name: Validate dotfiles
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-dotfiles-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chezmoi-template:
+    name: Render chezmoi templates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install the pinned chezmoi version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/.*twpayne\/chezmoi@//p' private_dot_config/aquaproj-aqua/aqua.yaml | head -n 1)"
+          test -n "$version"
+          install_dir="$RUNNER_TEMP/chezmoi-bin"
+          mkdir -p "$install_dir"
+          sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -t "$version" -b "$install_dir"
+          echo "$install_dir" >> "$GITHUB_PATH"
+
+      - name: Render and diff in an isolated home
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/chezmoi-render"
+          home="$work/home"
+          mkdir -p "$home"
+          printf '%s\n' 'encryption = "age"' > "$work/base.toml"
+
+          HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+            chezmoi execute-template \
+              -S "$GITHUB_WORKSPACE" \
+              -D "$home" \
+              -c "$work/base.toml" \
+              --init --no-tty \
+              --file "$GITHUB_WORKSPACE/.chezmoi.toml.tmpl" \
+              > "$work/generated.toml"
+
+          # Encrypted targets need the operator's private age key and are
+          # intentionally excluded; all non-secret templates still render.
+          HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+            chezmoi diff \
+              -S "$GITHUB_WORKSPACE" \
+              -D "$home" \
+              -c "$work/generated.toml" \
+              --no-tty \
+              --exclude encrypted \
+              --refresh-externals=never \
+              --no-pager \
+              > /dev/null
+
+  shellcheck:
+    name: ShellCheck rendered scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install ShellCheck and chezmoi
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install --yes shellcheck
+          version="$(sed -n 's/.*twpayne\/chezmoi@//p' private_dot_config/aquaproj-aqua/aqua.yaml | head -n 1)"
+          test -n "$version"
+          install_dir="$RUNNER_TEMP/chezmoi-bin"
+          mkdir -p "$install_dir"
+          sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -t "$version" -b "$install_dir"
+          echo "$install_dir" >> "$GITHUB_PATH"
+
+      - name: Render shell templates and run ShellCheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/shellcheck"
+          home="$work/home"
+          rendered="$work/rendered"
+          mkdir -p "$home" "$rendered"
+          printf '%s\n' 'encryption = "age"' > "$work/base.toml"
+          HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+            chezmoi execute-template \
+              -S "$GITHUB_WORKSPACE" \
+              -D "$home" \
+              -c "$work/base.toml" \
+              --init --no-tty \
+              --file "$GITHUB_WORKSPACE/.chezmoi.toml.tmpl" \
+              > "$work/generated.toml"
+
+          status=0
+          while IFS= read -r source; do
+            output="$rendered/$(basename "$source" .tmpl)"
+            if ! HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+              chezmoi execute-template \
+                -S "$GITHUB_WORKSPACE" \
+                -D "$home" \
+                -c "$work/generated.toml" \
+                --no-tty --file "$GITHUB_WORKSPACE/$source" \
+                > "$output"; then
+              echo "Template rendering failed: $source" >&2
+              status=1
+              continue
+            fi
+            if ! shellcheck --severity=warning "$output"; then
+              status=1
+            fi
+          done < <(find .chezmoiscripts -type f -name '*.sh.tmpl' -print | sort)
+          exit "$status"
+
+  workflow-lint:
+    name: Validate GitHub Actions workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Run actionlint
+        uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -oneline
+
+  secrets:
+    name: Scan repository for leaked secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

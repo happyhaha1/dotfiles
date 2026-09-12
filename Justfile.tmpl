@@ -72,10 +72,11 @@ mise-install:
 fmt:
     cd "$HOME/.local/share/chezmoi" && treefmt
 
-# Run pre-commit checks
+# Run pre-commit checks when a local repository config is present.
+# The pull-request workflow remains the authoritative portable check.
 [group('dev')]
 check:
-    pre-commit run --all-files
+    if [[ -f .pre-commit-config.yaml ]]; then pre-commit run --all-files; else echo 'No .pre-commit-config.yaml; use the CI checks.'; fi
 
 ############################################################################
 #
@@ -128,6 +129,123 @@ info:
     @brew --version 2>/dev/null || true
     @aqua --version 2>/dev/null || true
     @mise --version 2>/dev/null || true
+
+# Check chezmoi data, encryption prerequisites, package managers, and local state.
+# Set DOTFILES_DOCTOR_DIFF=1 to include a non-mutating chezmoi diff check.
+[group('utils')]
+doctor:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    failures=0
+    warnings=0
+
+    ok() { printf 'OK   %s\n' "$1"; }
+    warn() { warnings=$((warnings + 1)); printf 'WARN %s\n' "$1"; }
+    fail() { failures=$((failures + 1)); printf 'FAIL %s\n' "$1"; }
+    need_cmd() {
+        if command -v "$1" >/dev/null 2>&1; then
+            ok "$1: $(command -v "$1")"
+        else
+            fail "$1 is not available"
+        fi
+    }
+    need_file() {
+        if [[ -f "$1" ]]; then
+            ok "file exists: $1"
+        else
+            fail "missing file: $1"
+        fi
+    }
+
+    printf '%s\n' 'Dotfiles doctor'
+    need_cmd chezmoi
+
+    if command -v chezmoi >/dev/null 2>&1; then
+        data="$(chezmoi data --format=yaml 2>/dev/null || true)"
+        if [[ -z "$data" ]]; then
+            fail 'chezmoi data could not be read'
+        else
+            ok 'chezmoi data is readable'
+            yaml_value() {
+                printf '%s\n' "$data" | awk -F': ' -v key="$1" '$1 == key {print $2; exit}' | tr -d '\"'
+            }
+            platform="$(yaml_value platform)"
+            profile="$(yaml_value machineProfile)"
+            omarchy="$(yaml_value omarchy)"
+            encryption="$(yaml_value useEncryption)"
+            printf 'INFO platform=%s profile=%s omarchy=%s encryption=%s\n' \
+                "${platform:-unknown}" "${profile:-unknown}" "${omarchy:-unknown}" "${encryption:-unknown}"
+        fi
+    else
+        data=''
+        platform=''
+        profile=''
+        omarchy=''
+        encryption=''
+    fi
+
+    source_dir=''
+    if command -v chezmoi >/dev/null 2>&1; then
+        source_dir="$(chezmoi source-path 2>/dev/null || true)"
+    fi
+    if [[ -z "$source_dir" ]]; then
+        source_dir="$PWD"
+    fi
+    if [[ -d "$source_dir/.git" ]]; then
+        if [[ -n "$(git -C "$source_dir" status --short 2>/dev/null)" ]]; then
+            warn "source tree has uncommitted changes: $source_dir"
+        else
+            ok "source tree is clean: $source_dir"
+        fi
+    else
+        warn "source tree is not a Git worktree: $source_dir"
+    fi
+
+    if [[ "${encryption:-false}" == true ]]; then
+        need_cmd age
+        need_file "$HOME/.ssh/main"
+        need_file "$HOME/.ssh/main.pub"
+    else
+        warn 'encryption is disabled in chezmoi data'
+    fi
+
+    if [[ "${platform:-}" == darwin ]]; then
+        need_cmd brew
+    fi
+    need_cmd mise
+    if [[ "${omarchy:-false}" != true ]]; then
+        need_cmd aqua
+    else
+        printf '%s\n' 'INFO Omarchy detected; Aqua is intentionally not required here'
+    fi
+
+    if command -v herdr >/dev/null 2>&1; then
+        ok "herdr: $(herdr --version 2>/dev/null | head -n 1)"
+    else
+        warn 'herdr is not installed on this machine'
+    fi
+
+    collie_env="$HOME/.config/herdr/plugins/config/herdr.collie/.env"
+    if [[ -f "$collie_env" ]]; then
+        ok 'Collie environment file exists (value contents not printed)'
+    elif [[ "${profile:-}" == office-server ]]; then
+        warn "office-server profile has no Collie environment file: $collie_env"
+    fi
+
+    if [[ "${DOTFILES_DOCTOR_DIFF:-0}" == 1 ]]; then
+        if chezmoi diff --no-pager --exclude encrypted --refresh-externals=never >/dev/null 2>&1; then
+            ok 'chezmoi diff completed without encrypted files'
+        else
+            fail 'chezmoi diff reported an error (encrypted files excluded)'
+        fi
+    else
+        printf '%s\n' 'INFO set DOTFILES_DOCTOR_DIFF=1 to run the non-mutating diff check'
+    fi
+
+    printf 'Summary: %s failure(s), %s warning(s)\n' "$failures" "$warnings"
+    if (( failures > 0 )); then
+        exit 1
+    fi
 
 # Update chezmoi, Aqua, mise, Sheldon, and Homebrew
 [group('utils')]
