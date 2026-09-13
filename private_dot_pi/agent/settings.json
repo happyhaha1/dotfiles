@@ -12,7 +12,8 @@
     "npm:@narumitw/pi-goal",
     "npm:pi-web-access",
     "npm:pi-extmgr",
-    "npm:remote-pi"
+    "npm:remote-pi",
+    "git:github.com/NVlabs/SoL-Pi"
   ],
   "defaultThinkingLevel": "max"
 }
