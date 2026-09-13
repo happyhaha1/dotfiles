@@ -48,7 +48,6 @@ homebrew:
       - ghostty
       - orbstack
       # - electerm
-      - chatgpt
       - zed
       # - omniwm
       # - otty
@@ -74,6 +73,7 @@ homebrew:
       - font-maple-mono-nf-cn
     profiles:
       daily:
+        - chatgpt
         - intellij-idea
         - cherry-studio
         - iina
