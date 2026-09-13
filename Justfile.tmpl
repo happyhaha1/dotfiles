@@ -44,6 +44,11 @@ re-add:
 bundle:
     brew bundle install --file="$HOME/.Brewfile"
 
+# Immediately update Homebrew metadata and upgrade installed packages.
+[group('packages')]
+brew-update:
+    brew update && brew upgrade
+
 # Install pinned Aqua tools
 [group('packages')]
 aqua-install:
