@@ -1,7 +1,7 @@
 ---
 registries:
   - type: standard
-    ref: v4.561.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.562.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
@@ -19,17 +19,17 @@ packages:
   - name: anomalyco/opencode@v1.18.30
   - name: earendil-works/pi@v0.85.1
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.9.6
+  - name: jdx/mise@v2026.9.7
     tags:
       - bootstrap
 
   # Standalone release binaries avoid Homebrew dependency trees when a
   # package publishes a macOS ARM64 artifact in the Standard Registry.
   - name: Kitware/CMake@v4.4.3
-  - name: twpayne/chezmoi@v2.72.1
+  - name: twpayne/chezmoi@v2.72.2
   - name: Tyrrrz/FFmpegBin@9.0.1
   - name: neovim/neovim@v0.12.5
-  - name: ouch-org/ouch@0.8.2
+  - name: ouch-org/ouch@0.8.3
   - name: linebender/resvg@v0.48.1
 
   - name: timhartmann7/omnyssh@v1.1.2
@@ -49,7 +49,7 @@ packages:
   - name: charmbracelet/glow@v3.0.0
   - name: jqlang/jq@jq-1.8.2
   - name: casey/just@1.58.0
-  - name: jesseduffield/lazygit@v0.65.0
+  - name: jesseduffield/lazygit@v0.65.1
   - name: LuaLS/lua-language-server@3.19.1
   - name: tree-sitter/tree-sitter@v0.27.0
   - name: o2sh/onefetch@2.28.1
