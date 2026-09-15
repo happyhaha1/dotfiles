@@ -29,7 +29,12 @@ packages:
   - name: twpayne/chezmoi@v2.72.2
   - name: Tyrrrz/FFmpegBin@9.0.1
   - name: neovim/neovim@v0.12.5
-  - name: ouch-org/ouch@0.8.3
+  # ouch 0.8.3 dropped GitHub Artifact Attestations (cosign-only), so aqua's
+  # registry attestation check 404s. Pin 0.8.2 and block auto-update until
+  # aqua-registry scopes the attestation config to <0.8.3.
+  - name: ouch-org/ouch@0.8.2
+    update:
+      enabled: false
   - name: linebender/resvg@v0.48.1
 
   - name: timhartmann7/omnyssh@v1.1.2
