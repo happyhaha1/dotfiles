@@ -16,10 +16,10 @@ packages:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.154.0
-  - name: anomalyco/opencode@v1.18.30
+  - name: anomalyco/opencode@v1.18.31
   - name: earendil-works/pi@v0.85.1
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.9.7
+  - name: jdx/mise@v2026.9.8
     tags:
       - bootstrap
 
