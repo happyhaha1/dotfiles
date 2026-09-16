@@ -9,8 +9,6 @@ omarchyPackages:
     - fcitx5-configtool
     # Rime engine; librime-data provides the baseline Rime schemas.
     - fcitx5-rime
-    # RustDesk remote desktop host (service enablement remains separate).
-    - rustdesk
     # age and voxtype-bin are intentionally not managed by this list.
   profiles: {}
 
@@ -27,9 +25,9 @@ omarchyAurPackages:
 # local manifest are eligible for cleanup when removed from this list.
 omarchyUfwPorts:
   shared:
-    # RustDesk direct-IP access from the current home LAN.
-    - name: rustdesk-direct-lan
-      port: 21118
+    # SOCKS proxy access from the trusted LAN.
+    - name: lan-socks-2080
+      port: "2080"
       protocol: tcp
       from: 192.168.50.0/24
   profiles: {}
@@ -64,7 +62,6 @@ omarchyIgnoreList:
   - .config/gh-dash
   - .config/ghostty
   - .config/git
-  - .config/herdr
   - .config/lazygit
   - .config/mise
   - .config/nvim

@@ -1,0 +1,404 @@
+onboarding = false
+# Herdr 配置
+# 请将此文件放在 ~/.config/herdr/config.toml
+
+# 启动时显示首次运行通知设置。
+# 缺少该项也会显示引导界面；完成选择后设为 false。
+# onboarding = true
+
+[theme]
+# 内置主题：catppuccin、terminal、tokyo-night、dracula、nord、
+#           gruvbox、one-dark、solarized、kanagawa、rose-pine、
+#           vesper
+name = "terminal"
+
+# 跟随宿主终端的浅色/深色外观并切换 Herdr 界面主题。
+# 只有设为 true 时才会改变现有的手动行为。
+# auto_switch = false
+# dark_name = "catppuccin"
+# light_name = "catppuccin-latte"
+
+# 覆盖基础主题中的单个颜色项。
+# 支持：十六进制（#rrggbb）、名称、rgb(r,g,b) 或 panel_bg = "reset"
+# [theme.custom]
+# sidebar_bg = "#181825"
+# active_row_bg = "#1e1e2e"
+# selection_bg = "#313244"
+# panel_bg = "reset"
+# accent = "#f5c2e7"
+# red = "#ff6188"
+# green = "#a6e3a1"
+
+{{- if and (hasKey . "omarchy") .omarchy }}
+[theme.custom]
+# 使用 Omarchy 深色、接近 tmux 的面板背景。
+panel_bg = "black"
+{{- end }}
+
+[terminal]
+# 新建交互式面板使用的可执行文件。
+# 留空时依次使用 $SHELL 和 /bin/sh。
+# default_shell = ""
+
+# 新建交互式面板 Shell 的启动模式："auto"、"login" 或 "non_login"。
+# "auto" 在 macOS 上使用登录 Shell，在其他系统上保持原有行为。
+# shell_mode = "auto"
+
+# 没有显式提供 --cwd 时，新建面板、Tab 和工作区的工作目录策略。
+# "follow" 继承源面板/工作区，"home" 使用 $HOME，
+# "current" 使用 Herdr 进程目录，也可以指定类似 "~/Projects" 的固定路径。
+{{- if and (hasKey . "omarchy") .omarchy }}
+# 让新建面板和 Tab 使用源面板的工作目录。
+new_cwd = "follow"
+{{- end }}
+
+[update]
+# 后台版本检查和 `herdr update` 使用的更新频道。
+# 稳定版本默认使用 "stable"；Windows 预览版本默认使用 "preview"，
+# 这样已有的预览版本在明确切换前会继续留在预览频道。
+# channel = "stable"
+
+# 在后台检查 herdr.dev 是否有新的 Herdr 版本。
+# version_check = true
+
+# 在后台检查远程智能体检测清单是否有更新。
+# manifest_check = true
+
+[keys]
+# 进入前缀模式的按键（默认："ctrl+b"）。
+# 示例："ctrl+b"、"f12"、"esc"、"-"。
+# 动作绑定使用明确语法："prefix+n" 表示需要先按前缀，
+# "ctrl+alt+n" 表示终端模式下的直接快捷键。
+# 支持普通按键、ctrl/shift/alt/cmd/super 修饰键，以及 enter/tab/esc/left/right/up/down 等特殊按键。
+# 支持使用 minus、comma、ampersand、plus、backtick 等名称表示标点符号。
+# 最可靠的直接绑定通常是 ctrl+字母、功能键和明确的组合键。
+# alt+...、cmd/super 以及带修饰键的标点组合，可能取决于终端或 tmux 设置。
+# 在所有平台上使用 Ctrl+B 作为 Herdr 前缀。
+prefix = "ctrl+b"
+
+# 前缀模式动作
+# help = "prefix+?"
+# settings = "prefix+s"
+# detach = "prefix+q"
+# reload_config = "prefix+shift+r"
+# open_notification_target = "prefix+o"
+# workspace_picker = "prefix+w"
+# goto = "prefix+g"
+# new_workspace = "prefix+shift+n"
+# new_worktree = "prefix+shift+g"
+# open_worktree = ""    # 可选，默认未设置
+# remove_worktree = ""  # 可选，默认未设置；打开确认提示
+# rename_workspace = "prefix+shift+w"
+# close_workspace = "prefix+shift+d"
+# previous_workspace = "" # 可选，默认未设置
+# next_workspace = ""     # 可选，默认未设置
+# previous_agent = ""     # 可选，默认未设置
+# next_agent = ""         # 可选，默认未设置
+# focus_agent = ""        # 可选的索引绑定，例如 "prefix+alt+1..9"
+# remote_image_paste = "ctrl+v" # 仅在 herdr --remote 中生效；留空可禁用原始按键粘贴图片
+# new_tab = "prefix+c"
+# rename_tab = "prefix+shift+t"
+# previous_tab = "prefix+p"
+# next_tab = "prefix+n"
+# move_tab_previous = ""   # 可选，例如 "alt+shift+left"，将 Tab 向前移动
+# move_tab_next = ""       # 可选，例如 "alt+shift+right"，将 Tab 向后移动
+# switch_tab = "prefix+1..9"
+# switch_workspace = ""   # 可选的索引绑定，例如 "prefix+shift+1..9"
+# close_tab = "prefix+shift+x"
+# rename_pane = "prefix+shift+p"
+# edit_scrollback = "prefix+e"
+# focus_pane_left = "prefix+h"
+# focus_pane_down = "prefix+j"
+# focus_pane_up = "prefix+k"
+# focus_pane_right = "prefix+l"
+# cycle_pane_next = "prefix+tab"
+# cycle_pane_previous = "prefix+shift+tab"
+# last_pane = ""          # 可选，默认未设置；例如绑定 "prefix+tab" 实现全局来回切换
+# split_vertical = "prefix+v"
+# split_horizontal = "prefix+minus"
+# close_pane = "prefix+x"
+# zoom = "prefix+z"       # 旧版别名：全屏
+# resize_mode = "prefix+r"
+# resize_pane_left = ""   # 可选，例如 "ctrl+shift+alt+left"
+# resize_pane_down = ""   # 可选，例如 "ctrl+shift+alt+down"
+# resize_pane_up = ""     # 可选，例如 "ctrl+shift+alt+up"
+# resize_pane_right = ""  # 可选，例如 "ctrl+shift+alt+right"
+# toggle_sidebar = "prefix+b"
+
+# 导航模式中的移动方式。导航模式打开时，这些本地快捷键优先。
+# 它们独立于 focus_pane_*；此处不要包含 prefix+、esc、enter、tab 或 1..9。
+# navigate_workspace_up = "up"
+# navigate_workspace_down = "down"
+# navigate_pane_left = "h"      # 左方向键始终聚焦左侧面板
+# navigate_pane_down = "j"
+# navigate_pane_up = "k"
+# navigate_pane_right = "l"     # 右方向键始终聚焦右侧面板
+
+# 自定义命令使用相同的绑定语法。
+# type = "shell" 会在后台脱离当前界面运行。
+# type = "pane" 会打开临时面板，命令退出后关闭该面板。
+# type = "popup" 会打开会话模态终端，但不会改变 Tab 布局。
+# 弹窗宽度和高度可以使用终端单元格数或百分比，例如 "80%"。
+# 在 Windows 上，命令字符串通过 cmd.exe /d /c 运行。
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "exec \"${SHELL:-fish}\""
+description = "临时终端"
+width = "85%"
+height = "85%"
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+width = "80%"
+height = "80%"
+
+# 由配置管理的插件快捷键。它们不会与现有的临时终端
+#（prefix+t）或 lazygit（prefix+alt+g）绑定冲突。
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "herdr-navigator.open"
+description = "导航：跳转到智能体或工作区"
+[[keys.command]]
+key = "prefix+u"
+type = "plugin_action"
+command = "usagebar.open-limits"
+description = "智能体用量：打开限额"
+
+# 旧版索引快捷键配置仍会被解析，以保持兼容性。
+# 新配置建议使用 switch_tab、switch_workspace 和 focus_agent。
+# [keys.indexed]
+# tabs = ""       # 例如 "ctrl"，直接使用 ctrl+1..9 切换 Tab
+# workspaces = "" # 例如 "ctrl+shift"，使用 ctrl+shift+1..9 切换工作区
+# agents = ""     # 例如 "alt"，使用 alt+1..9 聚焦智能体行
+
+# 没有客户端连接时使用的虚拟终端尺寸。
+# 已连接的客户端始终使用自己的终端尺寸。
+[server]
+# headless_cols = 120
+# headless_rows = 40
+
+# [worktrees]
+# directory = "~/.herdr/worktrees"
+
+[ui]
+{{- if and (hasKey . "omarchy") .omarchy }}
+# 保留 Omarchy 的界面外观和交互偏好，但不采用其 tmux 快捷键布局。
+accent = "blue"
+pane_gaps = false
+pane_outer_borders = false
+pane_scrollbars = false
+confirm_close = false
+prompt_new_tab_name = false
+mouse_capture = true
+tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
+window_title = "{hostname}: {workspace}"
+{{- end }}
+
+# 侧栏宽度（根据工作区名称自动缩放，此项设置默认值）。
+# sidebar_width = 26
+
+# 展开侧栏时的最小宽度（列数）。
+# sidebar_min_width = 18
+
+# 展开侧栏时的最大宽度（列数）。
+# sidebar_max_width = 36
+
+# 启动时是否折叠侧栏。修改后下次启动才会生效。
+# sidebar_start_collapsed = false
+
+# 折叠侧栏的显示方式："compact" 保留窄状态栏，"hidden" 使用零宽度。
+# sidebar_collapsed_mode = "compact"
+
+# Herdr 使用移动端单列布局的终端宽度上限。
+# 可为折叠屏、平板或宽屏手机提高此值。
+# mobile_width_threshold = 64
+
+# 捕获 Herdr 界面的鼠标输入。
+# 设为 false 可让终端处理普通点击，例如使用 Cmd-点击打开 URL。
+# lazygit 和 btop 等面板应用仍可在主动请求时接收鼠标输入。
+# mouse_capture = true
+
+# 自动复制鼠标选中的文本。
+# 设为 false 可在按 Ctrl+C（宿主转发时也可以是 Cmd+C）之前保留拖选或双击选中的文本，
+# 复制后再清除选区。
+# copy_on_select = true
+
+# 宿主光标策略："auto"、"native" 或 "drawn"。
+# "auto" 在原生 Windows 和 WSL 上绘制 Herdr 自己的光标以避免 ConPTY 闪烁，
+# 在其他环境使用原生终端光标。
+# "native" 始终使用外层终端光标；"drawn" 始终将光标绘制为终端单元格内容。
+# host_cursor = "auto"
+
+# 可选的修饰键：将右键按住/拖动手势转发给面板应用，而不是打开 Herdr 面板菜单。
+# 留空或关闭可禁用此功能。由于终端通常占用 Shift+鼠标，此处有意不支持 Shift。
+# right_click_passthrough_modifier = ""
+
+# 外层终端重新获得焦点时是否强制完全重绘。
+# 设为 false 可减少切换回 Herdr 时的可见闪烁。
+# 代价是：少数宿主终端表面损坏可能要等下一次完全重绘才能恢复。
+# redraw_on_focus_gained = true
+
+# 面板滚动回看时，每个鼠标滚轮刻度滚动的行数。
+# mouse_scroll_lines = 3
+
+# 关闭工作区前是否询问确认。
+# confirm_close = true
+
+# 新建 Tab 前是否询问 Tab 名称。
+# 设为 false 可直接使用自动生成的名称创建 Tab。
+# prompt_new_tab_name = true
+
+# 交互式创建工作区时是否询问工作区名称。
+# prompt_new_workspace_name = false
+
+# 是否绘制分屏面板边框。
+# pane_borders = true
+
+# 是否沿面板区域外缘绘制边框。
+# 关闭后可得到 tmux 风格的内部分隔线且没有外框。
+# pane_outer_borders = true
+
+# 是否在面板旁绘制可交互滚动条。
+# 设为 false 可收回滚动条占用的列，也可避免其进入终端原生选择区域。
+# pane_scrollbars = true
+
+# 是否让分屏面板保持视觉间隔，而不是共享分隔线。
+# pane_gaps = true
+
+# 没有手动设置面板名称时，是否在分屏边框中显示检测到/报告的智能体标签。
+# show_agent_labels_on_pane_borders = false
+
+# 工作区只有一个 Tab 时是否隐藏 Tab 行。
+# 仍然可以使用配置的快捷键创建新 Tab。
+# hide_tab_bar_when_single_tab = false
+
+# 桌面 Tab 行位置："top" 或 "bottom"。
+# tab_bar_position = "top"
+
+# 桌面 Tab 栏右侧的状态项，按顺序排列。
+# 支持的类型：zoom、hostname、datetime、text 和 command。
+# hostname、datetime 和 command 项在 Herdr 服务器上解析。
+# tab_bar_right = []
+# tab_bar_right_separator = " "
+
+# Herdr 写入其所在终端的标题；窗口管理器会将其用于窗口、Tab 和分组栏标题。
+# 可用标记为 {hostname}、{workspace}、{tab}、{pane} 和 {terminal_title}；双大括号表示字面大括号。
+# 标题在 Herdr 服务器上渲染，因此即使从远程客户端连接，{hostname} 也表示面板所在主机。
+# 设为 "" 可让外层终端保持原有标题。
+# window_title = "{hostname}: {workspace}"
+
+# 智能体面板排序："spaces"（按空间分组）或 "priority"（按待处理事项排序）。
+# "workspaces" 可作为 "spaces" 的别名。
+# agent_panel_sort = "spaces"
+
+# 智能体状态指示器："dots" 保留紧凑的彩色圆点；"symbols" 使用表示阻塞、工作完成、
+# 工作中、空闲和未知状态的不同静态符号。
+# status_indicators = "dots"
+
+# 展开的智能体行。内置字段包括 state_icon、state_text、workspace、tab、pane、agent、
+# terminal_title 和 terminal_title_stripped。
+# 面板元数据提供的自定义值使用 $name 标记。
+# 标记可以单独设置样式，例如 { token = "workspace", fg = "#89b4fa", bold = true, dim = false }。
+# 省略的样式字段会保留当前上下文的默认值。
+[ui.sidebar.agents]
+# 智能体用量插件会在每次智能体回合完成后提供这些元数据标记。
+row_gap = 0
+rows = [
+  ["state_icon", "$title"],
+  ["$provider", "$limit"],
+  ["$context"],
+]
+# 可为匹配的智能体指定一组替代默认行的标准智能体 ID。
+# [ui.sidebar.agents.rows_by_agent]
+# claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]
+
+# 展开的空间行。内置字段包括 state_icon、state_text、workspace、branch 和 git_status。
+# 工作区元数据提供的自定义值使用 $name 标记，例如 $jj_status。
+# 行内标记样式仅接受严格的 #RGB/#RRGGBB 前景色，以及 bold 和 dim 布尔值。
+# [ui.sidebar.spaces]
+# 空间条目之间的空白行数。设为 1 可恢复之前的间距。
+# row_gap = 0
+# rows = [["state_icon", "workspace"], ["branch", "git_status"]]
+
+# 高亮、边框和导航界面使用的强调色。
+# 支持：十六进制（#89b4fa）、名称（cyan、blue、magenta）或 RGB 值。
+# accent = "cyan"
+
+# 后台通知弹窗的投递方式。
+[ui.toast]
+# off = 禁用弹窗通知
+# herdr = 显示 Herdr 内置通知
+# terminal = 请求外层终端显示桌面通知
+# system = 直接请求操作系统通知服务
+# delivery = "off"
+# delay_seconds = 1
+
+delivery = "off"
+[ui.toast.herdr]
+# position = "bottom-right"
+
+[ui.toast.clipboard]
+# enabled = true
+# position = "bottom-center"
+
+# 智能体在后台工作区状态变化时是否播放声音。
+[ui.sound]
+# enabled = true
+# 可选的自定义 mp3 声音文件。相对路径以此配置文件所在目录为基准解析。
+# path = "sounds/notification.mp3"   # 所有通知共用一个 mp3 文件
+# done_path = "sounds/done.mp3"      # 仅覆盖完成通知
+# request_path = "sounds/request.mp3" # 仅覆盖需要处理的通知
+
+# 每个智能体的覆盖设置：default、on 或 off。
+# 默认情况下 droid 静音。
+# [ui.sound.agents]
+# droid = "off"
+
+[session]
+# Herdr 服务器重启后，将支持的智能体面板恢复到其原生会话。
+# 需要官方集成提供会话引用。
+# resume_agents_on_restore = true
+
+[remote]
+# Herdr --remote 是否管理用于 SSH 的配置。
+# 为 true（默认值）时，Herdr 会通过生成的配置运行桥接 SSH；
+# 该配置会先包含 ~/.ssh/config，并添加 ServerAliveInterval/ServerAliveCountMax 作为备用值。
+# 这样可以应对空闲网络或 NAT 超时，同时你自行设置的保活参数仍然优先。
+# Herdr 还会使用每次连接专用的 OpenSSH 控制套接字复用首次认证的连接。
+# 设为 false 可按原样使用 SSH 配置；这不会强制关闭保活或复用，只会停止 Herdr 添加这些设置。
+# manage_ssh_config = true
+
+[experimental]
+# Navigator 的远程交接会从其插件面板启动第二个 Herdr 客户端。
+allow_nested = true
+# 面向已连接客户端的实验性 Kitty 图像渲染。
+# 需要外层终端兼容 Kitty 图像协议。
+# kitty_graphics = false
+# 是否在 Herdr 服务器完全重启后保存面板最近的屏幕历史。
+pane_history = false
+# 激活前缀模式时，临时将宿主输入法切换到支持 ASCII 的模式，
+# 让前缀快捷键能够在输入法激活时正常注册，退出前缀模式后再恢复原输入法。
+# macOS 会选择支持 ASCII 的键盘布局；Windows 会在韩文输入法的韩文/英语之间切换，
+# 其他语言的输入法保持不变。仅支持 macOS 和 Windows，并且只能尽力执行。默认值：false。
+# switch_ascii_input_source_in_prefix = false
+# 将聚焦面板的光标暴露给外层终端，让 macOS 输入法在 TUI 自行绘制光标时仍能跟踪候选窗口（Claude Code、pi、codex）。
+# 代价是：对于隐藏光标但不自行绘制替代光标的应用（例如 Vim 普通模式），可能会多显示一个光标。
+# reveal_hidden_cursor_for_cjk_ime = false
+# 可选白名单：只对检测到的智能体名称在此列表中的聚焦面板启用。
+# 空列表表示应用于所有聚焦面板。
+# 如果列表中没有有效名称，则不会启用此功能。
+# 支持的名称：pi、claude、codex、gemini、cursor、devin、cline、opencode、
+# copilot、kimi、kiro、droid、amp、grok、hermes、kilo、qodercli、qoder、qwen、
+# qwen-code、maki。
+# cjk_ime_agents = []
+# reveal_hidden_cursor_for_cjk_ime 为 true 时使用的光标形状。
+# 可选值：block、steady_block（默认）、underline、steady_underline、bar、steady_bar。
+# cjk_ime_cursor_shape = "steady_block"
+
+[advanced]
+# 每个面板终端保留的最大回滚缓冲区大小（字节）。
+# 与 Ghostty 默认的 scrollback-limit 行为一致。
+# scrollback_limit_bytes = 10000000
