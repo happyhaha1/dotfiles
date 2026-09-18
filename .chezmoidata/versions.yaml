@@ -12,5 +12,5 @@ versions:
   uiUxProMaxSkillSha256: fc03b6024cdef591ab518ffac6298c13e7a550b89000e0fdafa588d111e83705
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
-  mihomoForkBuild: 1a7c9c7
-  zashboardVersion: v3.27.0
+  mihomoForkBuild: 4a5de79
+  zashboardVersion: v3.28.0

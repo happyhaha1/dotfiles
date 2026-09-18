@@ -13,11 +13,11 @@ herdrPlugins:
   profiles:
     daily:
       - source: yankewei/herdr-focus-notify
-        ref: v0.5.1
+        ref: v0.6.0
     office-server:
       # Collie exposes the local Herdr server to a trusted LAN/Tailscale subnet.
       - source: AltanS/collie
-        ref: v1.10.0
+        ref: v1.10.1
   # Example:
   # shared:
   #   - source: owner/repository
