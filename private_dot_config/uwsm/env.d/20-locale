@@ -1,0 +1,5 @@
+# Omarchy graphical session locale.
+# Keep the system/TTY locale in /etc/locale.conf as en_US.UTF-8 to avoid Linux
+# console CJK glyph issues, but let GUI apps prefer Simplified Chinese.
+export LANG=zh_CN.UTF-8
+export LANGUAGE=zh_CN:en_US

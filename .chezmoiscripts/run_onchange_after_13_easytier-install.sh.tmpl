@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (Omarchy only)"
+exit 0
+{{- else }}
+{{ $configSource := joinPath .chezmoi.sourceDir "private_dot_config/private_easytier/encrypted_private_easytier.toml.age" -}}
+{{ $serviceSource := joinPath .chezmoi.sourceDir "private_dot_config/systemd/user/easytier.service" -}}
+# Changing the release pin, architecture, encrypted configuration, or user
+# service reruns this installer and reconciles the user service.
+# version: {{ .versions.easytierVersion }}
+# archive sha256: {{ .versions.easytierLinuxX8664Sha256 }}
+# config source sha256: {{ if stat $configSource }}{{ output "sha256sum" $configSource | trim }}{{ else }}missing{{ end }}
+# service source sha256: {{ if stat $serviceSource }}{{ output "sha256sum" $serviceSource | trim }}{{ else }}missing{{ end }}
+
+echo ":: [13] Synchronizing EasyTier (Omarchy only)"
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Linux only)"
+    exit 0
+fi
+
+case "$(uname -m)" in
+    x86_64) ;;
+    *)
+        echo "    Error: EasyTier pin only contains a Linux x86_64 archive (found $(uname -m))" >&2
+        exit 1
+        ;;
+esac
+
+EASYTIER_VERSION="{{ .versions.easytierVersion }}"
+EASYTIER_SHA256="{{ .versions.easytierLinuxX8664Sha256 }}"
+EASYTIER_ARCHIVE="easytier-linux-x86_64-${EASYTIER_VERSION}.zip"
+EASYTIER_URL="https://github.com/EasyTier/EasyTier/releases/download/${EASYTIER_VERSION}/${EASYTIER_ARCHIVE}"
+EASYTIER_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/easytier"
+EASYTIER_VERSION_DIR="$EASYTIER_ROOT/$EASYTIER_VERSION"
+EASYTIER_BIN_DIR="$HOME/.local/bin"
+EASYTIER_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/easytier"
+CONFIG_PATH="$HOME/.config/easytier/easytier.toml"
+
+if [[ ! "$EASYTIER_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "    Error: invalid EasyTier version pin: $EASYTIER_VERSION" >&2
+    exit 1
+fi
+if [[ ! "$EASYTIER_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]; then
+    echo "    Error: invalid EasyTier SHA-256 pin" >&2
+    exit 1
+fi
+
+for command_name in curl sha256sum unzip install cp systemctl pgrep; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        echo "    Error: required command not found: $command_name" >&2
+        exit 1
+    fi
+done
+
+install -d -m 755 "$EASYTIER_ROOT" "$EASYTIER_BIN_DIR"
+install -d -m 700 "$EASYTIER_STATE_DIR"
+
+binaries=(easytier-core easytier-cli easytier-web easytier-web-embed)
+release_is_ready=false
+if [[ -f "$EASYTIER_VERSION_DIR/.archive.sha256" ]] \
+    && grep -Fqx "$EASYTIER_SHA256" "$EASYTIER_VERSION_DIR/.archive.sha256"; then
+    release_is_ready=true
+    for binary in "${binaries[@]}"; do
+        if [[ ! -x "$EASYTIER_VERSION_DIR/$binary" ]]; then
+            release_is_ready=false
+            break
+        fi
+    done
+fi
+
+if [[ "$release_is_ready" == true ]]; then
+    echo "    EasyTier ${EASYTIER_VERSION} is already installed"
+else
+    tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/easytier.XXXXXX")"
+    stage_dir=""
+    cleanup() {
+        rm -rf -- "$tmp_dir"
+        [[ -z "$stage_dir" ]] || rm -rf -- "$stage_dir"
+    }
+    trap cleanup EXIT
+
+    archive_path="$tmp_dir/$EASYTIER_ARCHIVE"
+    local_archive="$HOME/Downloads/$EASYTIER_ARCHIVE"
+    if [[ -f "$local_archive" ]]; then
+        echo "    Using existing release archive: $local_archive"
+        cp "$local_archive" "$archive_path"
+    else
+        echo "    Downloading ${EASYTIER_VERSION}"
+        curl -fsSL --retry 3 -o "$archive_path" "$EASYTIER_URL"
+    fi
+
+    actual_sha256="$(sha256sum "$archive_path" | awk '{print $1}')"
+    if [[ "${actual_sha256,,}" != "${EASYTIER_SHA256,,}" ]]; then
+        echo "    Error: EasyTier archive checksum mismatch" >&2
+        echo "    expected: ${EASYTIER_SHA256,,}" >&2
+        echo "    actual:   ${actual_sha256,,}" >&2
+        exit 1
+    fi
+
+    mkdir "$tmp_dir/unpacked"
+    unzip -q "$archive_path" -d "$tmp_dir/unpacked"
+    release_dir="$tmp_dir/unpacked/easytier-linux-x86_64"
+    if [[ ! -d "$release_dir" ]]; then
+        echo "    Error: EasyTier archive has an unexpected layout" >&2
+        exit 1
+    fi
+    for binary in "${binaries[@]}"; do
+        if [[ ! -f "$release_dir/$binary" ]]; then
+            echo "    Error: EasyTier archive is missing $binary" >&2
+            exit 1
+        fi
+    done
+
+    stage_dir="$(mktemp -d "$EASYTIER_ROOT/.${EASYTIER_VERSION}.XXXXXX")"
+    for binary in "${binaries[@]}"; do
+        install -m 0755 "$release_dir/$binary" "$stage_dir/$binary"
+    done
+    printf '%s\n' "$EASYTIER_SHA256" > "$stage_dir/.archive.sha256"
+
+    rm -rf -- "$EASYTIER_VERSION_DIR"
+    mv "$stage_dir" "$EASYTIER_VERSION_DIR"
+    stage_dir=""
+    echo "    Installed EasyTier ${EASYTIER_VERSION}"
+fi
+
+# Keep stable command paths while retaining the versioned release directory.
+for binary in "${binaries[@]}"; do
+    link_tmp="$EASYTIER_BIN_DIR/.${binary}.link.$$"
+    rm -f -- "$link_tmp"
+    ln -s "$EASYTIER_VERSION_DIR/$binary" "$link_tmp"
+    mv -Tf "$link_tmp" "$EASYTIER_BIN_DIR/$binary"
+done
+
+version_output="$($EASYTIER_BIN_DIR/easytier-core --version 2>&1)"
+if ! grep -Fq "easytier-core ${EASYTIER_VERSION#v}" <<<"$version_output"; then
+    echo "    Error: installed EasyTier version check failed" >&2
+    echo "    output: $version_output" >&2
+    exit 1
+fi
+
+if [[ ! -f "$CONFIG_PATH" ]]; then
+    echo "    Error: EasyTier configuration is missing: $CONFIG_PATH" >&2
+    exit 1
+fi
+"$EASYTIER_BIN_DIR/easytier-core" --config-file "$CONFIG_PATH" --check-config
+
+if ! systemctl --user daemon-reload >/dev/null 2>&1; then
+    echo "    Error: could not reload the user systemd manager" >&2
+    exit 1
+fi
+
+systemctl --user enable easytier.service >/dev/null
+if systemctl --user is-active --quiet easytier.service; then
+    echo "    Restarting easytier.service"
+    systemctl --user restart easytier.service
+elif pgrep -x easytier-core >/dev/null 2>&1; then
+    echo "    Existing easytier-core detected; service enabled but not started"
+    echo "    Stop the old process, then run: systemctl --user start easytier.service"
+else
+    echo "    Starting easytier.service"
+    systemctl --user start easytier.service
+fi
+{{- end }}

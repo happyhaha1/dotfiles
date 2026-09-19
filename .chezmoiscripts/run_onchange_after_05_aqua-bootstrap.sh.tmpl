@@ -22,16 +22,11 @@ if [[ -d "$aqua_bin_dir" ]]; then
     export PATH="$aqua_bin_dir:$PATH"
 fi
 
-source_aqua_config="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua.yaml" }}"
 source_aqua_policy="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua-policy.yaml" }}"
 AQUA_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua.yaml"
 AQUA_POLICY_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua-policy.yaml"
-if [[ -f "$AQUA_CONFIG_PATH" ]]; then
-    :
-elif [[ -f "$source_aqua_config" ]]; then
-    AQUA_CONFIG_PATH="$source_aqua_config"
-else
-    echo "    Skipped (aqua config not found)"
+if [[ ! -f "$AQUA_CONFIG_PATH" ]]; then
+    echo "    Skipped (rendered aqua config not found: $AQUA_CONFIG_PATH)"
     exit 0
 fi
 

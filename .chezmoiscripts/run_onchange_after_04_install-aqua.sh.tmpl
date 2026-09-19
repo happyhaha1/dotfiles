@@ -2,11 +2,6 @@
 
 set -euo pipefail
 
-{{- if and (hasKey . "omarchy") .omarchy }}
-echo "    Skipped (Omarchy: aqua managed-off — delete this guard in source to opt in)"
-exit 0
-{{- end }}
-
 echo ":: [04] Installing aqua"
 
 # --- Version (pinned in .chezmoidata/versions.yaml, auto-updated by GitHub Actions) ---
@@ -19,10 +14,17 @@ AQUA_ROOT_DIR="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aq
 AQUA_BIN_DIR="${AQUA_ROOT_DIR}/bin"
 AQUA_BIN="${AQUA_BIN_DIR}/aqua"
 
+{{- if and (hasKey . "omarchy") .omarchy }}
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Omarchy aqua install is Linux only; found $(uname -s))"
+    exit 0
+fi
+{{- else }}
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "    Skipped (unsupported OS: $(uname -s); this repository currently targets macOS)"
     exit 0
 fi
+{{- end }}
 
 AQUA_INSTALLER_URL="https://raw.githubusercontent.com/aquaproj/aqua-installer/${AQUA_INSTALLER_VERSION}/aqua-installer"
 

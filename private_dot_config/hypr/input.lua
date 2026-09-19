@@ -6,3 +6,10 @@ hl.config({
     kb_options = "caps:menu",
   },
 })
+
+-- Use the Mac-style Alt/Super positions only on the built-in HP keyboard.
+-- External keyboards keep the global mapping above.
+hl.device({
+  name = "at-translated-set-2-keyboard",
+  kb_options = "caps:menu,altwin:swap_alt_win",
+})

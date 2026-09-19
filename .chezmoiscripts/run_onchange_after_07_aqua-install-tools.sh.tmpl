@@ -2,20 +2,21 @@
 
 set -euo pipefail
 
-{{- if and (hasKey . "omarchy") .omarchy }}
-echo "    Skipped (Omarchy: aqua tools managed-off — delete this guard in source to opt in)"
-exit 0
-{{- end }}
-
 {{ $aquaConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua.yaml" -}}
+{{ $aquaOmarchyConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-omarchy.yaml" -}}
 {{ $aquaRegistry := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/registry.yaml" -}}
 {{ $aquaPolicy := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-policy.yaml" -}}
 # aqua config: {{ if stat $aquaConfig }}{{ output "sha256sum" $aquaConfig | trim }}{{ else }}n/a{{ end }}
+# aqua Omarchy config: {{ if stat $aquaOmarchyConfig }}{{ output "sha256sum" $aquaOmarchyConfig | trim }}{{ else }}n/a{{ end }}
 # aqua local registry: {{ if stat $aquaRegistry }}{{ output "sha256sum" $aquaRegistry | trim }}{{ else }}n/a{{ end }}
 # aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
 
+{{- if and (hasKey . "omarchy") .omarchy }}
+echo ":: [07] Installing Omarchy aqua tools"
+{{- else }}
 echo ":: [07] Installing remaining aqua tools"
+{{- end }}
 
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then
@@ -30,16 +31,15 @@ if [[ -x "$mise_cmd" ]]; then
     eval "$($mise_cmd activate bash)"
 fi
 
-source_aqua_config="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua.yaml" }}"
 source_aqua_policy="{{ joinPath .chezmoi.sourceDir "private_dot_config/aquaproj-aqua/aqua-policy.yaml" }}"
+{{- if and (hasKey . "omarchy") .omarchy }}
+AQUA_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua-omarchy.yaml"
+{{- else }}
 AQUA_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua.yaml"
+{{- end }}
 AQUA_POLICY_CONFIG_PATH="$HOME/.config/aquaproj-aqua/aqua-policy.yaml"
-if [[ -f "$AQUA_CONFIG_PATH" ]]; then
-    :
-elif [[ -f "$source_aqua_config" ]]; then
-    AQUA_CONFIG_PATH="$source_aqua_config"
-else
-    echo "    Skipped (aqua config not found)"
+if [[ ! -f "$AQUA_CONFIG_PATH" ]]; then
+    echo "    Skipped (rendered aqua config not found: $AQUA_CONFIG_PATH)"
     exit 0
 fi
 
@@ -60,5 +60,14 @@ else
     echo "    Skipped (aqua not found)"
     exit 0
 fi
+
+{{- if and (hasKey . "omarchy") .omarchy }}
+# Aqua creates proxy symlinks for every package in the active config. Remove
+# old proxies first so a previous full-manifest run cannot shadow system tools
+# such as mise, bat, nvim, rg, starship, or herdr.
+if [[ -d "$aqua_bin_dir" ]]; then
+    find "$aqua_bin_dir" -maxdepth 1 -type l ! -name aqua -exec rm -f {} +
+fi
+{{- end }}
 
 "$aqua_cmd" install

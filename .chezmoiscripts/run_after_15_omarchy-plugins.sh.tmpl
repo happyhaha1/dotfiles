@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{ else }}
+{{ $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
+{{- $pruneUnmanaged := false -}}
+{{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "pruneUnmanaged") -}}
+{{-   $pruneUnmanaged = index .omarchyPlugins "pruneUnmanaged" -}}
+{{- end -}}
+# This is an allowlist: when pruneUnmanaged is true, every third-party plugin
+# under ~/.config/omarchy/plugins must be declared below or it is removed.
+# machine profile: {{ $machineProfile }}
+# prune unmanaged: {{ $pruneUnmanaged }}
+
+echo ":: [15] Synchronizing Omarchy plugins"
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Error: omarchy command not found" >&2
+    exit 1
+fi
+if ! command -v jq >/dev/null 2>&1; then
+    echo "    Error: jq command not found" >&2
+    exit 1
+fi
+if ! command -v git >/dev/null 2>&1; then
+    echo "    Error: git command not found" >&2
+    exit 1
+fi
+
+declare -a desired_ids=()
+declare -A desired_sources=()
+declare -A desired_enabled=()
+declare -A desired_sections=()
+
+add_desired() {
+    local plugin_id="$1"
+    local plugin_source="$2"
+    local plugin_enabled="$3"
+    local plugin_section="$4"
+
+    if [[ ! "$plugin_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ || "$plugin_id" == *..* ]]; then
+        echo "    Error: invalid Omarchy plugin id: $plugin_id" >&2
+        exit 1
+    fi
+    if [[ -z "$plugin_source" || "$plugin_source" == *$'\t'* || "$plugin_source" == *$'\n'* || "$plugin_source" == *$'\r'* ]]; then
+        echo "    Error: invalid Omarchy plugin source for $plugin_id" >&2
+        exit 1
+    fi
+    if [[ "$plugin_enabled" != true && "$plugin_enabled" != false ]]; then
+        echo "    Error: enabled must be true or false for $plugin_id" >&2
+        exit 1
+    fi
+    if [[ -n "$plugin_section" && ! "$plugin_section" =~ ^(left|center|right)$ ]]; then
+        echo "    Error: invalid bar section for $plugin_id: $plugin_section" >&2
+        exit 1
+    fi
+    if [[ -n ${desired_sources[$plugin_id]+x} ]]; then
+        echo "    Error: duplicate Omarchy plugin id: $plugin_id" >&2
+        exit 1
+    fi
+
+    desired_ids+=("$plugin_id")
+    desired_sources["$plugin_id"]="$plugin_source"
+    desired_enabled["$plugin_id"]="$plugin_enabled"
+    desired_sections["$plugin_id"]="$plugin_section"
+}
+
+{{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "shared") }}
+{{ range .omarchyPlugins.shared -}}
+add_desired {{ .id | quote }} {{ .source | quote }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }}
+{{ end -}}
+{{- end }}
+{{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "profiles") (hasKey .omarchyPlugins.profiles $machineProfile) }}
+{{ range index .omarchyPlugins.profiles $machineProfile -}}
+add_desired {{ .id | quote }} {{ .source | quote }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }}
+{{ end -}}
+{{- end }}
+
+plugins_dir="$HOME/.config/omarchy/plugins"
+
+normalize_git_url() {
+    local url="$1"
+    url="${url%/}"
+    url="${url%.git}"
+    if [[ "$url" == git@github.com:* ]]; then
+        url="https://github.com/${url#git@github.com:}"
+    fi
+    printf '%s\n' "$url"
+}
+
+plugin_source_matches() {
+    local plugin_id="$1"
+    local plugin_source="$2"
+    local plugin_dir="$plugins_dir/$plugin_id"
+    local installed_source
+
+    [[ -d "$plugin_dir/.git" ]] || return 1
+    installed_source="$(git -C "$plugin_dir" config --get remote.origin.url 2>/dev/null || true)"
+    [[ -n "$installed_source" ]] || return 1
+    [[ "$(normalize_git_url "$installed_source")" == "$(normalize_git_url "$plugin_source")" ]]
+}
+
+ensure_plugin_checkout() {
+    local plugin_id="$1"
+    local plugin_source="${desired_sources[$plugin_id]}"
+    local plugin_dir="$plugins_dir/$plugin_id"
+
+    if [[ ! -e "$plugin_dir" && ! -L "$plugin_dir" ]]; then
+        echo "    Installing declared Omarchy plugin: $plugin_id"
+        omarchy plugin add "$plugin_source" --enable --yes
+        return
+    fi
+
+    if ! plugin_source_matches "$plugin_id" "$plugin_source"; then
+        echo "    Error: declared plugin '$plugin_id' is not the expected Git checkout" >&2
+        echo "    Remove it with 'omarchy plugin remove $plugin_id --yes', then apply again" >&2
+        exit 1
+    fi
+}
+
+ensure_plugin_state() {
+    local plugin_id="$1"
+    local plugin_enabled="${desired_enabled[$plugin_id]}"
+    local plugin_section="${desired_sections[$plugin_id]}"
+    local installed_plugins
+    local enabled
+
+    installed_plugins="$(omarchy plugin list --json)"
+    enabled="$(jq -r --arg id "$plugin_id" 'map(select(.id == $id))[0].enabled // empty' <<<"$installed_plugins")"
+    if [[ -z "$enabled" ]]; then
+        echo "    Error: declared plugin '$plugin_id' was not discovered by Omarchy" >&2
+        exit 1
+    fi
+
+    if [[ "$plugin_enabled" == true && "$enabled" != true ]]; then
+        if [[ -n "$plugin_section" ]]; then
+            omarchy plugin enable "$plugin_id" --section "$plugin_section"
+        else
+            omarchy plugin enable "$plugin_id"
+        fi
+    elif [[ "$plugin_enabled" == false && "$enabled" == true ]]; then
+        omarchy plugin disable "$plugin_id"
+    fi
+
+    if [[ "$plugin_enabled" == true && -n "$plugin_section" ]]; then
+        omarchy bar move "$plugin_id" --section "$plugin_section"
+    fi
+}
+
+prune_unmanaged_plugins() {
+    local plugin_path plugin_id
+    local prune_unmanaged="{{ $pruneUnmanaged }}"
+
+    [[ "$prune_unmanaged" == true ]] || {
+        echo "    Unmanaged-plugin pruning disabled"
+        return
+    }
+    [[ -d "$plugins_dir" ]] || return
+
+    shopt -s nullglob
+    for plugin_path in "$plugins_dir"/*; do
+        [[ -d "$plugin_path" || -L "$plugin_path" ]] || continue
+        plugin_id="$(basename "$plugin_path")"
+        [[ "$plugin_id" == .* ]] && continue
+
+        if [[ -z ${desired_sources[$plugin_id]+x} ]]; then
+            if [[ ! "$plugin_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ || "$plugin_id" == *..* ]]; then
+                echo "    Error: unmanaged plugin path has invalid id: $plugin_id" >&2
+                exit 1
+            fi
+            echo "    Removing undeclared Omarchy plugin: $plugin_id"
+            omarchy plugin remove "$plugin_id" --yes
+        fi
+    done
+    shopt -u nullglob
+}
+
+# Remove temporary/manual third-party plugins before restoring the declared
+# allowlist. Built-in Omarchy plugins live outside this directory and are not
+# affected.
+prune_unmanaged_plugins
+
+for plugin_id in "${desired_ids[@]}"; do
+    ensure_plugin_checkout "$plugin_id"
+done
+for plugin_id in "${desired_ids[@]}"; do
+    ensure_plugin_state "$plugin_id"
+done
+
+if ((${#desired_ids[@]} == 0)); then
+    echo "    No Omarchy plugins declared"
+else
+    echo "    Omarchy plugins synchronized: ${desired_ids[*]}"
+fi
+{{- end }}

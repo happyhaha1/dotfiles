@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{ else }}
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
+# Do not remove wrappers before the user has opted into the official
+# preinstall-removal flow. This keeps a normal chezmoi apply non-destructive.
+# machine profile: {{ $machineProfile }}
+preinstalls_marker="$HOME/.local/state/omarchy/preinstalls-removed"
+if [[ ! -f "$preinstalls_marker" ]]; then
+    echo "    Skipped AI wrapper cleanup (Omarchy preinstalls have not been removed)"
+    exit 0
+fi
+
+removed_commands=(
+{{ range .omarchyRemovedCli.shared }}    {{ .command | quote }}
+{{ end }}{{ if and (hasKey .omarchyRemovedCli "profiles") (hasKey .omarchyRemovedCli.profiles $machineProfile) }}{{ range index .omarchyRemovedCli.profiles $machineProfile }}    {{ .command | quote }}
+{{ end }}{{ end }})
+removed_packages=(
+{{ range .omarchyRemovedCli.shared }}    {{ .package | quote }}
+{{ end }}{{ if and (hasKey .omarchyRemovedCli "profiles") (hasKey .omarchyRemovedCli.profiles $machineProfile) }}{{ range index .omarchyRemovedCli.profiles $machineProfile }}    {{ .package | quote }}
+{{ end }}{{ end }})
+
+if ! command -v mise >/dev/null 2>&1; then
+    echo "    Skipped AI wrapper cleanup (mise not found)"
+    exit 0
+fi
+
+for i in "${!removed_commands[@]}"; do
+    command_name="${removed_commands[$i]}"
+    package="${removed_packages[$i]}"
+    wrapper="$HOME/.local/bin/$command_name"
+
+    # Preserve user-owned scripts and vendor symlinks. The official Omarchy
+    # wrappers are regular files whose first command is `mise use -g`.
+    if [[ -f "$wrapper" && ! -L "$wrapper" ]] &&
+        grep -Eq '^mise use -g .*"' "$wrapper"; then
+        echo "    Removing excluded mise wrapper: $command_name"
+        mise unuse -g "$package" >/dev/null 2>&1 || true
+        mise uninstall -y --all "$package" >/dev/null 2>&1 || true
+        rm -f "$wrapper"
+    fi
+done
+
+mise reshim >/dev/null 2>&1 || true
+{{- end }}

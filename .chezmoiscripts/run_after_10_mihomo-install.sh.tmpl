@@ -25,6 +25,13 @@ TAG="Prerelease-Alpha"
 REPO="liuran001/mihomo"
 BIN="/usr/local/bin/mihomo"
 CONFIG_DIR="$HOME/.config/mihomo"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+BUILD_MARKER="$CACHE_DIR/mihomo-fork-build"
+CONFIG_HASH_MARKER="$CACHE_DIR/mihomo-config.sha256"
+SERVICE_UNIT="/etc/systemd/system/mihomo.service"
+KERNEL_CHANGED=false
+CONFIG_CHANGED=false
+UNIT_CHANGED=false
 
 # --- arch / x86-64 microarch level ---
 case "$(uname -m)" in
@@ -41,16 +48,14 @@ esac
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-# --- kernel: install when missing or older than the pinned build ---
+# --- kernel: install when missing or older than the effective build ---
 INSTALLED_BUILD=""
-[[ -x "$BIN" ]] && INSTALLED_BUILD=$(cat "$HOME/.cache/mihomo-fork-build" 2>/dev/null || echo "unknown")
+[[ -x "$BIN" ]] && INSTALLED_BUILD=$(cat "$BUILD_MARKER" 2>/dev/null || echo "unknown")
 
 if [[ -x "$BIN" && "$INSTALLED_BUILD" == "$BUILD" ]]; then
     echo "    kernel ${BUILD} already installed, skipping download"
 else
     [[ -x "$BIN" ]] || echo "    kernel binary missing — installing"
-    [[ "$INSTALLED_BUILD" != "$BUILD" && "$INSTALLED_BUILD" != "unknown" ]] \
-        && echo "    updating kernel: ${INSTALLED_BUILD} -> ${BUILD}"
 
     asset_url() {
         echo "https://github.com/${REPO}/releases/download/${TAG}/mihomo-linux-${MARCH}-alpha-smart-${1}.gz"
@@ -58,7 +63,9 @@ else
 
     ASSET_URL="$(asset_url "$BUILD")"
     # The rolling tag replaces assets on every build; if the pinned build is
-    # gone, resolve the current one via the GitHub API.
+    # gone, resolve the current one via the GitHub API. Compare the installed
+    # marker again after this fallback, because the resolved build is the
+    # effective version that should control whether a download is needed.
     if ! curl -fsIL -o /dev/null "${ASSET_URL}"; then
         echo "    pinned build ${BUILD} no longer present, resolving latest via GitHub API"
         BUILD=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/tags/${TAG}" \
@@ -71,11 +78,19 @@ else
         ASSET_URL="$(asset_url "$BUILD")"
     fi
 
-    echo "    downloading kernel build ${BUILD} (${MARCH})"
-    curl -fsSL --retry 3 -o "$TMP_DIR/kernel.gz" "$ASSET_URL"
-    gunzip -c "$TMP_DIR/kernel.gz" > "$TMP_DIR/mihomo"
-    sudo install -m 0755 "$TMP_DIR/mihomo" "$BIN"
-    echo "$BUILD" | sudo tee "$HOME/.cache/mihomo-fork-build" >/dev/null
+    if [[ -x "$BIN" && "$INSTALLED_BUILD" == "$BUILD" ]]; then
+        echo "    kernel ${BUILD} already installed after resolving release, skipping download"
+    else
+        [[ "$INSTALLED_BUILD" != "$BUILD" && "$INSTALLED_BUILD" != "unknown" ]] \
+            && echo "    updating kernel: ${INSTALLED_BUILD} -> ${BUILD}"
+        echo "    downloading kernel build ${BUILD} (${MARCH})"
+        curl -fsSL --retry 3 -o "$TMP_DIR/kernel.gz" "$ASSET_URL"
+        gunzip -c "$TMP_DIR/kernel.gz" > "$TMP_DIR/mihomo"
+        sudo install -m 0755 "$TMP_DIR/mihomo" "$BIN"
+        mkdir -p "$CACHE_DIR"
+        printf '%s\n' "$BUILD" > "$BUILD_MARKER"
+        KERNEL_CHANGED=true
+    fi
 fi
 
 # --- zashboard web UI -> served at http://127.0.0.1:9090/ui ---
@@ -100,7 +115,41 @@ else
     [[ -d "$TMP_DIR/ui/dist" ]] && cp -R "$TMP_DIR/ui/dist/." "$CONFIG_DIR/ui/"
 fi
 
-# --- clean up the old user-service era ---
+# --- config change detection: restart service only when config actually changed ---
+service_active=false
+if systemctl is-active --quiet mihomo.service 2>/dev/null; then
+    service_active=true
+fi
+
+CURRENT_CONFIG_HASH=""
+if [[ -f "$CONFIG_DIR/config.yaml" ]]; then
+    CURRENT_CONFIG_HASH=$(sha256sum "$CONFIG_DIR/config.yaml" | awk '{ print $1 }')
+    LAST_CONFIG_HASH=$(cat "$CONFIG_HASH_MARKER" 2>/dev/null || true)
+    if [[ -n "$LAST_CONFIG_HASH" ]]; then
+        if [[ "$CURRENT_CONFIG_HASH" != "$LAST_CONFIG_HASH" ]]; then
+            echo "    config.yaml changed since last service sync"
+            CONFIG_CHANGED=true
+        fi
+    elif [[ "$service_active" != true ]]; then
+        CONFIG_CHANGED=true
+    else
+        # First run after adding the marker: avoid prompting for sudo if the
+        # running service is already newer than the config file.
+        active_timestamp=$(systemctl show mihomo.service -p ActiveEnterTimestamp --value 2>/dev/null || true)
+        active_epoch=$(date -d "$active_timestamp" +%s 2>/dev/null || echo 0)
+        config_epoch=$(stat -c %Y "$CONFIG_DIR/config.yaml" 2>/dev/null || echo 0)
+        if (( config_epoch > active_epoch )); then
+            echo "    config.yaml is newer than the running service"
+            CONFIG_CHANGED=true
+        else
+            echo "    config hash marker missing; initializing baseline without restart"
+        fi
+    fi
+else
+    echo "warn: mihomo config not found: $CONFIG_DIR/config.yaml" >&2
+fi
+
+# --- clean up the old user-service era (unprivileged; safe to rerun) ---
 systemctl --user disable --now mihomo.service 2>/dev/null || true
 rm -f "$HOME/.local/bin/mihomo"
 
@@ -111,8 +160,8 @@ if [[ "$(sysctl -n net.ipv4.ip_forward)" != "1" ]]; then
     sudo sysctl --system >/dev/null
 fi
 
-# --- system unit (root) ---
-sudo tee /etc/systemd/system/mihomo.service >/dev/null <<UNIT
+# --- system unit (root): update only when rendered unit content changes ---
+cat >"$TMP_DIR/mihomo.service" <<UNIT
 [Unit]
 Description=mihomo (liuran001 fork: smart + eBPF + Tailscale)
 After=network-online.target nss-lookup.target
@@ -128,8 +177,40 @@ RestartSec=3
 WantedBy=multi-user.target
 UNIT
 
-sudo systemctl daemon-reload
-sudo systemctl enable --now mihomo.service
+if [[ ! -f "$SERVICE_UNIT" ]] || ! cmp -s "$TMP_DIR/mihomo.service" "$SERVICE_UNIT"; then
+    UNIT_CHANGED=true
+fi
+
+if [[ "$UNIT_CHANGED" == true ]]; then
+    echo "    updating systemd unit"
+    sudo install -m 0644 "$TMP_DIR/mihomo.service" "$SERVICE_UNIT"
+    sudo systemctl daemon-reload
+fi
+
+service_enabled=false
+if systemctl is-enabled --quiet mihomo.service 2>/dev/null; then
+    service_enabled=true
+fi
+
+if [[ "$service_enabled" != true ]]; then
+    echo "    enabling mihomo.service"
+    sudo systemctl enable mihomo.service >/dev/null
+fi
+
+if [[ "$KERNEL_CHANGED" == true || "$CONFIG_CHANGED" == true || "$UNIT_CHANGED" == true ]]; then
+    echo "    restarting mihomo.service"
+    sudo systemctl restart mihomo.service
+elif [[ "$service_active" != true ]]; then
+    echo "    starting mihomo.service"
+    sudo systemctl start mihomo.service
+else
+    echo "    mihomo.service already current, skipping privileged service step"
+fi
+
+if [[ -n "$CURRENT_CONFIG_HASH" ]]; then
+    mkdir -p "$CACHE_DIR"
+    printf '%s\n' "$CURRENT_CONFIG_HASH" > "$CONFIG_HASH_MARKER"
+fi
 
 "$BIN" -v | head -1
 echo ":: [10] done — dashboard: http://127.0.0.1:9090/ui"

@@ -52,10 +52,57 @@ jobs:
           aqua update -r
           aqua update -p
 
+      - name: Generate Omarchy aqua subset
+        shell: bash
+        run: |
+          ruby <<'RUBY'
+          require "yaml"
+
+          allow = %w[
+            twpayne/chezmoi
+            openai/codex
+            anomalyco/opencode
+            earendil-works/pi
+            cli/cli
+            atuinsh/atuin
+            timhartmann7/omnyssh
+            dandavison/delta
+            Wilfred/difftastic
+            dlvhdr/gh-dash
+            x-motemen/ghq
+            git-lfs/git-lfs
+            charmbracelet/glow
+            casey/just
+            joshmedeski/sesh
+            koalaman/shellcheck
+            mvdan/sh
+            numtide/treefmt
+            sxyazi/yazi
+            mikefarah/yq
+            k3d-io/k3d
+            herdrdev/herdr
+          ]
+
+          source = YAML.safe_load_file("private_dot_config/aquaproj-aqua/aqua.yaml")
+          packages = source.fetch("packages").select do |pkg|
+            name = pkg["name"]
+            name && allow.include?(name.split("@", 2).first)
+          end
+          missing = allow - packages.map { |pkg| pkg.fetch("name").split("@", 2).first }
+          abort "missing Omarchy aqua packages: #{missing.join(", ")}" unless missing.empty?
+
+          File.open("private_dot_config/aquaproj-aqua/aqua-omarchy.yaml", "w") do |f|
+            f.puts "---"
+            f.puts "# Generated from aqua.yaml for Omarchy. Keep the full aqua.yaml for"
+            f.puts "# GitHub workflow updates; install only this curated subset on Omarchy."
+            f.write({"registries" => source.fetch("registries"), "packages" => packages}.to_yaml.sub(/\A---\n/, ""))
+          end
+          RUBY
+
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet private_dot_config/aquaproj-aqua/aqua.yaml; then
+          if git diff --quiet private_dot_config/aquaproj-aqua/aqua.yaml private_dot_config/aquaproj-aqua/aqua-omarchy.yaml; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -73,9 +120,12 @@ jobs:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           add-paths: |
             private_dot_config/aquaproj-aqua/aqua.yaml
+            private_dot_config/aquaproj-aqua/aqua-omarchy.yaml
           commit-message: "chore(aqua): update pinned packages"
           title: "chore(aqua): update pinned packages (${{ steps.date.outputs.date }})"
           branch: update-aqua-packages
           labels: dependencies,automation,aqua
           body: |
             Automated Standard Registry and package update for `private_dot_config/aquaproj-aqua/aqua.yaml`.
+
+            Also regenerates the Omarchy-only Aqua subset at `private_dot_config/aquaproj-aqua/aqua-omarchy.yaml`.

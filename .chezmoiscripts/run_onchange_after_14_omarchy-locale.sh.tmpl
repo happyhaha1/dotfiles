@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (Omarchy only)"
+exit 0
+{{- else }}
+# Changing this script, /etc/locale.gen, or the generated-locale state reruns
+# the check. The script deliberately does not call localectl or edit
+# /etc/locale.conf; system/TTY locale stays en_US.UTF-8.
+# locale.gen sha256: {{ if stat "/etc/locale.gen" }}{{ output "sha256sum" "/etc/locale.gen" | trim }}{{ else }}missing{{ end }}
+# zh_CN.UTF-8 generated: {{ output "bash" "-lc" "LC_ALL=C locale -a 2>/dev/null | grep -qi '^zh_CN\\.utf8$' && printf yes || printf no" }}
+
+echo ":: [14] Omarchy GUI locale"
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+    echo "    Skipped (Linux only)"
+    exit 0
+fi
+
+locale_name="zh_CN.UTF-8"
+locale_generated() {
+    LC_ALL=C locale -a 2>/dev/null | grep -qi '^zh_CN\.utf8$'
+}
+
+if locale_generated; then
+    echo "    ${locale_name} already generated"
+    exit 0
+fi
+
+if grep -Eq '^#zh_CN\.UTF-8[[:space:]]+UTF-8[[:space:]]*$' /etc/locale.gen; then
+    echo "    Enabling ${locale_name} in /etc/locale.gen"
+    sudo sed -i -E 's/^#(zh_CN\.UTF-8[[:space:]]+UTF-8[[:space:]]*)$/\1/' /etc/locale.gen
+elif grep -Eq '^zh_CN\.UTF-8[[:space:]]+UTF-8[[:space:]]*$' /etc/locale.gen; then
+    echo "    ${locale_name} already enabled in /etc/locale.gen"
+else
+    echo "    Adding ${locale_name} to /etc/locale.gen"
+    printf '%s\n' 'zh_CN.UTF-8 UTF-8' | sudo tee -a /etc/locale.gen >/dev/null
+fi
+
+echo "    Generating locales"
+sudo env LC_ALL=C locale-gen >/dev/null
+
+if locale_generated; then
+    echo "    ${locale_name} generated; GUI sessions will use it after re-login"
+else
+    echo "    Error: ${locale_name} still not available after locale-gen" >&2
+    exit 1
+fi
+{{- end }}

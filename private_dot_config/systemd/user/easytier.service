@@ -1,0 +1,15 @@
+[Unit]
+Description=EasyTier mesh VPN
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/easytier-core --config-file %h/.config/easytier/easytier.toml
+WorkingDirectory=%h/.local/state/easytier
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=default.target

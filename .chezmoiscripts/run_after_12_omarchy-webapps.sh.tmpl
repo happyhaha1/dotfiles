@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{ else }}
+# This is an explicit empty WebApp allowlist. Do not remove the launchers until
+# the user has opted into the official preinstall-removal marker.
+preinstalls_marker="$HOME/.local/state/omarchy/preinstalls-removed"
+if [[ ! -f "$preinstalls_marker" ]]; then
+    echo "    Skipped WebApp cleanup (Omarchy preinstalls have not been removed)"
+    exit 0
+fi
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Error: omarchy command not found" >&2
+    exit 1
+fi
+
+echo ":: [12] Enforcing empty Omarchy WebApp allowlist"
+omarchy webapp remove all
+{{- end }}

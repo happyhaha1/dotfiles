@@ -14,3 +14,6 @@ versions:
   gcloudVersion: 562.0.0
   mihomoForkBuild: 4a5de79
   zashboardVersion: v3.28.0
+  # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
+  easytierVersion: v2.6.4
+  easytierLinuxX8664Sha256: 61b659eaedba658fa66fe47d17e1426cdd77e5d02fa15fed447bb4357c09dfd6

@@ -9,7 +9,57 @@ omarchyPackages:
     - fcitx5-configtool
     # Rime engine; librime-data provides the baseline Rime schemas.
     - fcitx5-rime
+    # Fish shell only; keep Bash as the login shell. Omarchy-Fish defaults that
+    # we actually want are copied into private_dot_config/private_fish instead
+    # of installing omarchy-fish or running omarchy-setup-fish/chsh.
+    - fish
+    # Applications explicitly retained after `omarchy remove preinstalls`.
+    - aether
+    - libreoffice-fresh
+    - lazydocker
+    - omacalc
+    - omacut
+    - omawrite
+    # dua-cli provides the `dua` command used by the Disk Usage TUI launcher.
+    - dua-cli
     # age and voxtype-bin are intentionally not managed by this list.
+  profiles: {}
+
+# Terminal UI launchers explicitly retained after `omarchy remove preinstalls`.
+# The reconciliation script owns only these named launchers.
+omarchyTuis:
+  shared:
+    - name: Disk Usage
+      command: dua i /
+      window: float
+      icon: disk-usage
+    - name: Docker
+      command: omarchy-launch-docker-tui
+      window: tile
+      icon: docker
+  profiles: {}
+
+# No Omarchy WebApps are retained after the official preinstall removal.
+# run_after_12_omarchy-webapps enforces this empty allowlist after the marker
+# is present.
+
+# AI wrappers intentionally excluded from the post-preinstall allowlist.
+# The cleanup script removes only mise-generated wrappers, never user-owned
+# regular scripts or symlinks such as a vendor-installed Cursor launcher.
+omarchyRemovedCli:
+  shared:
+    - command: claude
+      package: claude
+    - command: copilot
+      package: copilot
+    - command: gemini
+      package: gemini
+    - command: grok
+      package: npm:@xai-official/grok
+    - command: cursor-agent
+      package: cursor-agent
+    - command: omp
+      package: github:can1357/oh-my-pi
   profiles: {}
 
 # AUR packages managed by this dotfiles repository. These are kept separate
@@ -19,6 +69,22 @@ omarchyAurPackages:
     # 雾凇拼音全拼及万象简体语法模型。
     - rime-ice-pinyin-git
     - rime-wanxiang-gram-zh-hans
+  profiles: {}
+
+# Third-party Omarchy shell plugins are an allowlist. Any plugin not listed
+# here is removed by the reconciliation script on every chezmoi apply.
+omarchyPlugins:
+  pruneUnmanaged: true
+  shared:
+    - id: omaplug
+      source: https://github.com/fross100/omaplug.git
+      enabled: true
+      section: right
+    # Replaces the built-in workspace indicator and registers Overview/Super bindings.
+    - id: hancore.overview-workspaces
+      source: https://github.com/iamcheyan/omarchy-overview-workspaces.git
+      enabled: true
+      section: left
   profiles: {}
 
 # UFW rules managed by this dotfiles repository. Only entries recorded in the
@@ -46,27 +112,24 @@ omarchyIgnoreList:
   - .config/raycast
   - .config/cmux
   - .config/surge
-  # Not yet adopted on Omarchy (remove a line to opt in)
-  # pi 已采纳（~/.pi 配置 + web-search 在 Omarchy 生效）；auth.json 和
-  # sessions 仍不归仓库管（前者需 pi 登录，后者按机器独立）
+  # mise 配置在 Omarchy 纳管（共享运行时工具声明）；
+  # 安装脚本使用 Omarchy 提供的系统 mise，不改写 mise 二进制来源。
+  # Pi 本体由 Omarchy Aqua 子集管理；~/.pi 配置 + web-search 在 Omarchy
+  # 生效，auth.json 和 sessions 仍不归仓库管（前者需 pi 登录，后者按机器独立）。
   - Justfile
   # ~/.ssh/config is encrypted with ~/.ssh/main and managed by this repo.
-  - .config/aquaproj-aqua
   - .config/atuin
   - .config/bat
   - .config/delta
   - .config/direnv
-  - .config/fish
   - .config/fzf
   - .config/gh
   - .config/gh-dash
   - .config/ghostty
   - .config/git
   - .config/lazygit
-  - .config/mise
   - .config/nvim
   - .config/omnyssh
   - .config/opencode
   - .config/yazi
   - .config/zellij
-  - .config/starship.toml

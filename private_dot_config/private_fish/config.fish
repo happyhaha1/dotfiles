@@ -33,6 +33,10 @@ if type -q brew
 end
 
 set -l aqua_config "$XDG_CONFIG_HOME/aquaproj-aqua/aqua.yaml"
+set -l aqua_omarchy_config "$XDG_CONFIG_HOME/aquaproj-aqua/aqua-omarchy.yaml"
+if test (uname) = Linux; and test -f "$aqua_omarchy_config"
+    set aqua_config "$aqua_omarchy_config"
+end
 if test -f "$aqua_config"
     set -gx AQUA_GLOBAL_CONFIG "$aqua_config"
     set -gx AQUA_CONFIG "$aqua_config"
@@ -141,12 +145,19 @@ set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
 
 # setup
 
-set -gx FZF_DEFAULT_OPTS_FILE "$XDG_CONFIG_HOME/fzf/default_ops"
+set -l fzf_default_opts_file "$XDG_CONFIG_HOME/fzf/default_ops"
+if test -f "$fzf_default_opts_file"
+    set -gx FZF_DEFAULT_OPTS_FILE "$fzf_default_opts_file"
+else
+    set -e FZF_DEFAULT_OPTS_FILE
+end
 # Keep an existing options file or inherited value authoritative. Otherwise use
-# the same sensible defaults as Omarchy-Fish.
-if not set -q FZF_DEFAULT_OPTS; and not test -f "$FZF_DEFAULT_OPTS_FILE"
+# the same sensible defaults we wanted from Omarchy-Fish.
+if not set -q FZF_DEFAULT_OPTS; and not set -q FZF_DEFAULT_OPTS_FILE
     set -gx FZF_DEFAULT_OPTS '--cycle --layout=default --height=90% --preview-window=wrap --marker="*"'
 end
+# Omarchy-Fish leaves history preview empty so fzf.fish can use its built-in preview.
+set -gx fzf_history_opts
 
 if status is-interactive
     # Commands and key bindings below are intentionally interactive-only, as in
@@ -203,3 +214,16 @@ if status is-interactive
 end
 
 fish_add_path "$HOME/.local/bin"
+
+# Mise activation prepends its shims. Put Aqua's curated CLI subset back at
+# the absolute front so migrated tools resolve to Aqua in interactive Fish too.
+set -l aqua_bin "$XDG_DATA_HOME/aquaproj-aqua/bin"
+function __dotfiles_keep_aqua_first --on-event fish_preexec
+    set -l aqua_bin "$XDG_DATA_HOME/aquaproj-aqua/bin"
+    if test -d "$aqua_bin"
+        set -gx PATH "$aqua_bin" (string match -v -- "$aqua_bin" $PATH)
+    end
+end
+
+# Run once now as well as after mise's prompt-time environment refresh.
+__dotfiles_keep_aqua_first

@@ -1,0 +1,30 @@
+# Omarchy environment (OMARCHY_PATH + PATH), needed even for non-interactive shells.
+[[ -r /usr/share/omarchy/default/bash/env-bootstrap ]] && source /usr/share/omarchy/default/bash/env-bootstrap
+
+# If not running interactively, don't do anything else.
+[[ $- != *i* ]] && return
+
+# Auto-launch Fish from the first interactive Bash. This keeps the account login
+# shell as Bash for Omarchy compatibility, while interactive terminals enter Fish.
+# Set DOTFILES_BASH_NO_FISH=1 before starting Bash to bypass this once.
+if [[ -z ${DOTFILES_BASH_NO_FISH:-} ]] && fish_cmd="$(command -v fish 2>/dev/null)"; then
+    parent_comm="$(ps --no-header --pid="$PPID" --format=comm 2>/dev/null | tr -d '[:space:]')"
+    if [[ "$parent_comm" != "fish" && -z ${BASH_EXECUTION_STRING:-} && ${SHLVL:-1} == 1 ]]; then
+        if shopt -q login_shell; then
+            exec "$fish_cmd" --login
+        else
+            exec "$fish_cmd"
+        fi
+    fi
+fi
+
+# All the default Omarchy aliases and functions.
+# Keep this after the Fish handoff so normal terminal sessions do not spend time
+# loading Bash-only helpers before exec'ing Fish.
+if [[ -n ${OMARCHY_PATH:-} && -r "$OMARCHY_PATH/default/bash/rc" ]]; then
+    source "$OMARCHY_PATH/default/bash/rc"
+elif [[ -r /usr/share/omarchy/default/bash/rc ]]; then
+    source /usr/share/omarchy/default/bash/rc
+fi
+
+# Add your own Bash-only exports, aliases, and functions here.

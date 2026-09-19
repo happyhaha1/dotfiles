@@ -2,3 +2,10 @@
 # Enable the 雾凇拼音 full-pinyin schema and its upstream defaults.
 patch:
   __include: rime_ice_suggestion:/
+  # Do not persist the 简/繁 switch. If it is toggled accidentally, a redeploy
+  # or schema reset returns rime_ice to simplified Chinese.
+  switcher/save_options:
+    - ascii_punct
+    - emoji
+    - full_shape
+    - search_single_char

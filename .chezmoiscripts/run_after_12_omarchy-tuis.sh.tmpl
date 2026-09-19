@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{ else }}
+{{- $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
+# Run on every apply so a removed launcher is restored from the allowlist.
+# machine profile: {{ $machineProfile }}
+preinstalls_marker="$HOME/.local/state/omarchy/preinstalls-removed"
+if [[ ! -f "$preinstalls_marker" ]]; then
+    echo "    Skipped retained TUI reconciliation (Omarchy preinstalls have not been removed)"
+    exit 0
+fi
+{{ range .omarchyTuis.shared -}}
+# TUI: {{ .name }} | {{ .command }} | {{ .window }} | {{ .icon }}
+{{ end -}}
+{{ if and (hasKey .omarchyTuis "profiles") (hasKey .omarchyTuis.profiles $machineProfile) -}}
+{{ range index .omarchyTuis.profiles $machineProfile -}}
+# TUI: {{ .name }} | {{ .command }} | {{ .window }} | {{ .icon }}
+{{ end -}}
+{{ end -}}
+
+echo ":: [12] Synchronizing retained Omarchy TUI launchers"
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Error: omarchy command not found" >&2
+    exit 1
+fi
+
+desired_names=(
+{{ range .omarchyTuis.shared }}    {{ .name | quote }}
+{{ end }}{{ if and (hasKey .omarchyTuis "profiles") (hasKey .omarchyTuis.profiles $machineProfile) }}{{ range index .omarchyTuis.profiles $machineProfile }}    {{ .name | quote }}
+{{ end }}{{ end }})
+desired_commands=(
+{{ range .omarchyTuis.shared }}    {{ .command | quote }}
+{{ end }}{{ if and (hasKey .omarchyTuis "profiles") (hasKey .omarchyTuis.profiles $machineProfile) }}{{ range index .omarchyTuis.profiles $machineProfile }}    {{ .command | quote }}
+{{ end }}{{ end }})
+desired_windows=(
+{{ range .omarchyTuis.shared }}    {{ .window | quote }}
+{{ end }}{{ if and (hasKey .omarchyTuis "profiles") (hasKey .omarchyTuis.profiles $machineProfile) }}{{ range index .omarchyTuis.profiles $machineProfile }}    {{ .window | quote }}
+{{ end }}{{ end }})
+desired_icons=(
+{{ range .omarchyTuis.shared }}    {{ .icon | quote }}
+{{ end }}{{ if and (hasKey .omarchyTuis "profiles") (hasKey .omarchyTuis.profiles $machineProfile) }}{{ range index .omarchyTuis.profiles $machineProfile }}    {{ .icon | quote }}
+{{ end }}{{ end }})
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
+state_file="$state_dir/omarchy-tuis"
+state_tmp=""
+cleanup() {
+    [[ -z "$state_tmp" ]] || rm -f "$state_tmp"
+}
+trap cleanup EXIT
+
+declare -A desired=()
+for name in "${desired_names[@]}"; do
+    [[ -n "$name" ]] && desired["$name"]=1
+done
+
+declare -A previous=()
+if [[ -f "$state_file" ]]; then
+    while IFS= read -r name; do
+        [[ -n "$name" ]] && previous["$name"]=1
+    done < "$state_file"
+fi
+
+for name in "${!previous[@]}"; do
+    if [[ -z ${desired[$name]+x} ]]; then
+        echo "    Removing no-longer-declared TUI: $name"
+        omarchy tui remove "$name" || true
+    fi
+done
+
+for i in "${!desired_names[@]}"; do
+    name="${desired_names[$i]}"
+    desktop_file="$HOME/.local/share/applications/$name.desktop"
+    if [[ -z ${previous[$name]+x} || ! -f "$desktop_file" ]]; then
+        echo "    Installing TUI: $name"
+        omarchy tui install \
+            "$name" \
+            "${desired_commands[$i]}" \
+            "${desired_windows[$i]}" \
+            "${desired_icons[$i]}"
+    else
+        echo "    $name already managed"
+    fi
+done
+
+install -d -m 700 "$state_dir"
+state_tmp=$(mktemp "$state_dir/omarchy-tuis.XXXXXX")
+chmod 600 "$state_tmp"
+if ((${#desired_names[@]} > 0)); then
+    printf '%s\n' "${desired_names[@]}" | sort -u > "$state_tmp"
+fi
+mv -f "$state_tmp" "$state_file"
+state_tmp=""
+{{- end }}

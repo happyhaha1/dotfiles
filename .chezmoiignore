@@ -30,11 +30,28 @@ treefmt.toml
 {{- end }}
 {{- end }}
 
-# Fcitx5/Rime and Hyprland input integration are managed only on Omarchy.
+# Fcitx5/Rime, Hyprland input, Foot terminal defaults, Bash-to-Fish
+# bootstrap, UWSM environment overrides, and Omarchy-specific Aqua/Codex/Pi
+# glue are managed only on Omarchy.
 {{- if not (and (hasKey . "omarchy") .omarchy) }}
 .config/fcitx5/
 .local/share/fcitx5/
 .config/hypr/input.lua
+.config/hypr/bindings.lua
+.config/foot/
+.config/uwsm/
+.config/aquaproj-aqua/aqua-omarchy.yaml
+.local/bin/codex
+.local/bin/gh
+.local/bin/pi
+.bashrc
+{{- end }}
+
+# EasyTier is managed only on Omarchy/Linux; do not adopt its encrypted
+# machine-specific configuration or user service on other targets.
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+.config/easytier/
+.config/systemd/user/easytier.service
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────────────

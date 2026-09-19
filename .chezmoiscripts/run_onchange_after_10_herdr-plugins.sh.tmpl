@@ -14,6 +14,22 @@ fi
 
 set -euo pipefail
 
+# Each chezmoi run script gets its own process. Re-activate mise here so
+# Herdr plugin build commands (notably `cargo build`) can see mise-installed
+# tool shims from the earlier mise install step.
+aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+if [[ -d "$aqua_bin_dir" ]]; then
+    export PATH="$aqua_bin_dir:$PATH"
+fi
+if command -v mise >/dev/null 2>&1; then
+    mise_cmd="$(command -v mise)"
+    if ! mise_activation="$("$mise_cmd" activate bash)"; then
+        echo "    Error: mise bash activation failed" >&2
+        exit 1
+    fi
+    eval "$mise_activation"
+fi
+
 {{- $machineProfile := "other" -}}
 {{- if hasKey . "machineProfile" -}}
 {{-   $machineProfile = .machineProfile -}}

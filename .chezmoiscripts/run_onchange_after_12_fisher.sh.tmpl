@@ -3,7 +3,12 @@
 
 set -eufo pipefail
 
-echo ":: [09] Fisher plugins"
+echo ":: [12] Fisher plugins"
+
+# On macOS, Homebrew installs fish before this script. On Omarchy, the package
+# reconciliation script installs fish before this script. Keep availability in
+# the rendered content so run_onchange also retries if fish appears later.
+# fish-availability: {{ if or (stat "/usr/bin/fish") (stat "/opt/homebrew/bin/fish") (stat "/usr/local/bin/fish") }}present{{ else }}missing{{ end }}
 
 # The login shell may still be the previous shell during the first apply;
 # detect the installed binary instead of relying on $SHELL.

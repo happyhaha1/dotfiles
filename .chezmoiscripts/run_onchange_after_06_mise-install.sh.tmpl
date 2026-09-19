@@ -3,7 +3,24 @@
 set -euo pipefail
 
 {{- if and (hasKey . "omarchy") .omarchy }}
-echo "    Skipped (Omarchy: mise install managed-off — Omarchy ships its own mise; delete this guard in source to opt in)"
+# Omarchy supplies the mise binary; use it to install the shared tool list
+# rendered into ~/.config/mise/config.toml instead of the aqua-managed copy.
+cd "$HOME"
+echo ":: [06] Installing mise tools (Omarchy system mise)"
+
+if ! command -v mise >/dev/null 2>&1; then
+    echo "    Error: Omarchy's system mise was not found" >&2
+    exit 1
+fi
+
+mise_cmd="$(command -v mise)"
+if ! "$mise_cmd" --version >/dev/null 2>&1; then
+    echo "    Error: Omarchy's system mise failed to execute" >&2
+    exit 1
+fi
+
+"$mise_cmd" install --yes
+"$mise_cmd" reshim
 exit 0
 {{- end }}
 

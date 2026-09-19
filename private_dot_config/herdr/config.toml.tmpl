@@ -38,7 +38,12 @@ panel_bg = "black"
 [terminal]
 # 新建交互式面板使用的可执行文件。
 # 留空时依次使用 $SHELL 和 /bin/sh。
+{{- if and (hasKey . "omarchy") .omarchy }}
+# Omarchy 保持账户登录 shell 为 Bash，但 Herdr 新 pane 直接进入 Fish。
+default_shell = "/usr/bin/fish"
+{{- else }}
 # default_shell = ""
+{{- end }}
 
 # 新建交互式面板 Shell 的启动模式："auto"、"login" 或 "non_login"。
 # "auto" 在 macOS 上使用登录 Shell，在其他系统上保持原有行为。
