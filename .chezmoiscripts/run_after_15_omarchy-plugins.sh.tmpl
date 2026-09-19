@@ -193,6 +193,17 @@ for plugin_id in "${desired_ids[@]}"; do
     ensure_plugin_state "$plugin_id"
 done
 
+# hyprmoncfg ships a separate user daemon. Its plugin installer enables this
+# unit interactively; keep the same dependency declarative for chezmoi applies.
+if [[ -n ${desired_sources[crmne.hyprmoncfg]+x} && ${desired_enabled[crmne.hyprmoncfg]} == true ]]; then
+    if ! command -v hyprmoncfg >/dev/null 2>&1; then
+        echo "    Error: crmne.hyprmoncfg requires the hyprmoncfg package" >&2
+        exit 1
+    fi
+    systemctl --user enable --now hyprmoncfgd.service >/dev/null
+    echo "    Ensured hyprmoncfgd.service is enabled and running"
+fi
+
 if ((${#desired_ids[@]} == 0)); then
     echo "    No Omarchy plugins declared"
 else

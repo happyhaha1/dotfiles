@@ -22,6 +22,8 @@ omarchyPackages:
     - omawrite
     # dua-cli provides the `dua` command used by the Disk Usage TUI launcher.
     - dua-cli
+    # Bitwarden plugin dependency; the plugin uses the official `bw` CLI.
+    - bitwarden-cli
     # age and voxtype-bin are intentionally not managed by this list.
   profiles: {}
 
@@ -69,6 +71,8 @@ omarchyAurPackages:
     # 雾凇拼音全拼及万象简体语法模型。
     - rime-ice-pinyin-git
     - rime-wanxiang-gram-zh-hans
+    # hyprmoncfg's ready-made AUR binary; the plugin manages its user daemon.
+    - hyprmoncfg-bin
   profiles: {}
 
 # Third-party Omarchy shell plugins are an allowlist. Any plugin not listed
@@ -85,6 +89,18 @@ omarchyPlugins:
       source: https://github.com/iamcheyan/omarchy-overview-workspaces.git
       enabled: true
       section: left
+    - id: crmne.hyprmoncfg
+      source: https://github.com/crmne/omarchy-hyprmoncfg.git
+      enabled: true
+      section: right
+    - id: io.github.elevate08.qs-bitwarden-cli
+      source: https://github.com/Elevate08/qs-bitwarden-cli.git
+      enabled: true
+      section: right
+    - id: harshith.system-monitor
+      source: https://github.com/Harshith292002/omarchy-system-monitor.git
+      enabled: true
+      section: right
   profiles: {}
 
 # UFW rules managed by this dotfiles repository. Only entries recorded in the
