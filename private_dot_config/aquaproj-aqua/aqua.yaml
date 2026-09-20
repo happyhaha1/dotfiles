@@ -41,7 +41,9 @@ packages:
     registry: local
   - name: muesli/duf@v0.9.1
   - name: dandavison/delta@0.19.2
-  - name: Wilfred/difftastic@0.71.0
+  - name: Wilfred/difftastic@0.70.0
+    update:
+      enabled: false
   - name: crates.io/eza@0.23.5
     registry: local
   - name: fastfetch-cli/fastfetch@2.68.1
