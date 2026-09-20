@@ -73,7 +73,10 @@ omarchyAurPackages:
     - rime-wanxiang-gram-zh-hans
     # hyprmoncfg's ready-made AUR binary; the plugin manages its user daemon.
     - hyprmoncfg-bin
-  profiles: {}
+  profiles:
+    hack:
+      # Official Yakit Linux AppImage packaged for Arch by the AUR.
+      - yakit-bin
 
 # Third-party Omarchy shell plugins are an allowlist. Any plugin not listed
 # here is removed by the reconciliation script on every chezmoi apply.
