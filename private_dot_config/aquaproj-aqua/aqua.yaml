@@ -1,7 +1,7 @@
 ---
 registries:
   - type: standard
-    ref: v4.564.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.565.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
@@ -17,7 +17,7 @@ packages:
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.155.1
   - name: anomalyco/opencode@v1.18.31
-  - name: earendil-works/pi@v0.85.1
+  - name: earendil-works/pi@v0.86.0
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.9.11
     tags:
@@ -27,7 +27,7 @@ packages:
   # package publishes a macOS ARM64 artifact in the Standard Registry.
   - name: Kitware/CMake@v4.4.3
   - name: twpayne/chezmoi@v2.72.2
-  - name: Tyrrrz/FFmpegBin@9.0.1
+  - name: Tyrrrz/FFmpegBin@9.0.2
   - name: neovim/neovim@v0.12.5
   # ouch 0.8.3 dropped GitHub Artifact Attestations (cosign-only), so aqua's
   # registry attestation check 404s. Pin 0.8.2 and block auto-update until
