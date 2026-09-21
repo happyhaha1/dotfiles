@@ -47,6 +47,12 @@ if test -f "$aqua_policy"
     set -gx AQUA_POLICY_CONFIG "$aqua_policy"
 end
 
+# Keep Moshi on the stable, non-symlink Herdr entrypoint. The wrapper still
+# delegates to Aqua, but prevents Moshi from resolving bin/herdr to aqua-proxy.
+if test -x "$HOME/.local/bin/herdr"
+    set -gx MOSHI_HERDR_PATH "$HOME/.local/bin/herdr"
+end
+
 # https://www.freedesktop.org/wiki/Software/xdg-user-dirs/
 set -x XDG_DESKTOP_DIR "$HOME/Desktop"
 set -x XDG_DOWNLOAD_DIR "$HOME/Downloads"

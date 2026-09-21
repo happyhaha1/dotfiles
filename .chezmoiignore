@@ -32,7 +32,7 @@ treefmt.toml
 
 # Fcitx5/Rime, Hyprland input, Foot terminal defaults, Bash-to-Fish
 # bootstrap, UWSM environment overrides, and Omarchy-specific Aqua/Codex/Pi
-# glue are managed only on Omarchy.
+# glue (except the shared Herdr wrapper) are managed only on Omarchy.
 {{- if not (and (hasKey . "omarchy") .omarchy) }}
 .config/fcitx5/
 .local/share/fcitx5/
@@ -43,7 +43,6 @@ treefmt.toml
 .config/aquaproj-aqua/aqua-omarchy.yaml
 .local/bin/codex
 .local/bin/gh
-.local/bin/herdr
 .local/bin/pi
 .bashrc
 {{- end }}
