@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Herdr is managed by the Omarchy Aqua subset. Herdr's SSH machine discovery
+# checks ~/.local/bin/herdr explicitly, so this wrapper keeps that stable path
+# while delegating to the Aqua-managed binary.
+aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+aqua_config="${AQUA_CONFIG:-}"
+if [[ -z "$aqua_config" ]]; then
+    if [[ -f "$HOME/.config/aquaproj-aqua/aqua-omarchy.yaml" ]]; then
+        aqua_config="$HOME/.config/aquaproj-aqua/aqua-omarchy.yaml"
+    else
+        aqua_config="$HOME/.config/aquaproj-aqua/aqua.yaml"
+    fi
+fi
+
+export AQUA_CONFIG="$aqua_config"
+export AQUA_GLOBAL_CONFIG="${AQUA_GLOBAL_CONFIG:-$aqua_config}"
+if [[ -f "$HOME/.config/aquaproj-aqua/aqua-policy.yaml" ]]; then
+    export AQUA_POLICY_CONFIG="${AQUA_POLICY_CONFIG:-$HOME/.config/aquaproj-aqua/aqua-policy.yaml}"
+fi
+export PATH="$aqua_bin_dir:$PATH"
+
+if [[ ! -x "$aqua_bin_dir/herdr" ]]; then
+    echo "herdr is managed by Aqua, but $aqua_bin_dir/herdr is missing." >&2
+    echo "Run: chezmoi apply" >&2
+    exit 127
+fi
+
+exec "$aqua_bin_dir/herdr" "$@"

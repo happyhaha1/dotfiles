@@ -43,6 +43,7 @@ treefmt.toml
 .config/aquaproj-aqua/aqua-omarchy.yaml
 .local/bin/codex
 .local/bin/gh
+.local/bin/herdr
 .local/bin/pi
 .bashrc
 {{- end }}
