@@ -1,1 +1,2 @@
+.config/fish/conf.d/custom_functions.fish
 .config/herdr/plugins/config/sessionizer/config.toml
