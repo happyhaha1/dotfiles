@@ -17,9 +17,9 @@ packages:
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.155.1
   - name: anomalyco/opencode@v1.18.31
-  - name: earendil-works/pi@v0.86.0
+  - name: earendil-works/pi@v0.86.1
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.9.11
+  - name: jdx/mise@v2026.9.12
     tags:
       - bootstrap
 
