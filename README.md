@@ -39,10 +39,10 @@ just check
 
 - `daily`：普通的交互式 Mac profile。
 - `home-server`：减少桌面配置的 macOS 服务器 profile。
-- `office-server`：办公室/服务器 profile；Collie 局域网集成目前在此 profile 启用。
+- `office-server`：办公室/服务器 profile；Roamgate 局域网集成目前在此 profile 启用。
 - `other`：非交互式或无法分类机器的安全默认 profile。
 
-Collie 局域网地址等机器私有数据保存在本机 chezmoi 配置中（使用 `chezmoi edit-config` 设置），
+Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置中（使用 `chezmoi edit-config` 设置），
 不会写入 `.chezmoidata/` 或普通的 Git 跟踪模板。
 
 ## 软件包归属
@@ -59,14 +59,21 @@ Collie 局域网地址等机器私有数据保存在本机 chezmoi 配置中（�
 
 如果工具已经在上述配置源中声明，不要手动安装；应该修改声明，然后重新 apply。
 
-## Herdr 与 Collie
+## Herdr 与 Roamgate
 
 Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在
 `.chezmoidata/herdr.yaml` 中，并由编号的 Herdr 脚本同步。
 定时版本工作流会更新稳定版插件 ref 并创建 PR，但不会自动在机器上安装更新。
 
-Collie 当前在 `office-server` profile 中配置为直接通过局域网访问。
-它的主机地址只保存在本机，Git 跟踪的模板只引用 `{{ .collieHost }}`。
+Roamgate 当前在 `office-server` profile 中配置为直接通过局域网访问，使用 `8788` 端口。
+它的主机地址只保存在本机，Git 跟踪的模板只引用 `{{ .roamgateHost }}`。
+Roamgate 密码只保存在本机 chezmoi 配置中：
+
+```bash
+chezmoi edit-config
+```
+
+在 `[data]` 下设置 `roamgatePassword`；不要将真实密码写入 Git 跟踪文件。
 启动或重启服务前，使用 `chezmoi diff` 检查生成的 `.env`。
 
 ## 加密与私有数据

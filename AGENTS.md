@@ -43,7 +43,7 @@ Use the existing manager instead of adding a second installation path:
 | Fish plugins | `private_dot_config/private_fish/fish_plugins.tmpl` and Fisher script |
 | Herdr binary | Aqua manifest (`herdrdev/herdr`) |
 | Herdr plugins | `.chezmoidata/herdr.yaml` only; never edit generated plugin state by hand |
-| Herdr/Collie configuration | `private_dot_config/herdr/` |
+| Herdr plugin configuration | `private_dot_config/herdr/` and plugin-specific config dirs |
 | Omarchy packages/firewall/input setup | `.chezmoidata/omarchy.yaml` and numbered Omarchy scripts |
 | Encrypted credentials/configuration | `encrypted_` source files plus the existing age identity |
 

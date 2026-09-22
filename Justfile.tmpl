@@ -230,11 +230,11 @@ doctor:
         warn 'herdr is not installed on this machine'
     fi
 
-    collie_env="$HOME/.config/herdr/plugins/config/herdr.collie/.env"
-    if [[ -f "$collie_env" ]]; then
-        ok 'Collie environment file exists (value contents not printed)'
+    roamgate_env="$HOME/.config/roamgate/roamgate.env"
+    if [[ -f "$roamgate_env" ]]; then
+        ok 'Roamgate environment file exists (value contents not printed)'
     elif [[ "${profile:-}" == office-server ]]; then
-        warn "office-server profile has no Collie environment file: $collie_env"
+        warn "office-server profile has no Roamgate environment file: $roamgate_env"
     fi
 
     if [[ "${DOTFILES_DOCTOR_DIFF:-0}" == 1 ]]; then

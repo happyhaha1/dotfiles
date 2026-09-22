@@ -15,9 +15,9 @@ herdrPlugins:
       - source: yankewei/herdr-focus-notify
         ref: v0.7.0
     office-server:
-      # Collie exposes the local Herdr server to a trusted LAN/Tailscale subnet.
-      - source: AltanS/collie
-        ref: v1.11.1
+      # Roamgate provides a browser/PWA client for the local Herdr server.
+      - source: powerfooI/roamgate
+        ref: v0.7.8
   # Example:
   # shared:
   #   - source: owner/repository
