@@ -26,7 +26,10 @@ omarchyPackages:
     # Bitwarden plugin dependency; the plugin uses the official `bw` CLI.
     - bitwarden-cli
     # age and voxtype-bin are intentionally not managed by this list.
-  profiles: {}
+  profiles:
+    hack:
+      - nmap
+      - masscan
 
 # Terminal UI launchers explicitly retained after `omarchy remove preinstalls`.
 # The reconciliation script owns only these named launchers.
@@ -75,7 +78,8 @@ omarchyAurPackages:
     # hyprmoncfg's ready-made AUR binary; the plugin manages its user daemon.
     - hyprmoncfg-bin
   profiles:
-    hack: []
+    hack:
+      - whatweb
 
 # Third-party Omarchy shell plugins are an allowlist. Any plugin not listed
 # here is removed by the reconciliation script on every chezmoi apply.
