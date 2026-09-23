@@ -1,3 +1,8 @@
+-- Move screenshot from Omarchy's default PRINT binding to ALT+A.
+hl.unbind("PRINT")
+hl.unbind("ALT + A")
+o.bind("ALT + A", "Screenshot", "omarchy-capture-screenshot")
+
 -- Move the clipboard manager from Omarchy's default SUPER+CTRL+V binding.
 -- SUPER+SHIFT+C is a default Calendar binding, so unbind it before replacing it.
 hl.unbind("SUPER + SHIFT + C")
