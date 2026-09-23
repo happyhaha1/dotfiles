@@ -15,6 +15,7 @@ omarchyPackages:
     - fish
     # Applications explicitly retained after `omarchy remove preinstalls`.
     - aether
+    - obs-studio
     - libreoffice-fresh
     - lazydocker
     - omacalc
