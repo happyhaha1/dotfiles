@@ -13,7 +13,7 @@ versions:
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
   mihomoForkBuild: bcb3c2c
-  zashboardVersion: v3.29.0
+  zashboardVersion: v3.29.1
   # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
   easytierLinuxX8664Sha256: 61b659eaedba658fa66fe47d17e1426cdd77e5d02fa15fed447bb4357c09dfd6
