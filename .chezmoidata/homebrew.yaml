@@ -47,6 +47,7 @@ homebrew:
       - keka
       - ghostty
       - orbstack
+      - paseo
       # - electerm
       - zed
       # - omniwm
