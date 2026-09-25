@@ -2,6 +2,8 @@
 # Keep this file limited to macOS software that is not already provided by
 # Aqua, mise, or the macOS base system. Shared entries apply to every Mac;
 # profile entries apply only to the selected machine profile.
+# Preserve tap trust across `brew bundle install --force-cleanup`, which resets
+# Homebrew's trust store to the trusted entries declared in this Brewfile.
 
 {{- $machineProfile := "other" -}}
 {{- if hasKey . "machineProfile" -}}
@@ -9,11 +11,11 @@
 {{- end -}}
 
 {{- range .homebrew.taps.shared }}
-tap "{{ . }}"
+tap "{{ . }}", trusted: true
 {{- end }}
 {{- if and (hasKey .homebrew.taps "profiles") (hasKey .homebrew.taps.profiles $machineProfile) }}
 {{- range index .homebrew.taps.profiles $machineProfile }}
-tap "{{ . }}"
+tap "{{ . }}", trusted: true
 {{- end }}
 {{- end }}
 

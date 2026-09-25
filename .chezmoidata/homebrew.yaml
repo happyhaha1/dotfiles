@@ -9,6 +9,7 @@ homebrew:
     profiles:
       daily:
         - vjeantet/tap
+        - driceroland/tap
       home-server: []
       office-server:
         - azure/functions
@@ -36,7 +37,6 @@ homebrew:
       daily:
         - mas # Required for masApps installation
         - vjeantet/tap/alerter
-        - skopeo
       home-server: []
       office-server: []
   casks:
@@ -81,6 +81,7 @@ homebrew:
         - telegram
         - wpsoffice-cn
         - android-platform-tools
+        - driceroland/tap/search
       home-server: []
       office-server: []
   masApps:
