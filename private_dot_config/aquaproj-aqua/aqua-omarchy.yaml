@@ -9,7 +9,7 @@ registries:
   path: registry.yaml
 packages:
 - name: atuinsh/atuin@v18.23.0
-- name: openai/codex@rust-v0.157.0
+- name: openai/codex@rust-v0.157.1
 - name: anomalyco/opencode@v1.18.32
 - name: earendil-works/pi@v0.87.1
 - name: twpayne/chezmoi@v2.72.2
