@@ -6,13 +6,13 @@ versions:
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.63.0
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 33375500bcea98d610eb30ce10ac4e59b89c390d
-  claudeAnthropicsSkillsSha256: 55029ee9b468aac1179f3c0246c82ae73880fe0ca897db5a82f3b0ee71d35ca6
+  claudeAnthropicsSkillsRev: 8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4
+  claudeAnthropicsSkillsSha256: 89c38d91a2d22495d075d3fdd37e674179da044491eee1f1eb678caa986a9db5
   uiUxProMaxSkillRev: 09170eec67eefd46a7ae85de61b40c194020f997
   uiUxProMaxSkillSha256: 93f4e8cbcd060533e5d368c3183b764adcbcc82c04a2cdc933bf97024bed67c9
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
-  mihomoForkBuild: 78d3f4d
+  mihomoForkBuild: 654629a
   zashboardVersion: v3.29.1
   # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
