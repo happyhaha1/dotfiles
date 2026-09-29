@@ -17,3 +17,7 @@ hl.unbind("SUPER + SHIFT + W")
 o.bind("SUPER + CTRL + RETURN", "Herdr", { omarchy = "terminal-herdr" })
 o.bind("SUPER + SHIFT + D", "Docker", { tui = "omarchy-launch-docker-tui" })
 o.bind("SUPER + SHIFT + W", "Omawrite", { launch = "omawrite" })
+
+-- Use SUPER+Q to close the active window instead of the default SUPER+W.
+hl.unbind("SUPER + W")
+o.bind("SUPER + Q", "Close window", hl.dsp.window.close())

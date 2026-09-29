@@ -118,6 +118,15 @@ omarchyUfwPorts:
       port: "2080"
       protocol: tcp
       from: 192.168.50.0/24
+    # Inbound service access on port 11010 from any source, over both transports.
+    - name: incoming-11010-tcp
+      port: "11010"
+      protocol: tcp
+      from: any
+    - name: incoming-11010-udp
+      port: "11010"
+      protocol: udp
+      from: any
   profiles: {}
 
 # ─────────────────────────────────────────────────────────────────────────────
