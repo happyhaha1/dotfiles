@@ -10,5 +10,6 @@ function aicommit --description 'Ask Pi to create a Git commit'
         set prompt $argv
     end
 
-    pi -p -- "$prompt"
+    printf 'aicommit: Pi 正在检查并提交，请稍候...\n'
+    pi -p --no-session --no-extensions --thinking low -- "$prompt"
 end
