@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{ else }}
+{{ $machineProfile := "other" -}}
+{{- if hasKey . "machineProfile" -}}
+{{-   $machineProfile = .machineProfile -}}
+{{- end -}}
+# machine profile: {{ $machineProfile }}
+
+echo ":: [16] Synchronizing Omarchy themes"
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Error: omarchy command not found" >&2
+    exit 1
+fi
+if ! command -v git >/dev/null 2>&1; then
+    echo "    Error: git command not found" >&2
+    exit 1
+fi
+
+# Omarchy's theme commands need the checkout path even in non-login apply shells.
+export OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+if [[ ! -d "$OMARCHY_PATH" ]]; then
+    echo "    Error: Omarchy checkout not found at $OMARCHY_PATH" >&2
+    exit 1
+fi
+
+declare -a desired_theme_ids=()
+declare -A desired_theme_sources=()
+
+add_desired_theme() {
+    local theme_id="$1"
+    local theme_source="$2"
+
+    if [[ ! "$theme_id" =~ ^[a-z0-9][a-z0-9._+-]*$ || "$theme_id" == *..* ]]; then
+        echo "    Error: invalid Omarchy theme id: $theme_id" >&2
+        exit 1
+    fi
+    if [[ -z "$theme_source" || "$theme_source" == *$'\t'* || "$theme_source" == *$'\n'* || "$theme_source" == *$'\r'* ]]; then
+        echo "    Error: invalid Omarchy theme source for $theme_id" >&2
+        exit 1
+    fi
+    if [[ -n ${desired_theme_sources[$theme_id]+x} ]]; then
+        echo "    Error: duplicate Omarchy theme id: $theme_id" >&2
+        exit 1
+    fi
+
+    desired_theme_ids+=("$theme_id")
+    desired_theme_sources["$theme_id"]="$theme_source"
+}
+
+{{- if and (hasKey . "omarchyThemes") (hasKey .omarchyThemes "shared") }}
+{{ range .omarchyThemes.shared -}}
+add_desired_theme {{ .id | quote }} {{ .source | quote }}
+{{ end -}}
+{{- end }}
+{{- if and (hasKey . "omarchyThemes") (hasKey .omarchyThemes "profiles") (hasKey .omarchyThemes.profiles $machineProfile) }}
+{{ range index .omarchyThemes.profiles $machineProfile -}}
+add_desired_theme {{ .id | quote }} {{ .source | quote }}
+{{ end -}}
+{{- end }}
+
+themes_dir="$HOME/.config/omarchy/themes"
+
+normalize_git_url() {
+    local url="$1"
+    url="${url%/}"
+    url="${url%.git}"
+    if [[ "$url" == git@github.com:* ]]; then
+        url="https://github.com/${url#git@github.com:}"
+    fi
+    printf '%s\n' "$url"
+}
+
+theme_id_from_source() {
+    local repo_path="$1"
+    local repo_name
+
+    repo_path="${repo_path%/}"
+    if [[ "$repo_path" != *"://"* && "$repo_path" == *:* && "${repo_path%%:*}" != */* ]]; then
+        repo_path="${repo_path#*:}"
+    fi
+    repo_name="${repo_path##*/}"
+    repo_name="${repo_name%.git}"
+    repo_name="${repo_name#omarchy-}"
+    repo_name="${repo_name%-theme}"
+    printf '%s\n' "$repo_name" | tr '[:upper:]' '[:lower:]'
+}
+
+theme_source_matches() {
+    local theme_id="$1"
+    local theme_source="$2"
+    local theme_dir="$themes_dir/$theme_id"
+    local installed_source
+
+    [[ ! -L "$theme_dir" && -d "$theme_dir/.git" ]] || return 1
+    installed_source="$(git -C "$theme_dir" config --get remote.origin.url 2>/dev/null || true)"
+    [[ -n "$installed_source" ]] || return 1
+    [[ "$(normalize_git_url "$installed_source")" == "$(normalize_git_url "$theme_source")" ]]
+}
+
+install_theme_preserving_selection() (
+    set -euo pipefail
+
+    local theme_source="$1"
+    local previous_theme
+    previous_theme="$(omarchy theme current)"
+    if [[ -z "$previous_theme" || "$previous_theme" == "Unknown" ]]; then
+        echo "    Error: cannot safely install a theme while Omarchy's current theme is unknown" >&2
+        exit 1
+    fi
+
+    # This function is invoked indirectly by the EXIT trap below.
+    # shellcheck disable=SC2329
+    restore_previous_theme() {
+        local status=$?
+        local active_theme
+        trap - EXIT
+
+        active_theme="$(omarchy theme current 2>/dev/null || true)"
+        if [[ "$active_theme" != "$previous_theme" ]]; then
+            echo "    Restoring active Omarchy theme: $previous_theme"
+            if ! OMARCHY_THEME_HEADLESS=1 OMARCHY_THEME_SKIP_BACKGROUND=1 omarchy theme set "$previous_theme"; then
+                echo "    Error: could not restore active Omarchy theme '$previous_theme'" >&2
+                status=1
+            fi
+        fi
+        exit "$status"
+    }
+    trap restore_previous_theme EXIT
+
+    # Omarchy's installer also activates the theme. Headless/no-background mode
+    # suppresses runtime theme changes; the EXIT handler restores the selection.
+    echo "    Installing Omarchy-managed theme from $theme_source"
+    OMARCHY_THEME_HEADLESS=1 OMARCHY_THEME_SKIP_BACKGROUND=1 omarchy theme install "$theme_source"
+)
+
+ensure_theme() {
+    local theme_id="$1"
+    local theme_source="${desired_theme_sources[$theme_id]}"
+    local theme_dir="$themes_dir/$theme_id"
+    local derived_id
+
+    derived_id="$(theme_id_from_source "$theme_source")"
+    if [[ "$derived_id" != "$theme_id" ]]; then
+        echo "    Error: Omarchy derives theme id '$derived_id' from $theme_source, not '$theme_id'" >&2
+        exit 1
+    fi
+
+    if [[ ! -e "$theme_dir" && ! -L "$theme_dir" ]]; then
+        install_theme_preserving_selection "$theme_source"
+        if ! theme_source_matches "$theme_id" "$theme_source"; then
+            echo "    Error: Omarchy did not install the expected theme checkout at $theme_dir" >&2
+            exit 1
+        fi
+        return
+    fi
+
+    if theme_source_matches "$theme_id" "$theme_source"; then
+        echo "    Omarchy theme already installed: $theme_id"
+        return
+    fi
+
+    echo "    Error: $theme_dir exists but is not the declared Git checkout" >&2
+    echo "    Resolve that directory manually; it was left untouched" >&2
+    exit 1
+}
+
+for theme_id in "${desired_theme_ids[@]}"; do
+    ensure_theme "$theme_id"
+done
+
+if ((${#desired_theme_ids[@]} == 0)); then
+    echo "    No Omarchy themes declared"
+else
+    echo "    Omarchy themes synchronized: ${desired_theme_ids[*]}"
+fi
+{{- end }}

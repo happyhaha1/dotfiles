@@ -45,6 +45,7 @@ Use the existing manager instead of adding a second installation path:
 | Herdr plugins | `.chezmoidata/herdr.yaml` only; never edit generated plugin state by hand |
 | Herdr plugin configuration | `private_dot_config/herdr/` and plugin-specific config dirs |
 | Omarchy packages/firewall/input setup | `.chezmoidata/omarchy.yaml` and numbered Omarchy scripts |
+| Omarchy community themes | `.chezmoidata/omarchy.yaml` and numbered scripts; Omarchy's theme CLI owns the checkout and updates |
 | Encrypted credentials/configuration | `encrypted_` source files plus the existing age identity |
 
 Herdr plugin refs are updated by the scheduled `update-versions.yml` workflow.

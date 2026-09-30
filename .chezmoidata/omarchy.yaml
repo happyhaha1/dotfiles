@@ -109,6 +109,23 @@ omarchyPlugins:
       section: right
   profiles: {}
 
+# Community themes are installed and updated by Omarchy's own theme manager.
+# The sync script preserves the selected theme and never prunes other themes.
+omarchyThemes:
+  shared:
+    - id: catppuccin-latte
+      source: https://github.com/ryanyogan/omarchy-catppuccin-latte-theme.git
+    - id: catppuccin-frappe
+      source: https://github.com/mikemayuare/omarchy-catppuccin-frappe.git
+    # Keep .git so Omarchy retains its safe theme staging and update support.
+    - id: macchiato-core
+      source: https://github.com/hembramnishant50-glitch/omarchy-macchiato-core-theme.git
+    - id: catppuccin-mocha
+      source: https://github.com/KidDogDad/omarchy-catppuccin-mocha-theme.git
+    - id: dracula
+      source: https://github.com/catlee/omarchy-dracula-theme.git
+  profiles: {}
+
 # UFW rules managed by this dotfiles repository. Only entries recorded in the
 # local manifest are eligible for cleanup when removed from this list.
 omarchyUfwPorts:
