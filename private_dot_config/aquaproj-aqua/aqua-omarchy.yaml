@@ -3,15 +3,15 @@
 # GitHub workflow updates; install only this curated subset on Omarchy.
 registries:
 - type: standard
-  ref: v4.568.0
+  ref: v4.569.0
 - name: local
   type: local
   path: registry.yaml
 packages:
 - name: atuinsh/atuin@v18.23.0
-- name: openai/codex@rust-v0.158.0
+- name: openai/codex@rust-v0.159.2
 - name: anomalyco/opencode@v1.18.33
-- name: earendil-works/pi@v0.87.1
+- name: earendil-works/pi@v0.99.1
 - name: twpayne/chezmoi@v2.73.0
 - name: timhartmann7/omnyssh@v1.1.4
   registry: local
@@ -19,9 +19,9 @@ packages:
 - name: Wilfred/difftastic@0.70.0
   update:
     enabled: false
-- name: cli/cli@v2.101.0
+- name: cli/cli@v2.102.0
 - name: dlvhdr/gh-dash@v4.26.0
-- name: x-motemen/ghq@v1.10.1
+- name: x-motemen/ghq@v1.11.2
 - name: git-lfs/git-lfs@v3.8.0
 - name: charmbracelet/glow@v3.0.0
 - name: casey/just@1.58.0
@@ -30,6 +30,6 @@ packages:
 - name: mvdan/sh@v3.14.1
 - name: numtide/treefmt@v2.6.0
 - name: sxyazi/yazi@v26.9.1
-- name: mikefarah/yq@v4.53.6
+- name: mikefarah/yq@v4.54.1
 - name: k3d-io/k3d@v5.9.0
-- name: herdrdev/herdr@v0.9.1
+- name: herdrdev/herdr@v0.9.3
