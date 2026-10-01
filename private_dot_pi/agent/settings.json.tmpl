@@ -1,6 +1,6 @@
 {
   "lastChangelogVersion": "99.99.99",
-  "theme": "dracula",
+  "theme": "{{ if .omarchy }}omarchy-system{{ else }}dracula{{ end }}",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
   "defaultTools": [
@@ -11,7 +11,6 @@
     "npm:@narumitw/pi-subagents",
     "npm:@cortexkit/pi-magic-context",
     "npm:@juanibiapina/pi-powerbar",
-    "npm:@juanibiapina/pi-extension-settings",
     "npm:@narumitw/pi-goal",
     "npm:pi-web-access",
     "npm:pi-extmgr",
