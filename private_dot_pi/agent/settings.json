@@ -2,7 +2,10 @@
   "lastChangelogVersion": "99.99.99",
   "theme": "dracula",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-luna",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultTools": [
+    "+codemode"
+  ],
   "packages": [
     "npm:@sherif-fanous/pi-dracula",
     "npm:@narumitw/pi-subagents",

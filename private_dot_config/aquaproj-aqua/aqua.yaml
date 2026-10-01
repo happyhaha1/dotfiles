@@ -17,6 +17,7 @@ packages:
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.159.3
   - name: anomalyco/opencode@v1.18.34
+  - name: alibaba/open-code-review@v1.12.11
   - name: earendil-works/pi@v0.99.2
   - name: direnv/direnv@v2.37.1
   - name: jdx/mise@v2026.9.18
