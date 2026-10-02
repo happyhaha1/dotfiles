@@ -12,7 +12,7 @@ versions:
   uiUxProMaxSkillSha256: 93f4e8cbcd060533e5d368c3183b764adcbcc82c04a2cdc933bf97024bed67c9
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
-  mihomoForkBuild: d5c319d
+  mihomoForkBuild: f4b8399
   zashboardVersion: v3.29.1
   # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
