@@ -82,6 +82,7 @@ homebrew:
         - wpsoffice-cn
         - android-platform-tools
         - driceroland/tap/search
+        - omniwm
       home-server: []
       office-server: []
   masApps:
