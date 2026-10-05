@@ -20,7 +20,7 @@ packages:
   - name: alibaba/open-code-review@v1.12.11
   - name: earendil-works/pi@v1.0.2
   - name: direnv/direnv@v2.37.1
-  - name: jdx/mise@v2026.10.1
+  - name: jdx/mise@v2026.10.2
     tags:
       - bootstrap
 
@@ -41,7 +41,7 @@ packages:
   - name: timhartmann7/omnyssh@v1.1.4
     registry: local
   - name: muesli/duf@v0.9.1
-  - name: dandavison/delta@0.19.2
+  - name: dandavison/delta@0.20.1
   - name: Wilfred/difftastic@0.70.0
     update:
       enabled: false
@@ -66,8 +66,8 @@ packages:
   - name: BurntSushi/ripgrep@15.2.0
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
-  - name: joshmedeski/sesh@v2.31.0
-  - name: skim-rs/skim@v5.7.3
+  - name: joshmedeski/sesh@v2.32.0
+  - name: skim-rs/skim@v5.7.4
   - name: starship/starship@v1.26.0
   - name: koalaman/shellcheck@v0.11.0
   - name: mvdan/sh@v3.14.1
