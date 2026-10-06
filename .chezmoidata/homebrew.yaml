@@ -42,7 +42,6 @@ homebrew:
   casks:
     shared:
       - bitwarden
-      - cmux
       # - visual-studio-code
       - keka
       - ghostty

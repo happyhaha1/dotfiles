@@ -1,2 +1,5 @@
 .config/fish/conf.d/custom_functions.fish
 .config/herdr/plugins/config/sessionizer/config.toml
+{{ if eq .chezmoi.os "darwin" -}}
+.config/cmux/settings.json
+{{ end -}}

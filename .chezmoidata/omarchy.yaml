@@ -158,7 +158,6 @@ omarchyIgnoreList:
   - .Brewfile
   - .config/aerospace
   - .config/raycast
-  - .config/cmux
   - .config/surge
   # mise 配置在 Omarchy 纳管（共享运行时工具声明）；
   # 安装脚本使用 Omarchy 提供的系统 mise，不改写 mise 二进制来源。
