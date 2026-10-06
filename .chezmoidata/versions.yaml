@@ -6,8 +6,8 @@ versions:
   aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
   aquaVersion: v2.63.0
   paperlib: 3.1.12
-  claudeAnthropicsSkillsRev: 8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4
-  claudeAnthropicsSkillsSha256: 89c38d91a2d22495d075d3fdd37e674179da044491eee1f1eb678caa986a9db5
+  claudeAnthropicsSkillsRev: 683bc88e56f3e09ba94f7055977f3d3aa499f202
+  claudeAnthropicsSkillsSha256: 30a1152c163d87852587347c242261d7dd85f2208f25bd9c4b6bf47266a5f4bf
   uiUxProMaxSkillRev: 477bcb28c9812b385cb51a4605ddf30d7b2266e2
   uiUxProMaxSkillSha256: 657188875c1215248a3a533f1f9b29868e7b550dead28c721b71184871dd53f7
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
