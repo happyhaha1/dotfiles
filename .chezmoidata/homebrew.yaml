@@ -10,6 +10,7 @@ homebrew:
       daily:
         - vjeantet/tap
         - driceroland/tap
+        - penso/tap
       home-server: []
       office-server:
         - azure/functions
@@ -82,6 +83,7 @@ homebrew:
         - android-platform-tools
         - driceroland/tap/search
         - omniwm
+        - penso/tap/herdr-gpui
       home-server: []
       office-server: []
   masApps:
