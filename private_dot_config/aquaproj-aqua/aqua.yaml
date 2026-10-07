@@ -16,10 +16,10 @@ packages:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.160.1
-  - name: anomalyco/opencode@v1.18.34
+  - name: anomalyco/opencode@v1.18.35
   - name: alibaba/open-code-review@v1.12.12
   - name: earendil-works/pi@v1.0.4
-  - name: direnv/direnv@v2.37.1
+  - name: direnv/direnv@v2.38.1
   - name: jdx/mise@v2026.10.3
     tags:
       - bootstrap
@@ -60,8 +60,8 @@ packages:
   - name: jesseduffield/lazygit@v0.66.0
   - name: LuaLS/lua-language-server@3.19.1
   - name: tree-sitter/tree-sitter@v0.27.0
-  - name: o2sh/onefetch@2.28.1
-  - name: ip7z/7zip@26.03
+  - name: o2sh/onefetch@3.0.0
+  - name: ip7z/7zip@26.04
   - name: Nukesor/pueue/pueue@v4.0.4
   - name: BurntSushi/ripgrep@15.2.0
   - name: phiresky/ripgrep-all@v0.10.10
