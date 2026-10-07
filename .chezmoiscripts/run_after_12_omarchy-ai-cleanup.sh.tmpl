@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo ":: [12] Cleaning up removed Omarchy CLI wrappers"
+
 {{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0

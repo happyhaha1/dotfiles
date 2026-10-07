@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [15] Synchronizing Omarchy plugins"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{ else }}
@@ -17,8 +19,6 @@ exit 0
 # under ~/.config/omarchy/plugins must be declared below or it is removed.
 # machine profile: {{ $machineProfile }}
 # prune unmanaged: {{ $pruneUnmanaged }}
-
-echo ":: [15] Synchronizing Omarchy plugins"
 
 if ! command -v omarchy >/dev/null 2>&1; then
     echo "    Error: omarchy command not found" >&2

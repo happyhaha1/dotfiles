@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [14] Omarchy GUI locale"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (Omarchy only)"
 exit 0
 {{- else }}
@@ -10,8 +12,6 @@ exit 0
 # /etc/locale.conf; system/TTY locale stays en_US.UTF-8.
 # locale.gen sha256: {{ if stat "/etc/locale.gen" }}{{ output "sha256sum" "/etc/locale.gen" | trim }}{{ else }}missing{{ end }}
 # zh_CN.UTF-8 generated: {{ output "bash" "-lc" "LC_ALL=C locale -a 2>/dev/null | grep -qi '^zh_CN\\.utf8$' && printf yes || printf no" }}
-
-echo ":: [14] Omarchy GUI locale"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "    Skipped (Linux only)"

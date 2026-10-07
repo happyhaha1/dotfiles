@@ -59,6 +59,29 @@ Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置�
 
 如果工具已经在上述配置源中声明，不要手动安装；应该修改声明，然后重新 apply。
 
+## Pi 用户扩展包更新
+
+Pi 二进制由 Aqua 固定版本管理；Pi 的用户级扩展包声明在
+`private_dot_pi/agent/settings.json.tmpl` 的 `packages` 中。`just pi-extensions-update`
+通过共享脚本 `~/.local/bin/pi-extensions-update` 执行官方
+`pi update --extensions --no-approve`：`--extensions` 不更新 Aqua 管理的 Pi 二进制，
+`--no-approve` 忽略当前项目配置，只处理 agent 目录声明的用户包。
+脚本独立设置 Aqua 配置上下文，用 `aqua which` 确认 Aqua 包存储中真实的 Pi 可执行文件，
+拒绝 PATH 回退并禁用懒安装；缺少 Aqua 管理的 Pi、Pi agent 目录或用户 settings 时明确跳过，
+更新失败会报错并中止对应配方，不被 `|| true` 吞掉。
+脚本遵循 `AQUA_ROOT_DIR`、`XDG_DATA_HOME` 和 Pi 的 `PI_CODING_AGENT_DIR`。
+
+`just update-all` 和 `just full-upgrade` 在 mise 之后调用同一个脚本；
+`just aqua-install` 与完整 apply 的 `[10]` 入口都不更新扩展包，apply 保持无副作用。
+Herdr 生成的 `~/.pi/agent/extensions/herdr-agent-state.ts` 不属于这些包，
+仍由 `herdr integration install pi` 对齐。
+
+更新不会重载正在运行的会话：普通插件需要逐个 `/reload`，下次启动的 Pi 才使用新包。
+magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移，因此更新包含存储迁移时
+应在维护窗口统一处理所有 Pi/OpenCode 进程，不要依赖 `chezmoi apply` 追最新版本。
+
+回归测试：`node --test docs/tests/pi-extensions-update.test.mjs`。
+
 ## Herdr、Roamgate 与 Web UI
 
 Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [11] Stopping Fcitx5 before applying its declarative config"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{- else }}
@@ -22,7 +24,7 @@ exit 0
 # Fcitx saves its active group when it exits. Stop it before chezmoi writes the
 # declarative profile, otherwise the old pinyin group can overwrite the new one.
 if systemctl --user is-active --quiet omarchy-fcitx5.service; then
-    echo ":: [11] Stopping Fcitx5 before applying its declarative config"
+    echo "    Fcitx5 is running; stopping it before the declarative config write"
     systemctl --user stop omarchy-fcitx5.service
 fi
 {{- end }}

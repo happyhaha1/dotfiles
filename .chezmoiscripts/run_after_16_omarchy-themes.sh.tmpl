@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [16] Synchronizing Omarchy themes"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{ else }}
@@ -10,8 +12,6 @@ exit 0
 {{-   $machineProfile = .machineProfile -}}
 {{- end -}}
 # machine profile: {{ $machineProfile }}
-
-echo ":: [16] Synchronizing Omarchy themes"
 
 if ! command -v omarchy >/dev/null 2>&1; then
     echo "    Error: omarchy command not found" >&2

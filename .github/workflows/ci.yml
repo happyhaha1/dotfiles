@@ -132,9 +132,13 @@ jobs:
               fi
             done < <(find .chezmoiscripts -type f -name '*.sh.tmpl' -print | sort)
           done
-          if ! shellcheck --severity=warning private_dot_local/bin/executable_herdr-integrations-sync; then
-            status=1
-          fi
+          for helper in \
+            private_dot_local/bin/executable_herdr-integrations-sync \
+            private_dot_local/bin/executable_pi-extensions-update; do
+            if ! shellcheck --severity=warning "$helper"; then
+              status=1
+            fi
+          done
           exit "$status"
 
   herdr-services:
@@ -147,6 +151,17 @@ jobs:
           node-version: lts/*
       - name: Test with mocked Herdr commands and HTTP responses
         run: node --test docs/tests/herdr-integrations.test.mjs docs/tests/herdr-web-ui.test.mjs docs/tests/roamgate.test.mjs
+
+  pi-packages:
+    name: Test Pi extension package updates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - name: Test with mocked Aqua resolver and Pi commands
+        run: node --test docs/tests/pi-extensions-update.test.mjs
 
   workflow-lint:
     name: Validate GitHub Actions workflows

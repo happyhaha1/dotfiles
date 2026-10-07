@@ -67,6 +67,11 @@ aqua-clean:
 mise-install:
     mise install
 
+# Update Pi's user-level extension packages; never the Aqua-managed Pi binary.
+[group('packages')]
+pi-extensions-update:
+    "$HOME/.local/bin/pi-extensions-update"
+
 ############################################################################
 #
 #  Development commands
@@ -260,7 +265,7 @@ doctor:
         exit 1
     fi
 
-# Update chezmoi, Aqua, mise, Sheldon, and Homebrew
+# Update chezmoi, Aqua, mise, Pi packages, and Homebrew
 [group('utils')]
 update-all:
     chezmoi update || true
@@ -268,7 +273,7 @@ update-all:
     aqua vacuum --init || true
     AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum || true
     mise upgrade || true
-    sheldon lock --update || true
+    "$HOME/.local/bin/pi-extensions-update"
     brew update && brew upgrade
 
 # Full upgrade, including package cleanup
@@ -296,9 +301,9 @@ full-upgrade:
     mise upgrade || true
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 5/6: Updating Sheldon plugins..."
+    @echo "Step 5/6: Updating Pi user extension packages..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    sheldon lock --update || true
+    "$HOME/.local/bin/pi-extensions-update"
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "Step 6/6: Updating Homebrew..."

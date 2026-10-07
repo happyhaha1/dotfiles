@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-{{- if and (hasKey . "omarchy") .omarchy }}
+echo ":: [05] Installing aqua bootstrap tools"
+
+{{ if and (hasKey . "omarchy") .omarchy }}
 echo "    Skipped (Omarchy: aqua bootstrap managed-off — delete this guard in source to opt in)"
 exit 0
 {{- end }}
@@ -14,8 +16,6 @@ exit 0
 # aqua local registry: {{ if stat $aquaRegistry }}{{ output "sha256sum" $aquaRegistry | trim }}{{ else }}n/a{{ end }}
 # aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
-
-echo ":: [05] Installing aqua bootstrap tools"
 
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [11] Synchronizing Omarchy packages"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{- else }}
@@ -23,8 +25,6 @@ exit 0
 # Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
 # schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
 # CapsLock workaround: {{ if stat $rimeLua }}{{ output "sha256sum" $rimeLua | trim }}{{ else }}n/a{{ end }}
-
-echo ":: [11] Synchronizing Omarchy packages"
 
 # The previous revision used a Shift Lua workaround. Remove its generated
 # target now that CapsLock is the only language toggle.

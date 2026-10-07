@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+echo ":: [13] Synchronizing EasyTier (Omarchy only)"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (Omarchy only)"
 exit 0
 {{- else }}
@@ -13,8 +15,6 @@ exit 0
 # archive sha256: {{ .versions.easytierLinuxX8664Sha256 }}
 # config source sha256: {{ if stat $configSource }}{{ output "sha256sum" $configSource | trim }}{{ else }}missing{{ end }}
 # service source sha256: {{ if stat $serviceSource }}{{ output "sha256sum" $serviceSource | trim }}{{ else }}missing{{ end }}
-
-echo ":: [13] Synchronizing EasyTier (Omarchy only)"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "    Skipped (Linux only)"

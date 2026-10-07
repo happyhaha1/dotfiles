@@ -67,6 +67,12 @@ function fixture(t, { managed = true, payload = true, initialized = true, custom
   writeFileSync(resolverLog, "");
   symlinkSync("/bin/bash", join(bin, "bash"));
   executable(helper, helperSource);
+  // `update-all` and `full-upgrade` also run the shared Pi package updater.
+  // Stub it so the Herdr ordering assertions stay about Herdr.
+  executable(join(home, ".local/bin/pi-extensions-update"), `#!/bin/bash
+printf 'pi-extensions-update\n' >> "$TEST_EVENTS"
+exit "\${TEST_PI_UPDATE_EXIT:-0}"
+`);
   if (initialized) mkdirSync(piDir, { recursive: true });
 
   // Model Aqua's actual proxy shape, not a direct CLI in its bin directory.
@@ -102,7 +108,7 @@ mkdir -p "$agent_dir/extensions"
 printf 'bundled integration v%s\n' "$TEST_INTEGRATION_VERSION" > "$agent_dir/extensions/herdr-agent-state.ts"
 `);
 
-  for (const command of ["aqua", "chezmoi", "mise", "sheldon", "brew"]) {
+  for (const command of ["aqua", "chezmoi", "mise", "brew"]) {
     executable(join(bin, command), `#!/bin/bash
 printf '${command} %s\n' "$*" >> "$TEST_EVENTS"
 ${command === "aqua" ? 'exit "$TEST_AQUA_EXIT"' : "exit 0"}

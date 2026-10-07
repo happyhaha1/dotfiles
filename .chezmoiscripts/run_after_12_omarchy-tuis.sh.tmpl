@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo ":: [12] Synchronizing retained Omarchy TUI launchers"
+
 {{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
 exit 0
@@ -23,9 +25,7 @@ fi
 {{ range index .omarchyTuis.profiles $machineProfile -}}
 # TUI: {{ .name }} | {{ .command }} | {{ .window }} | {{ .icon }}
 {{ end -}}
-{{ end -}}
-
-echo ":: [12] Synchronizing retained Omarchy TUI launchers"
+{{ end }}
 
 if ! command -v omarchy >/dev/null 2>&1; then
     echo "    Error: omarchy command not found" >&2
