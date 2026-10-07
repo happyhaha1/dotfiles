@@ -1,0 +1,22 @@
+{{- if eq .machineProfile "office-server" -}}
+{{- $host := "" -}}
+{{- $password := "" -}}
+{{- if hasKey . "roamgateHost" -}}{{- $host = .roamgateHost -}}{{- end -}}
+{{- if hasKey . "roamgatePassword" -}}{{- $password = .roamgatePassword -}}{{- end -}}
+{{- if or (eq $host "") (eq $password "") -}}
+{{- fail "Herdr Web UI needs [data].roamgateHost and roamgatePassword; set them with chezmoi edit-config before applying" -}}
+{{- end -}}
+{{- if or (regexMatch "[\\r\\n]" $host) (regexMatch "[\\r\\n]" $password) -}}
+{{- fail "Herdr Web UI host/password must be single-line values" -}}
+{{- end -}}
+# Private Web UI configuration; reuse Roamgate's machine-local host/password.
+# The plugin parses these values itself, not through a shell. Its parser strips
+# surrounding quotes but does not unescape them, so do not use Go's quote filter.
+HOST="{{ $host }}"
+PORT=7317
+HERDR_WEB_TOKEN="{{ $password }}"
+# Upgrade through the dotfiles manifest, not the web app's Update button.
+HERDR_WEB_AUTO_UPDATE=0
+{{- else -}}
+# Herdr Web UI is not enabled for this machine profile.
+{{ end -}}

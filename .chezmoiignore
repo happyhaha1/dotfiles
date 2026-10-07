@@ -73,9 +73,11 @@ treefmt.toml
 .config/hammerspoon/
 {{- end }}
 
-# Roamgate is enabled only for the office-server profile for now.
+# Web clients and the Web UI's mise Node shim are office-server-only.
 {{- if ne .machineProfile "office-server" }}
 .config/roamgate/
+.config/herdr/plugins/config/devswha.herdr-web-ui/
+.local/bin/node
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────

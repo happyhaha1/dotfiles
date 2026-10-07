@@ -8,15 +8,17 @@ if (( BASH_VERSINFO[0] < 4 )); then
             exec "$bash_cmd" "$0" "$@"
         fi
     done
-    echo "    Error: Herdr plugin sync requires Bash 4+; install Homebrew bash and retry" >&2
+    echo "    Error: Herdr synchronization requires Bash 4+; install Homebrew bash and retry" >&2
     exit 1
 fi
 
 set -euo pipefail
 
-# Each chezmoi run script gets its own process. Re-activate mise here so
-# Herdr plugin build commands (notably `cargo build`) can see mise-installed
-# tool shims from the earlier mise install step.
+# One Herdr entry point after the Aqua install step, including plugin services.
+sync_herdr_plugins() (
+# Re-activate mise inside this phase so plugin build commands can see the
+# earlier mise install step's tools without leaking environment changes into
+# the Web UI phase.
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then
     export PATH="$aqua_bin_dir:$PATH"
@@ -145,6 +147,13 @@ install_plugin() {
         args+=(--ref "$plugin_ref")
     fi
     args+=(--yes)
+    if [[ "$plugin_source" == devswha/herdr-web-ui ]]; then
+        # Installation can run the plugin's startup hook immediately. Validate
+        # the applied private env first, including when only this script runs.
+        bun run - --check-config "$HOME/.config/herdr/plugins/config/devswha.herdr-web-ui/.env" <<'WEB_UI_SYNC'
+{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
+WEB_UI_SYNC
+    fi
     echo "    Installing Herdr plugin: $plugin_source${plugin_ref:+@$plugin_ref}"
     herdr "${args[@]}"
 }
@@ -153,6 +162,13 @@ uninstall_plugin() {
     local plugin_source="$1"
     local output
 
+    if [[ "$plugin_source" == devswha/herdr-web-ui ]]; then
+        # A detached Web UI outlives plugin registration. Stop it while its
+        # supported action is still available when changing/removing profiles.
+        bun run - --stop-managed <<'WEB_UI_SYNC'
+{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
+WEB_UI_SYNC
+    fi
     echo "    Uninstalling removed Herdr plugin: $plugin_source"
     if output="$(herdr plugin uninstall "$plugin_source" 2>&1)"; then
         printf '%s\n' "$output"
@@ -214,3 +230,78 @@ mv -f "$state_tmp" "$state_file"
 trap - EXIT
 
 echo "    Herdr plugins synchronized"
+)
+
+sync_herdr_web_ui() (
+echo ":: [10] Synchronizing Herdr Web UI service"
+
+{{- $profile := "other" -}}
+{{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}
+{{- $ref := "" -}}
+{{- if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $profile) -}}
+{{- range index .herdrPlugins.profiles $profile -}}
+{{- if eq .source "devswha/herdr-web-ui" -}}{{- $ref = .ref -}}{{- end -}}
+{{- end -}}
+{{- end }}
+{{ if $ref -}}
+# Run every apply with an internal stamp and health checks, so a deleted stamp
+# or a stopped service is recoverable without changing the script's content.
+aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+export PATH="$HOME/.local/bin:$aqua_bin_dir:$PATH"
+if ! command -v herdr >/dev/null 2>&1; then
+    echo "    Herdr is not installed; skipping Web UI service reconciliation"
+    exit 0
+fi
+if ! command -v bun >/dev/null 2>&1; then
+    echo "    Error: Bun is required; apply the mise Bun shim before starting Web UI" >&2
+    exit 1
+fi
+
+bun run - {{ $ref | quote }} <<'WEB_UI_SYNC'
+{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
+WEB_UI_SYNC
+{{ else -}}
+echo "    Herdr Web UI is not enabled for this profile; skipping"
+{{ end -}}
+)
+
+sync_roamgate() (
+echo ":: [10] Synchronizing Roamgate service"
+
+{{- $profile := "other" -}}
+{{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}
+{{- $ref := "" -}}
+{{- if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $profile) -}}
+{{- range index .herdrPlugins.profiles $profile -}}
+{{- if eq .source "powerfooI/roamgate" -}}{{- $ref = .ref -}}{{- end -}}
+{{- end -}}
+{{- end }}
+{{ if $ref -}}
+# Run every full apply. The private stamp and authenticated runtime version,
+# not just plugin registration or --version, decide whether activation is due.
+aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+export PATH="$HOME/.local/bin:$aqua_bin_dir:$PATH"
+if ! command -v herdr >/dev/null 2>&1; then
+    echo "    Herdr is not installed; skipping Roamgate service reconciliation"
+    exit 0
+fi
+if ! command -v bun >/dev/null 2>&1; then
+    echo "    Error: Bun is required; apply the mise Bun shim before starting Roamgate" >&2
+    exit 1
+fi
+
+bun run - {{ $ref | quote }} <<'ROAMGATE_SYNC'
+{{ include ".chezmoitemplates/roamgate-sync.mjs" }}
+ROAMGATE_SYNC
+{{ else -}}
+echo "    Roamgate is not enabled for this profile; skipping"
+{{ end -}}
+)
+
+# Run every full apply: integrations and service health cannot use onchange.
+# Subshell phases preserve their original exit/trap/environment boundaries.
+# Invoke them directly (not in a conditional) so any failure stops later phases.
+"$HOME/.local/bin/herdr-integrations-sync"
+sync_herdr_plugins
+sync_herdr_web_ui
+sync_roamgate

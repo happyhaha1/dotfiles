@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ":: [10] Synchronizing Herdr Pi integration"
+
+# A Herdr wrapper/proxy alone does not prove that its payload is installed.
+aqua_root="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+if [[ ! -x "$aqua_root/bin/herdr" ]]; then
+    echo "    Skipped (Aqua-managed Herdr is not installed)"
+    exit 0
+fi
+aqua_root="$(cd "$aqua_root" && pwd -L)"
+aqua_bin_dir="$aqua_root/bin"
+
+# Match the official Pi installer: an override is the complete agent directory.
+# Do not initialize Pi or create an agent directory on machines without Pi.
+pi_agent_dir="${PI_CODING_AGENT_DIR-$HOME/.pi/agent}"
+if [[ ! -d "$pi_agent_dir" ]]; then
+    echo "    Skipped (Pi agent directory does not exist)"
+    exit 0
+fi
+
+# Each chezmoi script is a separate process: [07]'s Aqua exports do not carry
+# over. Match the existing Herdr wrapper's manifest/policy selection here.
+aqua_config="${AQUA_CONFIG:-}"
+if [[ -z "$aqua_config" ]]; then
+    if [[ -f "$HOME/.config/aquaproj-aqua/aqua-omarchy.yaml" ]]; then
+        aqua_config="$HOME/.config/aquaproj-aqua/aqua-omarchy.yaml"
+    else
+        aqua_config="$HOME/.config/aquaproj-aqua/aqua.yaml"
+    fi
+fi
+if [[ ! -f "$aqua_config" ]]; then
+    echo "    Skipped (Aqua configuration is not installed)"
+    exit 0
+fi
+export AQUA_CONFIG="$aqua_config"
+export AQUA_GLOBAL_CONFIG="${AQUA_GLOBAL_CONFIG:-$aqua_config}"
+if [[ -f "$HOME/.config/aquaproj-aqua/aqua-policy.yaml" ]]; then
+    export AQUA_POLICY_CONFIG="${AQUA_POLICY_CONFIG:-$HOME/.config/aquaproj-aqua/aqua-policy.yaml}"
+fi
+export AQUA_ROOT_DIR="$aqua_root"
+export AQUA_DISABLE_LAZY_INSTALL=true
+export PATH="$aqua_bin_dir:$PATH"
+
+aqua_cmd="$aqua_bin_dir/aqua"
+if [[ ! -x "$aqua_cmd" ]]; then
+    aqua_cmd="$(command -v aqua || true)"
+fi
+if [[ -z "$aqua_cmd" ]]; then
+    echo "    Skipped (Aqua resolver is not installed)"
+    exit 0
+fi
+
+# `aqua which` resolves without installing the tool. It can fall back to PATH,
+# so accept only an existing executable in Aqua's package store, never a
+# wrapper/proxy or another manager's Herdr. Resolver errors remain failures.
+herdr_cmd="$("$aqua_cmd" -c "$aqua_config" which herdr)"
+case "$herdr_cmd" in
+    "$aqua_root"/pkgs/*) ;;
+    *) echo "    Skipped (Herdr is not resolved to an Aqua package)"; exit 0 ;;
+esac
+if [[ ! -x "$herdr_cmd" ]]; then
+    echo "    Skipped (Aqua-managed Herdr payload is not installed)"
+    exit 0
+fi
+
+# Herdr owns the generated extension and supplies the current CLI's version.
+# Preserve installer failures; never restart Herdr or any agent here.
+exec "$herdr_cmd" integration install pi

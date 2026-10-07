@@ -63,6 +63,16 @@ jobs:
               --no-pager \
               > /dev/null
 
+          # Exercise profile-gated private templates without real credentials.
+          for profile in daily office-server; do
+            HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+              chezmoi diff \
+                -S "$GITHUB_WORKSPACE" -D "$home" -c "$work/generated.toml" \
+                --override-data "{\"machineProfile\":\"$profile\",\"roamgateHost\":\"192.0.2.10\",\"roamgatePassword\":\"ci-placeholder-only\"}" \
+                --no-tty --exclude encrypted --refresh-externals=never --no-pager \
+                > /dev/null
+          done
+
   shellcheck:
     name: ShellCheck rendered scripts
     runs-on: ubuntu-latest
@@ -102,24 +112,41 @@ jobs:
               > "$work/generated.toml"
 
           status=0
-          while IFS= read -r source; do
-            output="$rendered/$(basename "$source" .tmpl)"
-            if ! HOME="$home" XDG_CONFIG_HOME="$home/.config" \
-              chezmoi execute-template \
-                -S "$GITHUB_WORKSPACE" \
-                -D "$home" \
-                -c "$work/generated.toml" \
-                --no-tty --file "$GITHUB_WORKSPACE/$source" \
-                > "$output"; then
-              echo "Template rendering failed: $source" >&2
-              status=1
-              continue
-            fi
-            if ! shellcheck --severity=warning "$output"; then
-              status=1
-            fi
-          done < <(find .chezmoiscripts -type f -name '*.sh.tmpl' -print | sort)
+          for profile in other office-server; do
+            while IFS= read -r source; do
+              output="$rendered/$profile-$(basename "$source" .tmpl)"
+              if ! HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+                chezmoi execute-template \
+                  -S "$GITHUB_WORKSPACE" \
+                  -D "$home" \
+                  -c "$work/generated.toml" \
+                  --override-data "{\"machineProfile\":\"$profile\",\"roamgateHost\":\"192.0.2.10\",\"roamgatePassword\":\"ci-placeholder-only\"}" \
+                  --no-tty --file "$GITHUB_WORKSPACE/$source" \
+                  > "$output"; then
+                echo "Template rendering failed: $profile/$source" >&2
+                status=1
+                continue
+              fi
+              if ! shellcheck --severity=warning "$output"; then
+                status=1
+              fi
+            done < <(find .chezmoiscripts -type f -name '*.sh.tmpl' -print | sort)
+          done
+          if ! shellcheck --severity=warning private_dot_local/bin/executable_herdr-integrations-sync; then
+            status=1
+          fi
           exit "$status"
+
+  herdr-services:
+    name: Test Herdr integrations and service reconciliation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - name: Test with mocked Herdr commands and HTTP responses
+        run: node --test docs/tests/herdr-integrations.test.mjs docs/tests/herdr-web-ui.test.mjs docs/tests/roamgate.test.mjs
 
   workflow-lint:
     name: Validate GitHub Actions workflows

@@ -39,13 +39,25 @@ jobs:
             local repo="$1"
             local ref
 
-            ref="$(gh release list \
-              --repo "$repo" \
-              --exclude-drafts \
-              --exclude-pre-releases \
-              --limit 1 \
-              --json tagName \
-              --jq '.[0].tagName // empty')"
+            if [[ "$repo" == devswha/herdr-web-ui ]]; then
+              # This repo also releases remote-vN bundles; only app tags are
+              # Herdr plugin refs. Inspect more than the most recent release.
+              ref="$(gh release list \
+                --repo "$repo" \
+                --exclude-drafts \
+                --exclude-pre-releases \
+                --limit 100 \
+                --json tagName \
+                --jq '[.[] | select(.tagName | test("^v[0-9]+[.][0-9]+[.][0-9]+$"))][0].tagName // empty')"
+            else
+              ref="$(gh release list \
+                --repo "$repo" \
+                --exclude-drafts \
+                --exclude-pre-releases \
+                --limit 1 \
+                --json tagName \
+                --jq '.[0].tagName // empty')"
+            fi
             if [[ -z "$ref" ]]; then
               echo "No stable GitHub release found for $repo" >&2
               return 1
@@ -61,6 +73,7 @@ jobs:
           herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
           herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
           herdr_roamgate_ref="$(latest_stable_release_ref powerfooI/roamgate)"
+          herdr_web_ui_ref="$(latest_stable_release_ref devswha/herdr-web-ui)"
 
           claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
           claude_wshobson_agents_sha256=$(curl_sha256 "https://github.com/wshobson/agents/archive/${claude_wshobson_agents_rev}.tar.gz")
@@ -100,6 +113,7 @@ jobs:
             echo "herdr_navigator_ref=$herdr_navigator_ref"
             echo "herdr_focus_notify_ref=$herdr_focus_notify_ref"
             echo "herdr_roamgate_ref=$herdr_roamgate_ref"
+            echo "herdr_web_ui_ref=$herdr_web_ui_ref"
             echo "claude_wshobson_agents_rev=$claude_wshobson_agents_rev"
             echo "claude_wshobson_agents_sha256=$claude_wshobson_agents_sha256"
             echo "claude_superpowers_rev=$claude_superpowers_rev"
@@ -166,6 +180,7 @@ jobs:
           HERDR_NAVIGATOR_REF: ${{ steps.versions.outputs.herdr_navigator_ref }}
           HERDR_FOCUS_NOTIFY_REF: ${{ steps.versions.outputs.herdr_focus_notify_ref }}
           HERDR_ROAMGATE_REF: ${{ steps.versions.outputs.herdr_roamgate_ref }}
+          HERDR_WEB_UI_REF: ${{ steps.versions.outputs.herdr_web_ui_ref }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -178,6 +193,7 @@ jobs:
               "thanhdat77/herdr-navigator": os.environ["HERDR_NAVIGATOR_REF"],
               "yankewei/herdr-focus-notify": os.environ["HERDR_FOCUS_NOTIFY_REF"],
               "powerfooI/roamgate": os.environ["HERDR_ROAMGATE_REF"],
+              "devswha/herdr-web-ui": os.environ["HERDR_WEB_UI_REF"],
           }
 
           for source, ref in updates.items():
@@ -268,3 +284,4 @@ jobs:
             | thanhdat77/herdr-navigator | `${{ steps.versions.outputs.herdr_navigator_ref }}` |
             | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
             | powerfooI/roamgate | `${{ steps.versions.outputs.herdr_roamgate_ref }}` |
+            | devswha/herdr-web-ui | `${{ steps.versions.outputs.herdr_web_ui_ref }}` |

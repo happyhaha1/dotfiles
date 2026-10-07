@@ -53,6 +53,7 @@ brew-update:
 [group('packages')]
 aqua-install:
     aqua install
+    "$HOME/.local/bin/herdr-integrations-sync"
 
 # Remove Aqua package versions not used within the retention window.
 # Override with AQUA_VACUUM_DAYS (default: 7).
@@ -237,6 +238,13 @@ doctor:
         warn "office-server profile has no Roamgate environment file: $roamgate_env"
     fi
 
+    web_ui_env="$HOME/.config/herdr/plugins/config/devswha.herdr-web-ui/.env"
+    if [[ -f "$web_ui_env" ]]; then
+        ok 'Herdr Web UI environment file exists (value contents not printed)'
+    elif [[ "${profile:-}" == office-server ]]; then
+        warn "office-server profile has no Herdr Web UI environment file: $web_ui_env"
+    fi
+
     if [[ "${DOTFILES_DOCTOR_DIFF:-0}" == 1 ]]; then
         if chezmoi diff --no-pager --exclude encrypted --refresh-externals=never >/dev/null 2>&1; then
             ok 'chezmoi diff completed without encrypted files'
@@ -256,7 +264,7 @@ doctor:
 [group('utils')]
 update-all:
     chezmoi update || true
-    aqua install || true
+    if aqua install; then "$HOME/.local/bin/herdr-integrations-sync"; fi
     aqua vacuum --init || true
     AQUA_VACUUM_DAYS="${AQUA_VACUUM_DAYS:-7}" aqua vacuum || true
     mise upgrade || true
@@ -274,7 +282,7 @@ full-upgrade:
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "Step 2/6: Installing pinned Aqua tools..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    aqua install || true
+    if aqua install; then "$HOME/.local/bin/herdr-integrations-sync"; fi
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "Step 3/6: Cleaning old Aqua packages..."
