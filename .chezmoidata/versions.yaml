@@ -2,9 +2,9 @@
 # Pinned versions (auto-updated by GitHub Actions)
 # ─────────────────────────────────────────────────────────────────────────────
 versions:
-  aquaInstaller: v4.0.5
-  aquaInstallerSha256: 451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146
-  aquaVersion: v2.63.0
+  aquaInstaller: v4.1.0
+  aquaInstallerSha256: 4d3e513d42f425609c1ead6ecd40b9c62492011979dfe23d7012428a59efbe82
+  aquaVersion: v2.64.0
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: 683bc88e56f3e09ba94f7055977f3d3aa499f202
   claudeAnthropicsSkillsSha256: 30a1152c163d87852587347c242261d7dd85f2208f25bd9c4b6bf47266a5f4bf
