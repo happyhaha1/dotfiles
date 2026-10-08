@@ -3,8 +3,8 @@
   "actionFusion": true,
   "observationPack": true,
   "evidencePreservingReducer": true,
-  "evidencePreservingReducerProvider": "openai-codex",
-  "evidencePreservingReducerModel": "gpt-6-luna",
+  "evidencePreservingReducerProvider": "home-magpie",
+  "evidencePreservingReducerModel": "group/memory",
   "onlineContextCompact": false,
   "cacheWriteReadRatio": 12.5
 }
