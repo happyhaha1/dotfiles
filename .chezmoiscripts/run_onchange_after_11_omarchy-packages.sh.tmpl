@@ -12,7 +12,6 @@ exit 0
 {{ $classicUIConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/conf/private_classicui.conf" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
 {{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
-{{ $rimeLua := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/lua/capslock_toggle.lua" -}}
 {{- $machineProfile := "other" -}}
 {{- if hasKey . "machineProfile" -}}
 {{-   $machineProfile = .machineProfile -}}
@@ -24,15 +23,16 @@ exit 0
 # Classic UI config: {{ if stat $classicUIConfig }}{{ output "sha256sum" $classicUIConfig | trim }}{{ else }}n/a{{ end }}
 # Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
 # schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
-# CapsLock workaround: {{ if stat $rimeLua }}{{ output "sha256sum" $rimeLua | trim }}{{ else }}n/a{{ end }}
 
-# The previous revision used a Shift Lua workaround. Remove its generated
-# target now that CapsLock is the only language toggle.
-legacy_shift_lua="$HOME/.local/share/fcitx5/rime/lua/shift_toggle.lua"
-if [[ -e "$legacy_shift_lua" ]]; then
-    echo "    Removing obsolete Shift workaround"
-    rm -f "$legacy_shift_lua"
-fi
+# Rime now handles Shift natively. Remove the old Shift and CapsLock Lua
+# targets, which deleting their chezmoi source files does not remove.
+for legacy_toggle in shift_toggle capslock_toggle; do
+    legacy_lua="$HOME/.local/share/fcitx5/rime/lua/$legacy_toggle.lua"
+    if [[ -e "$legacy_lua" ]]; then
+        echo "    Removing obsolete Rime workaround: $legacy_toggle"
+        rm -f "$legacy_lua"
+    fi
+done
 
 # The old schema-specific override is no longer managed after switching from
 # luna_pinyin_simp to rime_ice, so remove the stale target explicitly.
@@ -220,7 +220,7 @@ select_rime() {
     return 1
 }
 
-# Rime reads its schema and Lua processor when the engine starts. Remove the
+# Rime reads its deployed configuration when the engine starts. Remove the
 # generated default config so the next reload performs a fresh deployment.
 rime_dir="$HOME/.local/share/fcitx5/rime"
 if [[ -d "$rime_dir" ]]; then

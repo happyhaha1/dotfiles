@@ -11,7 +11,7 @@ EnumerateSkipFirst=False
 ModifierOnlyKeyTimeout=250
 
 [Hotkey/TriggerKeys]
-# Ctrl+Space is intentionally disabled; CapsLock switches Rime's language mode.
+# Ctrl+Space is intentionally disabled; Shift switches Rime's language mode.
 0=Zenkaku_Hankaku
 1=Hangul
 
@@ -22,7 +22,7 @@ ModifierOnlyKeyTimeout=250
 0=Hangul_Romaja
 
 [Hotkey/AltTriggerKeys]
-# Leave empty: CapsLock is handled by Rime's press-based processor.
+# Leave empty: Rime handles bare Shift, avoiding a second Fcitx toggle.
 
 [Hotkey/EnumerateGroupForwardKeys]
 0=Super+space

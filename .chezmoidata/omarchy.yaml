@@ -77,6 +77,8 @@ omarchyAurPackages:
     - rime-wanxiang-gram-zh-hans
     # hyprmoncfg's ready-made AUR binary; the plugin manages its user daemon.
     - hyprmoncfg-bin
+    # Cross-device clipboard sync using the prebuilt desktop release.
+    - uniclipboard-bin
   profiles:
     hack:
       - whatweb

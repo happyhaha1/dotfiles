@@ -1,6 +1,6 @@
 # 雾凇拼音全拼 + 万象简体语法模型。
-# Keep CapsLock as the language toggle; Shift and Menu have no built-in
-# ascii-mode action because Hyprland maps physical CapsLock to Menu.
+# Tap either Shift key to switch Chinese/English with Rime's native handler.
+# CapsLock keeps its normal capitalization behavior; no Lua hook is needed.
 patch:
   grammar:
     language: wanxiang-lts-zh-hans
@@ -15,7 +15,8 @@ patch:
   # 雾凇拼音的第 3 个开关是 traditionalization: [简, 繁]. Reset to
   # simplified Chinese so an accidental Ctrl+Shift+4 does not survive redeploy.
   switches/@2/reset: 0
-  ascii_composer/switch_key/Shift_L: noop
-  ascii_composer/switch_key/Shift_R: noop
-  ascii_composer/switch_key/Menu: noop
-  "engine/processors/@before 0": lua_processor@*capslock_toggle
+  ascii_composer/good_old_caps_lock: true
+  ascii_composer/switch_key/Caps_Lock: noop
+  # Keep the current candidate when switching during composition.
+  ascii_composer/switch_key/Shift_L: commit_text
+  ascii_composer/switch_key/Shift_R: commit_text
