@@ -6,6 +6,7 @@ homebrew:
       - abue-ammar/tinycast
       - steipete/tap
       - RizRiyz/luvus
+      - UniClipboard/tap
     profiles:
       daily:
         - vjeantet/tap
@@ -56,6 +57,7 @@ homebrew:
       # - abue-ammar/tinycast/tinycast
       - mactools
       - macshot
+      - uniclipboard
       # Nerd fonts and symbol fonts used by the terminal.
       - font-material-design-icons-webfont
       - font-fontawesome
