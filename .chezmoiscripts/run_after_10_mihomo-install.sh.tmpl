@@ -58,7 +58,7 @@ else
     [[ -x "$BIN" ]] || echo "    kernel binary missing — installing"
 
     asset_url() {
-        echo "https://github.com/${REPO}/releases/download/${TAG}/mihomo-linux-${MARCH}-alpha-smart-${1}.gz"
+        echo "https://github.com/${REPO}/releases/download/${TAG}/mihomo-linux-${MARCH}-alpha-smart-${1}-ebpf.gz"
     }
 
     ASSET_URL="$(asset_url "$BUILD")"
@@ -69,8 +69,8 @@ else
     if ! curl -fsIL -o /dev/null "${ASSET_URL}"; then
         echo "    pinned build ${BUILD} no longer present, resolving latest via GitHub API"
         BUILD=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/tags/${TAG}" \
-            | grep -oE "mihomo-linux-${MARCH}-alpha-smart-[0-9a-f]+\.gz" \
-            | head -1 | sed -E 's/.*smart-([0-9a-f]+)\.gz/\1/')
+            | grep -oE "mihomo-linux-${MARCH}-alpha-smart-[0-9a-f]+-ebpf\.gz" \
+            | head -1 | sed -E 's/.*smart-([0-9a-f]+)-ebpf\.gz/\1/')
         if [[ -z "$BUILD" ]]; then
             echo "error: could not resolve a kernel build from ${TAG}" >&2
             exit 1

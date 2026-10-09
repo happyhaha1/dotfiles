@@ -28,11 +28,13 @@ jobs:
           aqua_installer=$(gh release view --repo aquaproj/aqua-installer --json tagName -q '.tagName')
           aqua_installer_sha256=$(curl_sha256 "https://raw.githubusercontent.com/aquaproj/aqua-installer/${aqua_installer}/aqua-installer")
           aqua_version=$(gh release view --repo aquaproj/aqua --json tagName -q '.tagName')
+          # mihomo fork asset names carry a build suffix (currently -ebpf);
+          # take the build sha from any asset name rather than a fixed tail.
           # paperlib tag format: release-electron-X.Y.Z -> extract X.Y.Z
           paperlib=$(gh release view --repo Future-Scholars/paperlib --json tagName -q '.tagName' | sed 's/release-electron-//')
           # google-cloud-sdk mirror repo publishes tags (not GitHub Releases)
           gcloud_version=$(gh api repos/twistedpair/google-cloud-sdk/tags --jq '.[0].name')
-          mihomo_fork_build=$(gh api repos/liuran001/mihomo/releases/tags/Prerelease-Alpha --jq '.assets[].name' | grep -oE 'smart-[0-9a-f]+\.gz' | head -1 | sed -E 's/.*smart-([0-9a-f]+)\.gz/\1/')
+          mihomo_fork_build=$(gh api repos/liuran001/mihomo/releases/tags/Prerelease-Alpha --jq '.assets[].name' | grep -oE 'alpha-smart-[0-9a-f]+' | head -1 | sed -E 's/.*smart-([0-9a-f]+).*/\1/')
           zashboard_version=$(gh release view --repo Zephyruso/zashboard --json tagName -q '.tagName')
 
           latest_stable_release_ref() {
