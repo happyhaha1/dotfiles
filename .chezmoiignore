@@ -73,6 +73,13 @@ treefmt.toml
 .config/hammerspoon/
 {{- end }}
 
+# ─────────────────────────────────────────────────────────────────────────────
+# OmniWM is the macOS window manager; its settings are macOS-only.
+# ─────────────────────────────────────────────────────────────────────────────
+{{- if ne .chezmoi.os "darwin" }}
+.config/omniwm/
+{{- end }}
+
 # Web clients and the Web UI's mise Node shim are office-server-only.
 {{- if ne .machineProfile "office-server" }}
 .config/roamgate/
