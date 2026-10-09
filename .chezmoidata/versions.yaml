@@ -8,11 +8,11 @@ versions:
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: 683bc88e56f3e09ba94f7055977f3d3aa499f202
   claudeAnthropicsSkillsSha256: 30a1152c163d87852587347c242261d7dd85f2208f25bd9c4b6bf47266a5f4bf
-  uiUxProMaxSkillRev: 477bcb28c9812b385cb51a4605ddf30d7b2266e2
-  uiUxProMaxSkillSha256: 657188875c1215248a3a533f1f9b29868e7b550dead28c721b71184871dd53f7
+  uiUxProMaxSkillRev: 50d8a7de0900119855614541f15a1a616691eb33
+  uiUxProMaxSkillSha256: 899f4824f7949ff3e1705a65ac2b2dc7baef3dcfa8da165c788b54587f1321d6
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
-  mihomoForkBuild: f4b8399
+  mihomoForkBuild: 059bed8
   zashboardVersion: v3.29.1
   # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
