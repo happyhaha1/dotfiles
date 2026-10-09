@@ -1,7 +1,7 @@
 ---
 registries:
   - type: standard
-    ref: v4.573.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.573.1 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
@@ -15,12 +15,12 @@ packages:
     update:
       enabled: false
   # - name: anthropics/claude-code@v2.1.228
-  - name: openai/codex@rust-v0.161.0
+  - name: openai/codex@rust-v0.162.0
   - name: anomalyco/opencode@v1.18.35
-  - name: alibaba/open-code-review@v1.12.12
+  - name: alibaba/open-code-review@v1.12.13
   - name: earendil-works/pi@v1.1.0
   - name: direnv/direnv@v2.38.1
-  - name: jdx/mise@v2026.10.4
+  - name: jdx/mise@v2026.10.5
     tags:
       - bootstrap
 
@@ -59,7 +59,7 @@ packages:
   - name: casey/just@1.58.0
   - name: jesseduffield/lazygit@v0.66.0
   - name: LuaLS/lua-language-server@3.19.1
-  - name: tree-sitter/tree-sitter@v0.27.0
+  - name: tree-sitter/tree-sitter@v0.27.1
   - name: o2sh/onefetch@3.0.0
   - name: ip7z/7zip@26.04
   - name: Nukesor/pueue/pueue@v4.0.4
