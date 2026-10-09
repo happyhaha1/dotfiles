@@ -2,9 +2,9 @@
 hl.unbind("PRINT")
 o.bind("SUPER + A", "Screenshot", "omarchy-capture-screenshot")
 
--- Move universal copy/paste to ALT+C/ALT+V so they sit where macOS has
--- Command+C/Command+V, next to the window bindings that use the macOS Option
--- position. Omarchy keeps its equivalents as local functions in
+-- Move universal copy/paste/cut to ALT+C/ALT+V/ALT+X so they sit where macOS has
+-- Command+C/Command+V/Command+X, next to the window bindings that use the macOS
+-- Option position. Omarchy keeps its equivalents as local functions in
 -- default/hypr/bindings/clipboard.lua, so the logic is repeated here. The
 -- terminal branch matters: CTRL+C is SIGINT and CTRL+V is literal-next in a
 -- terminal, so terminals get the Insert chords instead.
@@ -47,14 +47,17 @@ end
 
 hl.unbind("SUPER + C")
 hl.unbind("SUPER + V")
+hl.unbind("SUPER + X")
 o.bind("ALT + C", "Universal copy", universal_clipboard_shortcut("CTRL", "C", "CTRL", "Insert"))
 o.bind("ALT + V", "Universal paste", universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
+o.bind("ALT + X", "Universal cut", send_shortcut_once("CTRL", "X"))
 
--- Move the clipboard manager from Omarchy's default SUPER+CTRL+V binding.
--- SUPER+SHIFT+C is a default Calendar binding, so unbind it before replacing it.
+-- Move the clipboard history to ALT+SHIFT+V, matching the Paste app's
+-- Command+Shift+V on macOS. The unbinds keep Omarchy's default SUPER+CTRL+V
+-- binding and its default Calendar webapp off the keys we took over.
 hl.unbind("SUPER + SHIFT + C")
 hl.unbind("SUPER + CTRL + V")
-o.bind("SUPER + SHIFT + C", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
+o.bind("ALT + SHIFT + V", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
 
 -- These retained app/TUI bindings are restored explicitly because
 -- `omarchy remove preinstalls` disables the default preinstall binding block.
