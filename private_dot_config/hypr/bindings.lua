@@ -107,3 +107,16 @@ o.bind("SUPER + SHIFT + L", "Move window right", hl.dsp.window.move({ direction 
 hl.unbind("SUPER + SPACE")
 hl.unbind("SUPER + ALT + SPACE")
 o.bind("ALT + SPACE", "Omarchy menu", "omarchy-menu toggle")
+
+-- Align full width with the Mac baseline (Option + Shift + F). The two File
+-- manager defaults on SUPER+SHIFT+F and SUPER+ALT+SHIFT+F give way, and the old
+-- SUPER+ALT+F binding is dropped so one action keeps one key.
+hl.unbind("SUPER + SHIFT + F")
+hl.unbind("SUPER + ALT + SHIFT + F")
+hl.unbind("SUPER + ALT + F")
+o.bind("SUPER + SHIFT + F", "Full width", hl.dsp.window.fullscreen({ mode = "maximized" }))
+
+-- Align "move window to scratchpad" with the Mac baseline (Option + Shift + S).
+-- Omarchy's default puts it on SUPER+ALT+S; the toggle itself stays on SUPER+S.
+hl.unbind("SUPER + ALT + S")
+o.bind("SUPER + SHIFT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
