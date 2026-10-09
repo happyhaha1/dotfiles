@@ -1,7 +1,54 @@
--- Move screenshot from Omarchy's default PRINT binding to ALT+A.
+-- Move screenshot from Omarchy's default PRINT binding to SUPER+A.
 hl.unbind("PRINT")
-hl.unbind("ALT + A")
-o.bind("ALT + A", "Screenshot", "omarchy-capture-screenshot")
+o.bind("SUPER + A", "Screenshot", "omarchy-capture-screenshot")
+
+-- Move universal copy/paste to ALT+C/ALT+V so they sit where macOS has
+-- Command+C/Command+V, next to the window bindings that use the macOS Option
+-- position. Omarchy keeps its equivalents as local functions in
+-- default/hypr/bindings/clipboard.lua, so the logic is repeated here. The
+-- terminal branch matters: CTRL+C is SIGINT and CTRL+V is literal-next in a
+-- terminal, so terminals get the Insert chords instead.
+local function send_shortcut_once(mods, key)
+  return function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+
+    hl.timer(function()
+      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+    end, { timeout = 50, type = "oneshot" })
+  end
+end
+
+-- Use the terminal tag from default/hypr/apps/terminals.lua; dynamic tags carry
+-- a trailing "*".
+local function active_window_is_terminal()
+  local window = hl.get_active_window()
+  if not window then
+    return false
+  end
+
+  for _, tag in ipairs(window.tags or {}) do
+    if tag:gsub("%*$", "") == "terminal" then
+      return true
+    end
+  end
+
+  return false
+end
+
+local function universal_clipboard_shortcut(default_mods, default_key, terminal_mods, terminal_key)
+  return function()
+    if active_window_is_terminal() then
+      send_shortcut_once(terminal_mods, terminal_key)()
+    else
+      send_shortcut_once(default_mods, default_key)()
+    end
+  end
+end
+
+hl.unbind("SUPER + C")
+hl.unbind("SUPER + V")
+o.bind("ALT + C", "Universal copy", universal_clipboard_shortcut("CTRL", "C", "CTRL", "Insert"))
+o.bind("ALT + V", "Universal paste", universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
 
 -- Move the clipboard manager from Omarchy's default SUPER+CTRL+V binding.
 -- SUPER+SHIFT+C is a default Calendar binding, so unbind it before replacing it.
