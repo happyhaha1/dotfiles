@@ -100,3 +100,10 @@ o.bind("SUPER + SHIFT + H", "Move window left", hl.dsp.window.move({ direction =
 o.bind("SUPER + SHIFT + J", "Move window down", hl.dsp.window.move({ direction = "d" }))
 o.bind("SUPER + SHIFT + K", "Move window up", hl.dsp.window.move({ direction = "u" }))
 o.bind("SUPER + SHIFT + L", "Move window right", hl.dsp.window.move({ direction = "r" }))
+
+-- Move the launcher to ALT+SPACE, matching Raycast on Command+Space. ALT+SPACE
+-- was unused; SUPER+SPACE (Omarchy menu) and SUPER+ALT+SPACE (Apps menu) are
+-- unbound so the defaults cannot shadow the new key on the freed modifiers.
+hl.unbind("SUPER + SPACE")
+hl.unbind("SUPER + ALT + SPACE")
+o.bind("ALT + SPACE", "Omarchy menu", "omarchy-menu toggle")
