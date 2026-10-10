@@ -121,3 +121,7 @@ o.bind("SUPER + SHIFT + F", "Full width", hl.dsp.window.fullscreen({ mode = "max
 -- Omarchy's default puts it on SUPER+ALT+S; the toggle itself stays on SUPER+S.
 hl.unbind("SUPER + ALT + S")
 o.bind("SUPER + SHIFT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
+
+-- The file manager lands on SUPER+SHIFT+E: its two Omarchy defaults gave way to
+-- Full width, and SUPER+E stays free for a possible per-app "open" mapping.
+o.bind("SUPER + SHIFT + E", "File manager", { omarchy = "nautilus" })
