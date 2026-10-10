@@ -17,10 +17,10 @@ herdrPlugins:
     office-server:
       # Roamgate provides a browser/PWA client for the local Herdr server.
       - source: powerfooI/roamgate
-        ref: v0.8.0
+        ref: v0.8.1
       # Structured agent chat and mobile access alongside Roamgate.
       - source: devswha/herdr-web-ui
-        ref: v0.4.2
+        ref: v0.4.5
   # Example:
   # shared:
   #   - source: owner/repository
