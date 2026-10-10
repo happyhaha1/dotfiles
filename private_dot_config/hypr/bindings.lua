@@ -68,9 +68,10 @@ o.bind("SUPER + CTRL + RETURN", "Herdr", { omarchy = "terminal-herdr" })
 o.bind("SUPER + SHIFT + D", "Docker", { tui = "omarchy-launch-docker-tui" })
 o.bind("SUPER + SHIFT + W", "Omawrite", { launch = "omawrite" })
 
--- Use SUPER+Q to close the active window instead of the default SUPER+W.
+-- Use ALT+Q to close the active window. The default SUPER+W is unbound so the
+-- close action keeps a single key (SUPER+Q is unused by Omarchy and left free).
 hl.unbind("SUPER + W")
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+o.bind("ALT + Q", "Close window", hl.dsp.window.close())
 
 -- Unify window navigation with the macOS layout: directional focus on
 -- SUPER + HJKL, directional movement on SUPER + SHIFT + HJKL. This works
