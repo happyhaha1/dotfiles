@@ -47,11 +47,18 @@ treefmt.toml
 .bashrc
 {{- end }}
 
-# EasyTier is managed only on Omarchy/Linux; do not adopt its encrypted
-# machine-specific configuration or user service on other targets.
-{{- if not (and (hasKey . "omarchy") .omarchy) }}
+# EasyTier: the encrypted node configuration is shared by Omarchy/Linux and by
+# the macOS office-server, which owns the mesh's LAN subnet exports. The systemd
+# user unit stays Linux-only, the launchd agent stays office-server-only.
+{{- $easytierNode := or (and (hasKey . "omarchy") .omarchy) (and (eq .chezmoi.os "darwin") (eq .machineProfile "office-server")) }}
+{{- if not $easytierNode }}
 .config/easytier/
+{{- end }}
+{{- if not (and (hasKey . "omarchy") .omarchy) }}
 .config/systemd/user/easytier.service
+{{- end }}
+{{- if not (and (eq .chezmoi.os "darwin") (eq .machineProfile "office-server")) }}
+Library/LaunchAgents/io.easytier.core.plist
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────────────

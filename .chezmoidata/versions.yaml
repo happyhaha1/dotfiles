@@ -17,3 +17,4 @@ versions:
   # EasyTier release asset pin; update together with its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
   easytierLinuxX8664Sha256: 61b659eaedba658fa66fe47d17e1426cdd77e5d02fa15fed447bb4357c09dfd6
+  easytierMacosAarch64Sha256: 4be1882d1aa36d31c1d6ba0596f2cf8a097e371f8da124212324b2e0f8df7e4b

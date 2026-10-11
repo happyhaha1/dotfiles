@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Managed by chezmoi; do not edit the installed copy. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>io.easytier.core</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{ .chezmoi.homeDir }}/.local/bin/easytier-core</string>
+    <string>--config-file</string>
+    <string>{{ .chezmoi.homeDir }}/.config/easytier/easytier.toml</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>{{ .chezmoi.homeDir }}/.local/state/easytier</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>5</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>StandardOutPath</key>
+  <string>{{ .chezmoi.homeDir }}/Library/Logs/easytier.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>{{ .chezmoi.homeDir }}/Library/Logs/easytier.err.log</string>
+</dict>
+</plist>
