@@ -127,8 +127,7 @@ roamgateHost = {{ $roamgateHost | quote }}
 roamgatePassword = {{ $roamgatePassword | quote }}
 
 [edit]
-command = "zed"
-args = ["--wait"]
+command = "nvim"
 
 [diff]
 pager = "sh -c 'delta --config ~/.config/delta/config --paging=never || less -FRX'"
