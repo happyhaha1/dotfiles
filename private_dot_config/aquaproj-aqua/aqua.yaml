@@ -19,6 +19,11 @@ packages:
   - name: anomalyco/opencode@v1.19.0
   - name: alibaba/open-code-review@v1.12.13
   - name: earendil-works/pi@v1.1.0
+  # oh-my-pi (`omp`); local registry entry because the Standard Registry has
+  # no can1357/oh-my-pi package. macOS only: the Omarchy subset is generated
+  # from an allowlist in update-aqua-packages.yml.
+  - name: can1357/oh-my-pi@v18.9.1
+    registry: local
   - name: direnv/direnv@v2.38.2
   - name: jdx/mise@v2026.10.7
     tags:

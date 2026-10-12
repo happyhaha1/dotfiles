@@ -49,11 +49,15 @@ bundle:
 brew-update:
     brew update && brew upgrade
 
-# Install pinned Aqua tools
+# Install pinned Aqua tools.
+# Aqua's linker recreates its own symlinks, which clobbers the chezmoi-managed
+# ~/.local/share/aquaproj-aqua/bin/omp wrapper that Tern's assistant needs, so
+# re-apply that one target afterwards.
 [group('packages')]
 aqua-install:
     aqua install
     "$HOME/.local/bin/herdr-integrations-sync"
+    chezmoi apply --force "$HOME/.local/share/aquaproj-aqua/bin/omp"
 
 # Remove Aqua package versions not used within the retention window.
 # Override with AQUA_VACUUM_DAYS (default: 7).

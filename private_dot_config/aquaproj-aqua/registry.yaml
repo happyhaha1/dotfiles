@@ -20,3 +20,22 @@ packages:
       arm64: aarch64
       darwin: apple-darwin
       linux: unknown-linux-gnu
+
+  # oh-my-pi (`omp`), the Pi fork used as a second agent surface. Releases
+  # publish raw binaries named omp-<os>-<arch>, so no archive format is set.
+  # aqua prefers the GitHub Release API asset digest and only falls back to
+  # this checksum file, which is why SHA256SUMS.txt is listed explicitly.
+  - type: github_release
+    repo_owner: can1357
+    repo_name: oh-my-pi
+    asset: omp-{{.OS}}-{{.Arch}}
+    files:
+      - name: omp
+    checksum:
+      type: github_release
+      asset: SHA256SUMS.txt
+      file_format: regexp
+      algorithm: sha256
+      pattern:
+        checksum: ^(\b[A-Fa-f0-9]{64}\b)
+        file: "^\\b[A-Fa-f0-9]{64}\\b\\s+(\\S+)$"

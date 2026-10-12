@@ -87,6 +87,14 @@ Library/LaunchAgents/io.easytier.core.plist
 .config/omniwm/
 {{- end }}
 
+# ─────────────────────────────────────────────────────────────────────────────
+# oh-my-pi (omp) is installed by the macOS Aqua config only, and its provider
+# file carries the machine-local magpie gateway address.
+# ─────────────────────────────────────────────────────────────────────────────
+{{- if ne .chezmoi.os "darwin" }}
+.omp/
+{{- end }}
+
 # Web clients and the Web UI's mise Node shim are office-server-only.
 {{- if ne .machineProfile "office-server" }}
 .config/roamgate/
