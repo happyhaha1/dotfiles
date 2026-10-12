@@ -108,7 +108,7 @@ mkdir -p "$agent_dir/extensions"
 printf 'bundled integration v%s\n' "$TEST_INTEGRATION_VERSION" > "$agent_dir/extensions/herdr-agent-state.ts"
 `);
 
-  for (const command of ["aqua", "chezmoi", "mise", "brew"]) {
+  for (const command of ["aqua", "chezmoi", "mise", "brew", "omp"]) {
     executable(join(bin, command), `#!/bin/bash
 printf '${command} %s\n' "$*" >> "$TEST_EVENTS"
 ${command === "aqua" ? 'exit "$TEST_AQUA_EXIT"' : "exit 0"}

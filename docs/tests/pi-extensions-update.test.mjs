@@ -109,7 +109,7 @@ if [[ "$TEST_PI_EXIT" != 0 ]]; then
 fi
 `);
 
-  for (const command of ["aqua", "chezmoi", "mise", "brew"]) {
+  for (const command of ["aqua", "chezmoi", "mise", "brew", "omp"]) {
     executable(join(bin, command), `#!/bin/bash
 printf '${command} %s\\n' "$*" >> "$TEST_EVENTS"
 ${command === "aqua" ? 'exit "$TEST_AQUA_EXIT"' : "exit 0"}
