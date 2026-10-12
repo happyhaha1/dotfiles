@@ -11,3 +11,9 @@ theme:
 setupVersion: 2
 modelRoles:
   smol: home-magpie/group/daily
+# Magic Context owns the context plane (its plugin sets these; kept explicit
+# so a bare `omp config set` cannot silently flip them back).
+compaction:
+  enabled: false
+memory:
+  backend: "off"
