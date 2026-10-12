@@ -1,9 +1,18 @@
 #!/bin/sh
-# Hindsight coding-agent memory: stage the shared runtime under
-# ~/.hindsight/coding-agents and wire pi's extension entry + skill.
-# The connection config itself (~/.hindsight/coding-agent.json) is managed
-# separately as an encrypted chezmoi source. Idempotent: re-running refreshes
-# the runtime in place and de-dupes the extension entry.
+# Agent-tooling bootstrap, run after the aqua step: stages the shared
+# Hindsight coding-agent runtime and wires its pi extension + skill, then
+# makes sure omp has the Magic Context plugin for the context plane. The
+# connection config (~/.hindsight/coding-agent.json) and the Magic Context
+# config (~/.config/cortexkit/magic-context.jsonc) are managed separately
+# as encrypted chezmoi sources. Every step is idempotent.
 set -eu
 
 npx -y @vectorize-io/hindsight-coding-agents@latest install pi
+
+# Magic Context for omp: skip when already installed so a re-run does not
+# re-download the package on every apply.
+if ! omp plugin list --json 2>/dev/null | grep -q '"@cortexkit/pi-magic-context"'; then
+    omp plugin install @cortexkit/pi-magic-context
+fi
+omp config set compaction.enabled false >/dev/null
+omp config set memory.backend off >/dev/null
