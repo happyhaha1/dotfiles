@@ -1,0 +1,9 @@
+#!/bin/sh
+# Hindsight coding-agent memory: stage the shared runtime under
+# ~/.hindsight/coding-agents and wire pi's extension entry + skill.
+# The connection config itself (~/.hindsight/coding-agent.json) is managed
+# separately as an encrypted chezmoi source. Idempotent: re-running refreshes
+# the runtime in place and de-dupes the extension entry.
+set -eu
+
+npx -y @vectorize-io/hindsight-coding-agents@latest install pi
