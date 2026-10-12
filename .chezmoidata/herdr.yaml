@@ -20,7 +20,7 @@ herdrPlugins:
         ref: v0.8.2
       # Structured agent chat and mobile access alongside Roamgate.
       - source: devswha/herdr-web-ui
-        ref: v0.4.6
+        ref: v0.4.8
   # Example:
   # shared:
   #   - source: owner/repository
