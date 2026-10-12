@@ -77,10 +77,9 @@ jobs:
           herdr_roamgate_ref="$(latest_stable_release_ref powerfooI/roamgate)"
           herdr_web_ui_ref="$(latest_stable_release_ref devswha/herdr-web-ui)"
 
-          # EasyTier publishes per-OS/arch archives; the Linux x86_64 and macOS
-          # arm64 digests are pinned for the Omarchy node and the office-server Mac.
+          # EasyTier publishes per-OS/arch archives; the macOS arm64 digest is
+          # pinned for the office-server Mac (the only EasyTier node).
           easytier_version="$(latest_stable_release_ref EasyTier/EasyTier)"
-          easytier_linux_sha256=$(curl_sha256 "https://github.com/EasyTier/EasyTier/releases/download/${easytier_version}/easytier-linux-x86_64-${easytier_version}.zip")
           easytier_macos_sha256=$(curl_sha256 "https://github.com/EasyTier/EasyTier/releases/download/${easytier_version}/easytier-macos-aarch64-${easytier_version}.zip")
 
           claude_wshobson_agents_rev=$(gh api repos/wshobson/agents/commits/main -q '.sha')
@@ -118,7 +117,6 @@ jobs:
             echo "mihomo_fork_build=$mihomo_fork_build"
             echo "zashboard_version=$zashboard_version"
             echo "easytier_version=$easytier_version"
-            echo "easytier_linux_sha256=$easytier_linux_sha256"
             echo "easytier_macos_sha256=$easytier_macos_sha256"
             echo "herdr_agent_usage_ref=$herdr_agent_usage_ref"
             echo "herdr_navigator_ref=$herdr_navigator_ref"
@@ -161,7 +159,6 @@ jobs:
           sed -i 's/mihomoForkBuild: .*/mihomoForkBuild: ${{ steps.versions.outputs.mihomo_fork_build }}/' .chezmoidata/versions.yaml
           sed -i 's/zashboardVersion: .*/zashboardVersion: ${{ steps.versions.outputs.zashboard_version }}/' .chezmoidata/versions.yaml
           sed -i 's/easytierVersion: .*/easytierVersion: ${{ steps.versions.outputs.easytier_version }}/' .chezmoidata/versions.yaml
-          sed -i 's/easytierLinuxX8664Sha256: .*/easytierLinuxX8664Sha256: ${{ steps.versions.outputs.easytier_linux_sha256 }}/' .chezmoidata/versions.yaml
           sed -i 's/easytierMacosAarch64Sha256: .*/easytierMacosAarch64Sha256: ${{ steps.versions.outputs.easytier_macos_sha256 }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeWshobsonAgentsRev: .*/claudeWshobsonAgentsRev: ${{ steps.versions.outputs.claude_wshobson_agents_rev }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeWshobsonAgentsSha256: .*/claudeWshobsonAgentsSha256: ${{ steps.versions.outputs.claude_wshobson_agents_sha256 }}/' .chezmoidata/versions.yaml
@@ -278,7 +275,6 @@ jobs:
             | mihomo fork build | `${{ steps.versions.outputs.mihomo_fork_build }}` |
             | zashboard | `${{ steps.versions.outputs.zashboard_version }}` |
             | EasyTier | `${{ steps.versions.outputs.easytier_version }}` |
-            | EasyTier linux-x86_64 sha256 | `${{ steps.versions.outputs.easytier_linux_sha256 }}` |
             | EasyTier macos-aarch64 sha256 | `${{ steps.versions.outputs.easytier_macos_sha256 }}` |
             | openai/skills | `${{ steps.versions.outputs.openai_skills_rev }}` |
             | huggingface/skills | `${{ steps.versions.outputs.huggingface_skills_rev }}` |
