@@ -1,0 +1,45 @@
+#!/bin/sh
+# OpenViking pi extension: official layout under ~/.pi/agent/extensions/openviking
+# (a pi auto-discovery root — no packages entry needed; adding one would load
+# the extension twice). The extension lives in the OpenViking mono-repo under
+# examples/pi-coding-agent-extension and needs two generated bits pi cannot
+# provide: shared/*.mjs (sync.mjs) and node_modules (npm ci).
+set -eu
+
+PIN=b218cd8058ecbb0996ccbbba798d0fdd052a7b77
+REPO=github.com/volcengine/OpenViking
+DEST=$HOME/.pi/agent/extensions/openviking
+GITDIR=$HOME/.pi/agent/git/$REPO
+
+need_update=0
+[ -f "$DEST/index.ts" ] || need_update=1
+[ "$(cat "$DEST/.pinned" 2>/dev/null)" = "$PIN" ] || need_update=1
+
+if [ "$need_update" = 1 ]; then
+    # Shallow fetch of the pinned commit into a shared cache dir (also used by
+    # pi's own git packages), then export the subdirectory.
+    mkdir -p "$GITDIR"
+    if ! git -C "$GITDIR" cat-file -e "$PIN" 2>/dev/null; then
+        git clone --filter=blob:none https://$REPO.git "$GITDIR" 2>/dev/null ||
+            git -C "$GITDIR" fetch origin "$PIN"
+        git -C "$GITDIR" checkout -q "$PIN"
+    fi
+    rm -rf "$DEST.new"
+    mkdir -p "$DEST.new"
+    # export the tracked files of the subdirectory at the pin
+    git -C "$GITDIR" archive "$PIN" examples/pi-coding-agent-extension |
+        tar -x --strip-components=2 -C "$DEST.new" \
+            "examples/pi-coding-agent-extension" 2>/dev/null ||
+        git -C "$GITDIR" archive "$PIN" examples/pi-coding-agent-extension |
+            tar -x -C "$DEST.new" --strip-components=2
+    # shared/*.mjs is generated (committed: false in sync.mjs targets)
+    node "$GITDIR/examples/memory-plugin-shared/sync.mjs" >/dev/null
+    cp -R "$GITDIR/examples/pi-coding-agent-extension/shared" "$DEST.new/shared"
+    npm ci --prefix "$DEST.new" --omit=dev --ignore-scripts >/dev/null 2>&1
+    rm -rf "$DEST"
+    mv "$DEST.new" "$DEST"
+    echo "$PIN" > "$DEST/.pinned"
+    echo "openviking extension installed/updated at $DEST"
+else
+    echo "openviking extension already at $PIN, skip"
+fi
