@@ -8,6 +8,10 @@ set -gx EDITOR nvim
 set -gx VISUAL nvim
 set -gx SUDO_EDITOR "$EDITOR"
 set -gx BAT_THEME ansi
+# OpenViking ov CLI: keep its client config under XDG_CONFIG_HOME instead of
+# ~/.openviking (server-side state lives on the NAS; only the CLI config is
+# local, managed by chezmoi as ~/.config/openviking/ovcli.conf).
+set -gx OPENVIKING_CLI_CONFIG_FILE "$XDG_CONFIG_HOME/openviking/ovcli.conf"
 set -g fish_greeting
 set -g fish_history_max_size 32768
 set -x XDG_CONFIG_HOME "$HOME/.config"
