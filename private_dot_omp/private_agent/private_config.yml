@@ -5,8 +5,21 @@ theme:
   dark: titanium
   light: light
 setupVersion: 2
+defaultThinkingLevel: high
 modelRoles:
-  smol: home-magpie/group/daily
+  default: home-magpie/group/coding:high
+  plan: home-magpie/group/coding:high
+  designer: home-magpie/group/designer:high
+  task: home-magpie/group/task:high
+  advisor: home-magpie/group/advisor:high
+  smol: home-magpie/group/explore:low
+  slow: home-magpie/group/review:high
+  tiny: home-magpie/group/tiny:low
+  commit: home-magpie/group/tiny:low
+  vision: home-magpie/group/vision:medium
+task:
+  agentModelOverrides:
+    security-reviewer: "@slow"
 # Magic Context owns the context plane (its plugin sets these; kept explicit
 # so a bare `omp config set` cannot silently flip them back).
 compaction:
