@@ -252,6 +252,7 @@ jobs:
         run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
       - name: Create PR
         if: steps.changes.outputs.changed == 'true'
+        id: pr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
@@ -298,3 +299,12 @@ jobs:
             | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
             | powerfooI/roamgate | `${{ steps.versions.outputs.herdr_roamgate_ref }}` |
             | devswha/herdr-web-ui | `${{ steps.versions.outputs.herdr_web_ui_ref }}` |
+
+      - name: Enable pull request auto-merge
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          # Keep this branch current so the next day's aqua.yaml update PR
+          # does not conflict with stale versions.yaml pins.
+          gh pr merge "${{ steps.pr.outputs.pr_number }}" --auto --squash

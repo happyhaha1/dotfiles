@@ -115,6 +115,7 @@ jobs:
 
       - name: Create PR
         if: steps.changes.outputs.changed == 'true'
+        id: pr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
@@ -129,3 +130,15 @@ jobs:
             Automated Standard Registry and package update for `private_dot_config/aquaproj-aqua/aqua.yaml`.
 
             Also regenerates the Omarchy-only Aqua subset at `private_dot_config/aquaproj-aqua/aqua-omarchy.yaml`.
+
+      - name: Enable pull request auto-merge
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          # A release can land right after this workflow checked versions
+          # (e.g. pi publishes a new tag minutes later). Auto-merge closes
+          # that gap at the next scheduler tick, and keeping the branch
+          # up-to-date stops the daily version PRs from conflicting on
+          # aqua.yaml.
+          gh pr merge "${{ steps.pr.outputs.pr_number }}" --auto --squash
