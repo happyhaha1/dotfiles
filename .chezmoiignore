@@ -83,8 +83,9 @@ Library/LaunchAgents/io.easytier.core.plist
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# oh-my-pi (omp) is installed by the macOS Aqua config only, and its provider
-# file carries the machine-local magpie gateway address.
+# oh-my-pi (the Pi fork) was removed from Aqua; its Tern-managed
+# binary lives outside this repository. The provider configuration is still
+# macOS-only because it carries the machine-local magpie gateway address.
 # ─────────────────────────────────────────────────────────────────────────────
 {{- if ne .chezmoi.os "darwin" }}
 .omp/
