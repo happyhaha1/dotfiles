@@ -8,8 +8,8 @@ versions:
   paperlib: 3.1.12
   claudeAnthropicsSkillsRev: dbd4588f9e1033efb41dad4bef2f7947c8993d44
   claudeAnthropicsSkillsSha256: 7b5869b8a0a4200e596de271be71e5e5573b2c1041ed7d9882317d0d682152d4
-  uiUxProMaxSkillRev: 67803eac81607188194aea9842a723b89326d90d
-  uiUxProMaxSkillSha256: 21eaf6dec2127fee5121f42f6ddc5b455e11103896674cc285efcb1be1c80a1a
+  uiUxProMaxSkillRev: 7246805992a42b7bba37d4cac83b01416f0c6c44
+  uiUxProMaxSkillSha256: 4226c6d7f4c5dae68513c52f87087cd83ad9f09ee2728a7b9e488932b10430f8
   vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
   gcloudVersion: 562.0.0
   mihomoForkBuild: 059bed8
