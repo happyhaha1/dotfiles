@@ -14,6 +14,9 @@
     "npm:@narumitw/pi-goal",
     "npm:pi-web-access",
     "npm:pi-extmgr",
+    {{- if eq .machineProfile "daily" }}
+    "npm:pi-browser-harness",
+    {{- end }}
     "git:github.com/NVlabs/SoL-Pi"
   ],
   "defaultThinkingLevel": "max"
