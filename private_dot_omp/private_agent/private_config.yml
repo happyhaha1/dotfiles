@@ -1,8 +1,4 @@
 symbolPreset: nerd
-# Hindsight memory (shared runtime with pi; bank resolved from cwd, same
-# coding-agent::{gitProject} banks). Config lives in ~/.hindsight/coding-agent.json.
-extensions:
-  - ~/.hindsight/coding-agents/dist/pi.js
 composer:
   shape: band
 theme:
