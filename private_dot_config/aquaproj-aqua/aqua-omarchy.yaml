@@ -11,7 +11,7 @@ packages:
 - name: atuinsh/atuin@v18.23.0
 - name: openai/codex@rust-v0.162.1
 - name: anomalyco/opencode@v1.19.0
-- name: earendil-works/pi@v1.1.0
+- name: earendil-works/pi@v1.2.0
 - name: twpayne/chezmoi@v2.73.1
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
@@ -25,7 +25,7 @@ packages:
 - name: git-lfs/git-lfs@v3.8.0
 - name: charmbracelet/glow@v3.0.0
 - name: casey/just@1.58.0
-- name: joshmedeski/sesh@v2.32.0
+- name: joshmedeski/sesh@v2.33.0
 - name: koalaman/shellcheck@v0.11.0
 - name: mvdan/sh@v3.14.1
 - name: numtide/treefmt@v2.6.0
