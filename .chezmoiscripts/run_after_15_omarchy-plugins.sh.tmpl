@@ -33,6 +33,14 @@ if ! command -v git >/dev/null 2>&1; then
     exit 1
 fi
 
+# Omarchy's plugin commands talk to omarchy-shell over IPC, which needs the
+# checkout path even in non-login apply shells (herdr, ssh, cron).
+export OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+if [[ ! -d "$OMARCHY_PATH" ]]; then
+    echo "    Error: Omarchy checkout not found at $OMARCHY_PATH" >&2
+    exit 1
+fi
+
 declare -a desired_ids=()
 declare -A desired_sources=()
 declare -A desired_enabled=()

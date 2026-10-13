@@ -19,9 +19,13 @@ set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
 set -x XDG_CACHE_HOME "$HOME/.cache"
 # macOS has no /run/user/$UID; keep runtime files under the state dir.
-set -x XDG_RUNTIME_DIR "$XDG_STATE_HOME/run"
-if not test -d "$XDG_RUNTIME_DIR"
-    mkdir -p "$XDG_RUNTIME_DIR"
+# On Linux the session/logind provides /run/user/$UID — overriding it breaks
+# Wayland socket discovery (qs ipc, omarchy-shell, …) in non-session terminals.
+if test (uname) = Darwin
+    set -x XDG_RUNTIME_DIR "$XDG_STATE_HOME/run"
+    if not test -d "$XDG_RUNTIME_DIR"
+        mkdir -p "$XDG_RUNTIME_DIR"
+    end
 end
 
 # --- XDG migration: move tool state out of $HOME (see xdg-ninja) ---
