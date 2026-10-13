@@ -18,6 +18,37 @@ set -x XDG_CONFIG_HOME "$HOME/.config"
 set -x XDG_STATE_HOME "$HOME/.local/state"
 set -x XDG_DATA_HOME "$HOME/.local/share"
 set -x XDG_CACHE_HOME "$HOME/.cache"
+# macOS has no /run/user/$UID; keep runtime files under the state dir.
+set -x XDG_RUNTIME_DIR "$XDG_STATE_HOME/run"
+if not test -d "$XDG_RUNTIME_DIR"
+    mkdir -p "$XDG_RUNTIME_DIR"
+end
+
+# --- XDG migration: move tool state out of $HOME (see xdg-ninja) ---
+# Toolchains / package managers (data in XDG_DATA_HOME, caches in XDG_CACHE_HOME).
+# Original $HOME paths are left as symlinks because some tools hardcode the old paths.
+set -gx GRADLE_USER_HOME "$XDG_DATA_HOME/gradle"
+set -gx CARGO_HOME "$XDG_DATA_HOME/cargo"
+set -gx RUSTUP_HOME "$XDG_DATA_HOME/rustup"
+set -gx GOPATH "$XDG_DATA_HOME/go"
+set -gx MAVEN_USER_HOME "$XDG_DATA_HOME/maven"
+set -gx BUN_INSTALL "$XDG_DATA_HOME/bun"
+set -gx NPM_CONFIG_CACHE "$XDG_CACHE_HOME/npm"
+set -gx NPM_CONFIG_USERCONFIG "$XDG_CONFIG_HOME/npm/npmrc"
+set -gx CLAUDE_CONFIG_DIR "$XDG_CONFIG_HOME/claude"
+set -gx CODEX_HOME "$XDG_CONFIG_HOME/codex"
+set -gx GNUPGHOME "$XDG_CONFIG_HOME/gnupg"
+set -gx ANDROID_USER_HOME "$XDG_DATA_HOME/android"
+set -gx ANDROID_SDK_HOME "$XDG_DATA_HOME/android"
+set -gx EASYOCR_MODULE_PATH "$XDG_DATA_HOME/easyocr"
+set -gx WGETRC "$XDG_CONFIG_HOME/wget/wgetrc"
+set -gx SQLITE_HISTFILE "$XDG_STATE_HOME/sqlite/history"
+set -gx LESSHISTFILE "$XDG_STATE_HOME/less/history"
+# atuin: db lives in XDG_DATA_HOME; keep $HOME symlink-free
+set -gx ATUIN_DATA_DIR "$XDG_DATA_HOME/atuin"
+if not test -d "$ATUIN_DATA_DIR"
+    mkdir -p "$ATUIN_DATA_DIR"
+end
 
 # Keep Aqua binaries first, followed by the official Homebrew prefix. This
 # avoids accidentally selecting stale binaries after migration.
@@ -94,26 +125,11 @@ set -gx DOCKER_CONFIG "$XDG_CONFIG_HOME/docker"
 set -gx MANROFFOPT -c
 set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
 
-# npm / node
-set -gx NPM_CONFIG_USERCONFIG "$XDG_CONFIG_HOME/npm/npmrc"
-# fish_add_path "./node_modules/.bin"
-
-# OCaml
-# set -gx OPAMROOT "$XDG_DATA_HOME/opam"
-
-# This adds: the correct directories to the PATH, auto-completion for the opam binary
-# test -r '/Users/sparkes/.share/opam/opam-init/init.fish' && source '/Users/sparkes/.share/opam/opam-init/init.fish' >/dev/null 2>/dev/null; or true
-
 # python
 set -gx PYTHONPYCACHEPREFIX "$XDG_CACHE_HOME/python_cache"
 set -gx PYTHON_HISTORY "$XDG_CACHE_HOME/python/history"
 set -gx IPYTHONDIR "$XDG_CACHE_HOME/ipython"
 set -gx MPLCONFIGDIR "$XDG_CACHE_HOME/matplotlib"
-
-# rust
-# source "$HOME/.cargo/env.fish"
-
-# etc
 
 ## https://fishshell.com/docs/current/faq.html#faq-history
 function last_history_item
