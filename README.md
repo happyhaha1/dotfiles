@@ -82,6 +82,11 @@ magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移�
 
 回归测试：`node --test docs/tests/pi-extensions-update.test.mjs`。
 
+OpenViking 扩展由 `.chezmoiscripts/run_onchange_after_14_openviking-pi-extension.sh.tmpl`
+固定版本安装到 `~/.pi/agent/extensions/openviking`，不属于上述 `packages` 更新范围。
+macOS 上的 omp 通过 `~/.omp/agent/config.yml` 的 `extensions` 显式加载同一目录。
+OpenViking 保持 `takeoverEnabled: false`，上下文管理继续由 Magic Context 负责。
+
 ## Herdr、Roamgate 与 Web UI
 
 Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在

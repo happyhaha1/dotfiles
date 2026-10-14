@@ -20,6 +20,8 @@ modelRoles:
 task:
   agentModelOverrides:
     security-reviewer: "@slow"
+extensions:
+  - ~/.pi/agent/extensions/openviking
 # Magic Context owns the context plane (its plugin sets these; kept explicit
 # so a bare `omp config set` cannot silently flip them back).
 compaction:
