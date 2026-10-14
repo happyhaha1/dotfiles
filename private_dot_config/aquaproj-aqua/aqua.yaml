@@ -20,7 +20,7 @@ packages:
   - name: alibaba/open-code-review@v1.13.0
   - name: earendil-works/pi@v1.2.0
   - name: direnv/direnv@v2.38.2
-  - name: jdx/mise@v2026.10.8
+  - name: jdx/mise@v2026.10.9
     tags:
       - bootstrap
 
@@ -79,5 +79,5 @@ packages:
   - name: ajeetdsouza/zoxide@v0.10.0
   - name: zellij-org/zellij@v0.45.1
   - name: k3d-io/k3d@v5.9.0
-  - name: herdrdev/herdr@v0.9.3
+  - name: herdrdev/herdr@v0.9.4
   - import: aqua-agent-computer.yaml

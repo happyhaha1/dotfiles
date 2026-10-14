@@ -32,4 +32,4 @@ packages:
 - name: sxyazi/yazi@v26.9.1
 - name: mikefarah/yq@v4.54.1
 - name: k3d-io/k3d@v5.9.0
-- name: herdrdev/herdr@v0.9.3
+- name: herdrdev/herdr@v0.9.4
