@@ -141,4 +141,4 @@ jobs:
           # that gap at the next scheduler tick, and keeping the branch
           # up-to-date stops the daily version PRs from conflicting on
           # aqua.yaml.
-          gh pr merge "${{ steps.pr.outputs.pr_number }}" --auto --squash
+          gh pr merge "${{ steps.pr.outputs.pull-request-number }}" --auto --squash

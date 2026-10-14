@@ -195,6 +195,8 @@ Tailscale 或防火墙。普通 HTTP 只用于受信任网络，手机 PWA/推�
 - `.github/workflows/scheduler.yml` 触发定时更新工作流。
 - `.github/workflows/ci.yml` 在 Pull Request 和推送到 `main` 时验证模板、渲染后的 shell 脚本和仓库机密信息。
 
+两个更新工作流使用 Create PR 步骤的 `pull-request-number` output 启用 squash auto-merge；所需 CI 检查通过后由 GitHub 自动合并。
+
 ## 安全原则
 
 这是一个声明式配置仓库，不是无人值守的部署流水线。
