@@ -17,7 +17,7 @@ not a Git checkout, so `omarchy theme update` leaves it alone.
 | `pi.json` | Pinned Pi theme. `omarchy-theme-set-pi` copies the current theme's `pi.json` to `~/.pi/agent/themes/omarchy-system.json`, so Pi shows Pi's Dracula theme exactly (see below). |
 | `gtk.css` | Dracula surface hierarchy for GTK3/GTK4 apps, accent on the purple. Opt in with `ln -s ~/.local/state/omarchy/current/theme/gtk.css ~/.config/gtk-4.0/gtk.css`. |
 | `icons.theme` | `Yaru-purple` folder icons. |
-| `backgrounds/base.png` | Dracula moon-and-bats wallpaper. |
+| `backgrounds/` | Wallpapers. `base.png` is the Dracula moon-and-bats wallpaper; the other six come from catlee/omarchy-dracula-theme's `backgrounds/` so the purple theme has the same wallpaper rotation as the upstream cyan one. Cycle with `omarchy theme bg next`. |
 | `unlock.png`, `preview-unlock.png` | Unlock (Plymouth) artwork. |
 
 Files Omarchy's templates generate (`shell.toml`, `btop.theme`, `neovim.lua`,
@@ -37,6 +37,6 @@ still looks exactly like Pi's Dracula.
 
 - Palette: Dracula (https://draculatheme.com).
 - `colors.toml` structure, `gtk.css`, `icons.theme`, `unlock.png`,
-  `preview-unlock.png` and `backgrounds/base.png` come from
+  `preview-unlock.png` and all `backgrounds/` files come from
   https://github.com/catlee/omarchy-dracula-theme.
 - `pi.json` comes from https://github.com/sherif-fanous/pi-dracula (MIT).

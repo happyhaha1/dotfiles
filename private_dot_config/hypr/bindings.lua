@@ -52,12 +52,12 @@ o.bind("ALT + C", "Universal copy", universal_clipboard_shortcut("CTRL", "C", "C
 o.bind("ALT + V", "Universal paste", universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
 o.bind("ALT + X", "Universal cut", send_shortcut_once("CTRL", "X"))
 
--- Move the clipboard history to ALT+SHIFT+V, matching the Paste app's
--- Command+Shift+V on macOS. The unbinds keep Omarchy's default SUPER+CTRL+V
--- binding and its default Calendar webapp off the keys we took over.
+-- Move the clipboard history to ALT+SHIFT+C. The unbinds keep Omarchy's
+-- default SUPER+CTRL+V binding and its default Calendar webapp off the keys we
+-- took over.
 hl.unbind("SUPER + SHIFT + C")
 hl.unbind("SUPER + CTRL + V")
-o.bind("ALT + SHIFT + V", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
+o.bind("ALT + SHIFT + C", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
 
 -- These retained app/TUI bindings are restored explicitly because
 -- `omarchy remove preinstalls` disables the default preinstall binding block.
@@ -124,4 +124,6 @@ o.bind("SUPER + SHIFT + S", "Move window to scratchpad", hl.dsp.window.move({ wo
 
 -- The file manager lands on SUPER+SHIFT+E: its two Omarchy defaults gave way to
 -- Full width, and SUPER+E stays free for a possible per-app "open" mapping.
-o.bind("SUPER + SHIFT + E", "File manager", { omarchy = "nautilus" })
+-- Strata replaces Nautilus as the Omarchy file manager; its AUR package owns
+-- the XDG folder association, this binding only retargets the key.
+o.bind("SUPER + SHIFT + E", "File manager", { launch = "strata" })

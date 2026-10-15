@@ -79,6 +79,9 @@ omarchyAurPackages:
     - hyprmoncfg-bin
     # Cross-device clipboard sync using the prebuilt desktop release.
     - uniclipboard-bin
+    # Strata keyboard-first file manager; upstream CI publishes strata-bin to
+    # the AUR on every release, so it tracks GitHub tags automatically.
+    - strata-bin
   profiles:
     hack:
       - whatweb
@@ -109,6 +112,12 @@ omarchyPlugins:
       source: https://github.com/Harshith292002/omarchy-system-monitor.git
       enabled: true
       section: right
+    # Lock screen explorer: replaces the built-in omarchy.lock service with 84
+    # designs, a picker, and a designer. Service/overlay plugin; the optional
+    # bar lock icon is added separately with `omarchy bar move lock-explorer`.
+    - id: io.github.sirjul1337.lock-explorer
+      source: https://github.com/SirJul1337/omarchy-lock-explorer.git
+      enabled: true
   profiles: {}
 
 # Community themes are installed and updated by Omarchy's own theme manager.
