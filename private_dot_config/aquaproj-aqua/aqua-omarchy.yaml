@@ -3,7 +3,7 @@
 # GitHub workflow updates; install only this curated subset on Omarchy.
 registries:
 - type: standard
-  ref: v4.574.1
+  ref: v4.575.0
 - name: local
   type: local
   path: registry.yaml
@@ -32,4 +32,4 @@ packages:
 - name: sxyazi/yazi@v26.9.1
 - name: mikefarah/yq@v4.54.1
 - name: k3d-io/k3d@v5.9.0
-- name: herdrdev/herdr@v0.9.4
+- name: herdrdev/herdr@v0.9.5
