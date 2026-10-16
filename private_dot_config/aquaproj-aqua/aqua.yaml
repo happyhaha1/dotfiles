@@ -47,7 +47,10 @@ packages:
       enabled: false
   - name: crates.io/eza@0.23.5
     registry: local
-  - name: fastfetch-cli/fastfetch@2.70.0
+  # 2.70.0 switched macOS assets to universal; keep 2.69.0 and disable auto-update.
+  - name: fastfetch-cli/fastfetch@2.69.0
+    update:
+      enabled: false
   - name: sharkdp/fd@v10.5.0
   - name: junegunn/fzf@v0.74.5
   - name: cli/cli@v2.102.0
