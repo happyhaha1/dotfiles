@@ -12,7 +12,7 @@ packages:
 - name: openai/codex@rust-v0.163.0
 - name: anomalyco/opencode@v1.19.3
 - name: earendil-works/pi@v1.3.0
-- name: twpayne/chezmoi@v2.73.1
+- name: twpayne/chezmoi@v2.73.2
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
 - name: dandavison/delta@0.20.1
