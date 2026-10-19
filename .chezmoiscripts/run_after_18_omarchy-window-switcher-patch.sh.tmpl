@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ":: [18] Window switcher local patch"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{- else }}
+# Keeps two local patches on io.github.manateelazycat.window-switcher after
+# Omarchy re-clones the plugin (`omarchy plugin update` discards both):
+#
+#   1. overview/qmldir has to declare NerdIcon.qml. Since Qt 6.12 the shell
+#      resolves a plugin directory through its qmldir, so an undeclared sibling
+#      file inside that directory is not a type any more. The plugin ships
+#      NerdIcon.qml and uses it from OverviewWidget.qml, so the overview panel
+#      fails to load ("NerdIcon is not a type" then "Type OverviewWidget
+#      unavailable") and Super+Tab / Alt+Tab open nothing. Upstream hancore
+#      0.1.12, which this plugin vendors, still has the same bug.
+#   2. The focused workspace in the bar widget is drawn with the theme accent
+#      (purple in dracula-purple) instead of the plugin's urgent/red active
+#      color, matching the rest of the theme.
+#
+# plugin: io.github.manateelazycat.window-switcher
+
+if ! command -v omarchy >/dev/null 2>&1; then
+    echo "    Skipped (omarchy command not found)"
+    exit 0
+fi
+
+# Omarchy's plugin commands talk to omarchy-shell over IPC, which needs the
+# distro path even in non-login apply shells (herdr, ssh, cron).
+export OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+
+plugin_id="io.github.manateelazycat.window-switcher"
+plugin_dir="$HOME/.config/omarchy/plugins/$plugin_id"
+qmldir="$plugin_dir/overview/qmldir"
+widget="$plugin_dir/overview/bar/widget.qml"
+
+# run_after_15 installs the plugin and .chezmoidata/omarchy.yaml declares it;
+# patching anything else would be pruned on the next apply.
+declared="$(omarchy plugin list --json 2>/dev/null | jq -r --arg id "$plugin_id" 'map(select(.id == $id)) | length')"
+if [[ "$declared" -eq 0 ]]; then
+    echo "    Skipped ($plugin_id is not installed; apply again after run_after_15)"
+    exit 0
+fi
+
+if [[ ! -f "$qmldir" || ! -f "$widget" ]]; then
+    echo "    Error: $plugin_id is installed but $qmldir / $widget are missing" >&2
+    exit 1
+fi
+
+if [[ ! -f "$plugin_dir/overview/NerdIcon.qml" ]]; then
+    echo "    Error: the plugin no longer ships overview/NerdIcon.qml; drop patch 1" >&2
+    exit 1
+fi
+
+patched=""
+
+# 1. Declare NerdIcon so the plugin directory resolves under Qt 6.12.
+if grep -q '^NerdIcon ' "$qmldir"; then
+    echo "    qmldir: NerdIcon declared"
+else
+    printf 'NerdIcon 1.0 NerdIcon.qml\n' >>"$qmldir"
+    echo "    qmldir: added NerdIcon declaration"
+    patched="yes"
+fi
+
+# 2. Accent-colored focused workspace instead of urgent/red. Exact-match so a
+# changed upstream file fails loudly instead of being patched in the dark.
+if grep -q 'activeColor: Commons.Color.accent' "$widget"; then
+    echo "    widget.qml: accent patch present"
+else
+    python3 - "$widget" <<'PY'
+import sys
+
+path = sys.argv[1]
+src = open(path, encoding="utf-8").read()
+
+old = """                bar: root.bar
+                fontFamily: "JetBrainsMono Nerd Font"
+"""
+new = """                bar: root.bar
+                // Local patch: mark the focused workspace with the theme accent
+                // (purple in dracula-purple) instead of the urgent/red color.
+                activeColor: Commons.Color.accent
+                fontFamily: "JetBrainsMono Nerd Font"
+"""
+
+if src.count(old) != 1:
+    sys.exit(
+        f"anchor matched {src.count(old)} times in {path}; "
+        "upstream changed the workspace button, re-port the accent patch"
+    )
+
+open(path, "w", encoding="utf-8").write(src.replace(old, new))
+PY
+    echo "    widget.qml: applied accent patch"
+    patched="yes"
+fi
+
+# Only restart when something changed; the panel is a keep-loaded service.
+if [[ -n "$patched" ]]; then
+    echo "    Restarting the shell to load the patched plugin"
+    if ! omarchy-restart-shell >/dev/null 2>&1; then
+        echo "    Warning: could not restart the shell; run omarchy-restart-shell" >&2
+    fi
+fi
+{{ end }}
