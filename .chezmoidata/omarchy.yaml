@@ -95,6 +95,17 @@ omarchyPlugins:
       source: https://github.com/fross100/omaplug.git
       enabled: true
       section: right
+    # Calendar and weather widget: a vendored copy of the upstream
+    # manateelazycat/omarchy-days plugin, kept in this repository under
+    # private_dot_config/omarchy/plugins/local.days (see its README for the
+    # three local changes). `local: true` tells run_after_15 not to look for a
+    # Git source and keeps the directory out of the unmanaged-plugin prune.
+    # The bar label is the Chinese weekday plus time; clicking it opens the
+    # panel with the lunar calendar, holidays and weather.
+    - id: local.days
+      local: true
+      enabled: true
+      section: center
     # Visual window and workspace switching: Orbit's Alt+Tab switcher plus a
     # vendored copy of Overview Workspaces that deliberately does not bind a
     # standalone Super press. run_after_18 keeps its Qt 6.12 qmldir fix applied.

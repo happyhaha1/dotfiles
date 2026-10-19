@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ":: [19] local.days runtime dependencies"
+
+{{ if not (and (hasKey . "omarchy") .omarchy) }}
+echo "    Skipped (not an Omarchy machine)"
+exit 0
+{{- else }}
+# The vendored local.days plugin computes the Chinese lunar calendar with
+# lunar-python, and Omarchy's plugin loader only installs files — upstream
+# ships bootstrap.sh for the dependency, keeping the virtualenv outside the
+# plugin directory (~/.local/share/omarchy-days/venv) because Omarchy rejects
+# symlinks inside a plugin. chezmoi installs the plugin files, this keeps the
+# virtualenv in place.
+#
+# The widget runs its helpers with `python3` from the Omarchy session and
+# backend.py adds the virtualenv's site-packages for the *running* interpreter
+# version, so the venv is built with that interpreter and the check below
+# mirrors backend.py's lookup. A venv built by a different interpreter (for
+# instance Arch's system python, which is not the one on the session PATH here)
+# would look empty to the widget.
+plugin_id="local.days"
+plugin_dir="$HOME/.config/omarchy/plugins/$plugin_id"
+runtime_dir="${XDG_DATA_HOME:-$HOME/.local/share}/omarchy-days/venv"
+
+if [[ ! -d "$plugin_dir" ]]; then
+    echo "    Skipped ($plugin_dir is missing; apply again after chezmoi installs it)"
+    exit 0
+fi
+if [[ ! -f "$plugin_dir/requirements.txt" || ! -f "$plugin_dir/bootstrap.sh" ]]; then
+    echo "    Error: $plugin_dir is missing requirements.txt or bootstrap.sh" >&2
+    exit 1
+fi
+
+python_cmd=""
+for candidate in "$HOME/.local/share/mise/shims/python3" "$(command -v python3 2>/dev/null || true)" /usr/bin/python3; do
+    if [[ -n "$candidate" && -x "$candidate" ]]; then
+        python_cmd="$candidate"
+        break
+    fi
+done
+if [[ -z "$python_cmd" ]]; then
+    echo "    Error: python3 not found; local.days needs Python 3.10 or newer" >&2
+    exit 1
+fi
+python_version="$("$python_cmd" -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+
+# The pinned dependency, lunar_python==X.Y.Z.
+want_version="$(sed -n 's/^[[:space:]]*lunar_python[[:space:]]*==[[:space:]]*\([0-9][^[:space:]]*\)$/\1/p' \
+    "$plugin_dir/requirements.txt" | head -n 1)"
+if [[ -z "$want_version" ]]; then
+    echo "    Error: cannot read the lunar_python pin from $plugin_dir/requirements.txt" >&2
+    exit 1
+fi
+
+site_dir="$runtime_dir/lib/python$python_version/site-packages"
+have_version="$("$python_cmd" -c "
+import site, importlib.metadata as metadata
+site.addsitedir('$site_dir')
+try:
+    print(metadata.version('lunar_python'))
+except metadata.PackageNotFoundError:
+    pass
+" 2>/dev/null || true)"
+
+if [[ "$have_version" == "$want_version" ]]; then
+    echo "    Dependencies already installed: lunar_python $have_version (python $python_version)"
+else
+    # A venv left behind by another interpreter version has no usable
+    # site-packages here, so start it over instead of patching it.
+    if [[ -d "$runtime_dir" && ! -d "$site_dir" ]]; then
+        echo "    Recreating the virtualenv for python $python_version"
+        rm -rf -- "$runtime_dir"
+    fi
+    if [[ -n "$have_version" ]]; then
+        echo "    Updating calendar dependencies: lunar_python $have_version -> $want_version"
+    else
+        echo "    Installing calendar dependencies into $runtime_dir"
+    fi
+    # bootstrap.sh runs `python3 -m venv` plus pip from requirements.txt, so put
+    # the chosen interpreter first under that name for the duration of the call.
+    shim_dir="$(mktemp -d)"
+    trap 'rm -rf "$shim_dir"' EXIT
+    ln -s "$python_cmd" "$shim_dir/python3"
+    PATH="$shim_dir:$PATH" bash "$plugin_dir/bootstrap.sh"
+    rm -rf -- "$shim_dir"
+    trap - EXIT
+
+    have_version="$("$python_cmd" -c "
+import site, importlib.metadata as metadata
+site.addsitedir('$site_dir')
+try:
+    print(metadata.version('lunar_python'))
+except metadata.PackageNotFoundError:
+    pass
+" 2>/dev/null || true)"
+    if [[ "$have_version" != "$want_version" ]]; then
+        echo "    Error: expected lunar_python $want_version for python $python_version, found '${have_version:-none}'" >&2
+        exit 1
+    fi
+    echo "    Installed lunar_python $have_version (python $python_version)"
+fi
+{{ end }}

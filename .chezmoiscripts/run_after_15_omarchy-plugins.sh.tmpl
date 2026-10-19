@@ -15,8 +15,11 @@ exit 0
 {{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "pruneUnmanaged") -}}
 {{-   $pruneUnmanaged = index .omarchyPlugins "pruneUnmanaged" -}}
 {{- end -}}
-# This is an allowlist: when pruneUnmanaged is true, every third-party plugin
-# under ~/.config/omarchy/plugins must be declared below or it is removed.
+# This is an allowlist: when pruneUnmanaged is true, every plugin under
+# ~/.config/omarchy/plugins must be declared below or it is removed. Entries
+# with `local: true` name plugins whose files this repository installs
+# (private_dot_config/omarchy/plugins/<id>); entries with a `source` are cloned
+# from Git and updated outside chezmoi.
 # machine profile: {{ $machineProfile }}
 # prune unmanaged: {{ $pruneUnmanaged }}
 
@@ -43,6 +46,7 @@ fi
 
 declare -a desired_ids=()
 declare -A desired_sources=()
+declare -A desired_local=()
 declare -A desired_enabled=()
 declare -A desired_sections=()
 
@@ -51,12 +55,22 @@ add_desired() {
     local plugin_source="$2"
     local plugin_enabled="$3"
     local plugin_section="$4"
+    local plugin_local="$5"
 
     if [[ ! "$plugin_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ || "$plugin_id" == *..* ]]; then
         echo "    Error: invalid Omarchy plugin id: $plugin_id" >&2
         exit 1
     fi
-    if [[ -z "$plugin_source" || "$plugin_source" == *$'\t'* || "$plugin_source" == *$'\n'* || "$plugin_source" == *$'\r'* ]]; then
+    if [[ "$plugin_local" != true && "$plugin_local" != false ]]; then
+        echo "    Error: local must be true or false for $plugin_id" >&2
+        exit 1
+    fi
+    if [[ "$plugin_local" == true ]]; then
+        if [[ -n "$plugin_source" ]]; then
+            echo "    Error: local plugin $plugin_id must not declare a source" >&2
+            exit 1
+        fi
+    elif [[ -z "$plugin_source" || "$plugin_source" == *$'\t'* || "$plugin_source" == *$'\n'* || "$plugin_source" == *$'\r'* ]]; then
         echo "    Error: invalid Omarchy plugin source for $plugin_id" >&2
         exit 1
     fi
@@ -75,18 +89,19 @@ add_desired() {
 
     desired_ids+=("$plugin_id")
     desired_sources["$plugin_id"]="$plugin_source"
+    desired_local["$plugin_id"]="$plugin_local"
     desired_enabled["$plugin_id"]="$plugin_enabled"
     desired_sections["$plugin_id"]="$plugin_section"
 }
 
 {{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "shared") }}
 {{ range .omarchyPlugins.shared -}}
-add_desired {{ .id | quote }} {{ .source | quote }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }}
+add_desired {{ .id | quote }} {{ if hasKey . "source" }}{{ .source | quote }}{{ else }}""{{ end }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }} {{ if hasKey . "local" }}{{ .local }}{{ else }}false{{ end }}
 {{ end -}}
 {{- end }}
 {{- if and (hasKey . "omarchyPlugins") (hasKey .omarchyPlugins "profiles") (hasKey .omarchyPlugins.profiles $machineProfile) }}
 {{ range index .omarchyPlugins.profiles $machineProfile -}}
-add_desired {{ .id | quote }} {{ .source | quote }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }}
+add_desired {{ .id | quote }} {{ if hasKey . "source" }}{{ .source | quote }}{{ else }}""{{ end }} {{ if hasKey . "enabled" }}{{ .enabled }}{{ else }}true{{ end }} {{ if hasKey . "section" }}{{ .section | quote }}{{ else }}""{{ end }} {{ if hasKey . "local" }}{{ .local }}{{ else }}false{{ end }}
 {{ end -}}
 {{- end }}
 
@@ -119,6 +134,20 @@ ensure_plugin_checkout() {
     local plugin_source="${desired_sources[$plugin_id]}"
     local plugin_dir="$plugins_dir/$plugin_id"
 
+    if [[ "${desired_local[$plugin_id]}" == true ]]; then
+        # Local plugins are files managed by this repository, so there is
+        # nothing to clone; the manifest has to exist or Omarchy cannot load it.
+        if [[ ! -f "$plugin_dir/manifest.json" ]]; then
+            echo "    Error: local plugin '$plugin_id' has no $plugin_dir/manifest.json" >&2
+            exit 1
+        fi
+        if [[ -d "$plugin_dir/.git" ]]; then
+            echo "    Error: local plugin '$plugin_id' is a Git checkout and would be replaced by chezmoi" >&2
+            exit 1
+        fi
+        return
+    fi
+
     if [[ ! -e "$plugin_dir" && ! -L "$plugin_dir" ]]; then
         echo "    Installing declared Omarchy plugin: $plugin_id"
         omarchy plugin add "$plugin_source" --enable --yes
@@ -138,6 +167,17 @@ ensure_plugin_state() {
     local plugin_section="${desired_sections[$plugin_id]}"
     local installed_plugins
     local enabled
+
+    # Local plugin files are written by chezmoi just before this script runs, so
+    # give the shell's plugin scan a moment to notice them.
+    if [[ "${desired_local[$plugin_id]}" == true ]]; then
+        for _ in {1..50}; do
+            if omarchy plugin list --json 2>/dev/null | jq -e --arg id "$plugin_id" 'any(.[]; .id == $id)' >/dev/null; then
+                break
+            fi
+            sleep 0.1
+        done
+    fi
 
     installed_plugins="$(omarchy plugin list --json)"
     enabled="$(jq -r --arg id "$plugin_id" 'map(select(.id == $id))[0].enabled // empty' <<<"$installed_plugins")"
