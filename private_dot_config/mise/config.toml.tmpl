@@ -16,6 +16,15 @@ pnpm = "latest"
 # Bun (replaces bunx)
 bun = "latest"
 
+{{ if eq .chezmoi.os "darwin" -}}
+# DeepSeek Harness CLI (dsh); Paseo runs it as a custom ACP agent provider.
+# Every published version on npm is a prerelease, and mise's npm backend filters
+# prereleases out of its version list, so "latest" never resolves. Pin the exact
+# version and bump it by hand: this tracks the npm "next" dist-tag
+# (npm view @deepseek-ai/dsh@next version), newer than the "latest" tag.
+"npm:@deepseek-ai/dsh" = "0.2.1-rc.2"
+{{- end }}
+
 # Terraform (replaces tenv)
 #terraform = "latest"
 

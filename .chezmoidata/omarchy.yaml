@@ -187,6 +187,9 @@ omarchyIgnoreList:
   - .config/aerospace
   - .config/raycast
   - .config/surge
+  # dsh（DeepSeek Harness）只在 macOS 由 mise 的 npm backend 安装，
+  # 该 wrapper 在 Omarchy 上没有对应的工具，因此不纳管。
+  - .local/bin/dsh
   # mise 配置在 Omarchy 纳管（共享运行时工具声明）；
   # 安装脚本使用 Omarchy 提供的系统 mise，不改写 mise 二进制来源。
   # Pi 本体由 Omarchy Aqua 子集管理；~/.pi 配置 + web-search 在 Omarchy

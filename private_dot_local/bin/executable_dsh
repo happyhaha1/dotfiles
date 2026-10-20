@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+# DeepSeek Harness (dsh) is installed by mise's npm backend, whose bin directory
+# lives under ~/.local/share/mise/installs/npm-deepseek-ai-dsh/<version>/ and is
+# not on Paseo's daemon PATH. Paseo's daemon PATH does include ~/.local/bin, so
+# this wrapper keeps a stable entry point there and resolves the real binary
+# through mise (which also keeps working after a version bump).
+aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
+if ! command -v mise >/dev/null 2>&1; then
+    PATH="$aqua_bin_dir:$PATH"
+fi
+
+exec mise exec -- dsh "$@"
