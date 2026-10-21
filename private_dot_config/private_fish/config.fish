@@ -21,6 +21,12 @@ set -x XDG_CACHE_HOME "$HOME/.cache"
 # daemon spawns to harvest env) has no inherited XDG_CONFIG_HOME, and a
 # /openviking/... path here silently disables the pi OpenViking extension.
 set -gx OPENVIKING_CLI_CONFIG_FILE "$XDG_CONFIG_HOME/openviking/ovcli.conf"
+# OpenViking capture retry queue (~/.openviking/pending) grows without bound when
+# the server is briefly unreachable: the extension replays only 50 entries per
+# startup, so a backlog of thousands adds minutes to every pi launch. Raise the
+# per-startup replay budget and expire stale entries instead of retrying forever.
+set -gx OPENVIKING_PENDING_REPLAY_LIMIT 500
+set -gx OPENVIKING_PENDING_TTL_DAYS 3
 # macOS has no /run/user/$UID; keep runtime files under the state dir.
 # On Linux the session/logind provides /run/user/$UID — overriding it breaks
 # Wayland socket discovery (qs ipc, omarchy-shell, …) in non-session terminals.
