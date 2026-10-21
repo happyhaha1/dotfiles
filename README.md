@@ -83,6 +83,10 @@ Pi 的用户级扩展包声明在 `private_dot_pi/agent/settings.json.tmpl` 的 
 Herdr 生成的 `~/.pi/agent/extensions/herdr-agent-state.ts` 不属于这些包，
 仍由 `herdr integration install pi` 对齐。
 
+`just full-upgrade` 随后执行 `omp plugin upgrade @cortexkit/pi-magic-context`，
+更新 omp 的 Magic Context 插件；未安装 omp 时跳过，升级失败会中止后续步骤。
+运行中的 omp 会话需要重启才能加载新版插件。
+
 更新不会重载正在运行的会话：普通插件需要逐个 `/reload`，下次启动的 Pi 才使用新包。
 magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移，因此更新包含存储迁移时
 应在维护窗口统一处理所有 Pi/OpenCode 进程，不要依赖 `chezmoi apply` 追最新版本。
