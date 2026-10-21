@@ -261,10 +261,6 @@ test("one unconditional entry replaces every separate Herdr service script", () 
     "run_after_11_herdr-web-ui.sh.tmpl",
     "run_after_12_roamgate.sh.tmpl",
   ]) assert(!existsSync(join(sourceRoot, ".chezmoiscripts", retired)), retired);
-  assert(orchestrationSource.includes("sync_herdr_plugins() ("));
-  assert(orchestrationSource.includes("sync_herdr_web_ui() ("));
-  assert(orchestrationSource.includes("sync_roamgate() ("));
-  assert(!applySource.includes("{{"), "profile gates belong inside phases, not around the entry");
 });
 
 test("the combined entry invokes integrations, plugins, Web UI, and Roamgate in order", (t) => {

@@ -3,7 +3,7 @@
 set -eufo pipefail
 
 # Periodic upgrade check (7-day interval)
-# The declarative package set is installed by the Homebrew bundle script (02).
+# The declarative package set is installed by the Homebrew bundle script (03).
 
 LAST_UPDATE_FILE="$HOME/.cache/brew-last-update"
 mkdir -p "$(dirname "$LAST_UPDATE_FILE")"
@@ -14,7 +14,7 @@ UPDATE_INTERVAL=$((7 * 86400)) # 7 days
 [[ -f "$LAST_UPDATE_FILE" ]] && LAST_UPDATE=$(cat "$LAST_UPDATE_FILE")
 DAYS_AGO=$(((CURRENT_TIME - LAST_UPDATE) / 86400))
 
-echo ":: [08] Homebrew update check (at most once every 7 days)"
+echo ":: [09] Homebrew update check (at most once every 7 days)"
 
 if ! command -v brew >/dev/null 2>&1; then
     echo "    Skipped (Homebrew is not installed)"

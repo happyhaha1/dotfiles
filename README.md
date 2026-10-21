@@ -57,6 +57,14 @@ Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置�
 | Fisher | Fish 插件 | `private_dot_config/private_fish/fish_plugins.tmpl` |
 | chezmoi 脚本 | 平台配置、服务和软件包编排 | `.chezmoiscripts/` |
 
+脚本文件名中的数字就是 apply 日志里 `:: [NN]` 的步骤编号：`before` 阶段是
+`[01]`–`[02]`，随后 `after` 阶段按编号升序执行，全部 25 个脚本编号连续且唯一。
+同一阶段里 `run_onchange_` 与 `run_after_` 的文件名属性会被剥离后排序，
+因此两类脚本共用同一条编号序列。Herdr 入口 `[10]` 下的 Pi 集成、插件、
+Web UI 和 Roamgate 阶段使用不带编号的缩进行。
+重命名会改变 `run_onchange_` 脚本的状态键，修改日志也会改变渲染内容；
+受影响的脚本会在下一次 apply 时重跑一次，安装和服务逻辑保持不变。
+
 如果工具已经在上述配置源中声明，不要手动安装；应该修改声明，然后重新 apply。
 
 ## Pi 用户扩展包更新
@@ -81,7 +89,7 @@ magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移�
 
 回归测试：`node --test docs/tests/pi-extensions-update.test.mjs`。
 
-OpenViking 扩展由 `.chezmoiscripts/run_onchange_after_14_openviking-pi-extension.sh.tmpl`
+OpenViking 扩展由 `.chezmoiscripts/run_onchange_after_20_openviking-pi-extension.sh.tmpl`
 固定版本安装到 `~/.pi/agent/extensions/openviking`，不属于上述 `packages` 更新范围。
 macOS 上的 omp 通过 `~/.omp/agent/config.yml` 的 `extensions` 显式加载同一目录。
 OpenViking 保持 `takeoverEnabled: false`，上下文管理继续由 Magic Context 负责。
@@ -159,7 +167,7 @@ Herdr Web UI 同样仅在 `office-server` profile 启用。插件安装仍由
 检查私有状态戳和健康状态，版本/配置变化或服务停止时等待 `stop` 完成后
 执行 `start`，不重启 Herdr 主进程或 Roamgate。未变化的健康服务不会重启，
 未纳入 dotfiles 所有权或被禁用的插件不会被接管。从 manifest/profile 移除已管理的
-Web UI 时，[10] 会先等待它停止，再卸载插件，避免留下后台服务。
+Web UI 时，`[10]` 会先等待它停止，再卸载插件，避免留下后台服务。
 
 私有模板生成 `~/.config/herdr/plugins/config/devswha.herdr-web-ui/.env`（权限 `0600`）：
 

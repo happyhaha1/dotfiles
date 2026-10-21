@@ -13,7 +13,7 @@ set -euo pipefail
 {{-   $machineProfile = .machineProfile -}}
 {{- end }}
 
-echo ":: [02] Installing Homebrew packages"
+echo ":: [03] Installing Homebrew packages"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "    Skipped (unsupported OS: $(uname -s); this repository targets macOS)"

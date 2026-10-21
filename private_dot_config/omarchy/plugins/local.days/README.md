@@ -15,7 +15,7 @@
 >    `Local change` 的两处）；
 > 3. 上游的 `install.sh`、`tests/`、`scripts/` 未纳入——安装归 chezmoi，
 >    运行时依赖仍由 `bootstrap.sh` 建到 `~/.local/share/omarchy-days/venv`，
->    由 `.chezmoiscripts/run_after_19_omarchy-local-days-deps.sh.tmpl` 幂等执行。
+>    由 `.chezmoiscripts/run_after_25_omarchy-local-days-deps.sh.tmpl` 幂等执行。
 >
 > 升级上游：重新拷贝上述文件，然后重做这三处改动。
 >

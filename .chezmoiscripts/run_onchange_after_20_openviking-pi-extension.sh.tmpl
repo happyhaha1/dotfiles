@@ -6,6 +6,8 @@
 # provide: shared/*.mjs (sync.mjs) and node_modules (npm ci).
 set -eu
 
+echo ":: [20] Installing OpenViking pi extension"
+
 # v0.5.1 tag (extension 0.4.20); the server image runs v0.5.1 too.
 PIN=e855796c83f9eb575d9b0f3082926660730f6a63
 REPO=github.com/volcengine/OpenViking
@@ -40,7 +42,7 @@ if [ "$need_update" = 1 ]; then
     rm -rf "$DEST"
     mv "$DEST.new" "$DEST"
     echo "$PIN" > "$DEST/.pinned"
-    echo "openviking extension installed/updated at $DEST"
+    echo "    openviking extension installed/updated at $DEST"
 else
     echo "openviking extension already at $PIN, skip"
 fi

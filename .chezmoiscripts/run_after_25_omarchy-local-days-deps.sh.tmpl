@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo ":: [19] local.days runtime dependencies"
+echo ":: [25] local.days runtime dependencies"
 
 {{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"

@@ -8,11 +8,11 @@ set -euo pipefail
 {{- $configSource := joinPath .chezmoi.sourceDir "private_dot_config/private_easytier/encrypted_private_easytier.toml.tmpl.age" -}}
 {{- $serviceSource := joinPath .chezmoi.sourceDir "Library/LaunchAgents/io.easytier.core.plist.tmpl" -}}
 {{- if not $macosOffice }}
-echo ":: [13] Synchronizing EasyTier (macOS office-server only)"
+echo ":: [18] Synchronizing EasyTier (macOS office-server only)"
 echo "    Skipped (not an EasyTier target)"
 exit 0
 {{ else }}
-echo ":: [13] Synchronizing EasyTier (macOS office-server)"
+echo ":: [18] Synchronizing EasyTier (macOS office-server)"
 
 # Changing the release pin, architecture, encrypted configuration, or service
 # definition reruns this installer and reconciles the service.

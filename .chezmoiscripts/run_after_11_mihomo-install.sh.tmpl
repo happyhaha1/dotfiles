@@ -12,7 +12,7 @@
 # the main config, and never replace this fork with official MetaCubeX.
 set -euo pipefail
 
-echo ":: [10] mihomo (fork kernel, system service) install"
+echo ":: [11] mihomo (fork kernel, system service) install"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "    Skipped (Linux only)"
@@ -213,5 +213,5 @@ if [[ -n "$CURRENT_CONFIG_HASH" ]]; then
 fi
 
 "$BIN" -v | head -1
-echo ":: [10] done — dashboard: http://127.0.0.1:9090/ui"
+echo "    Done — dashboard: http://127.0.0.1:9090/ui"
 echo "    service: sudo systemctl status mihomo | journalctl -u mihomo"

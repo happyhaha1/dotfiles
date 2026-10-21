@@ -13,9 +13,10 @@ set -euo pipefail
 # weekly trigger: {{ output "date" "+%G-%V" | trim }}
 
 {{- if and (hasKey . "omarchy") .omarchy }}
-echo ":: [07] Installing Omarchy aqua tools"
+echo ":: [08] Installing aqua tools"
 {{- else }}
-echo ":: [07] Installing remaining aqua tools"
+echo ":: [08] Installing aqua tools"
+echo "    Remaining aqua tools (macOS)"
 {{- end }}
 
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
@@ -23,7 +24,7 @@ if [[ -d "$aqua_bin_dir" ]]; then
     export PATH="$aqua_bin_dir:$PATH"
 fi
 
-# mise was bootstrapped by the preceding [05] script. Activate it again in
+# mise was bootstrapped by the preceding [06] script. Activate it again in
 # this child process so tools installed by mise (including Rust/Cargo) are
 # available to aqua's cargo-based packages such as eza.
 mise_cmd="$aqua_bin_dir/mise"

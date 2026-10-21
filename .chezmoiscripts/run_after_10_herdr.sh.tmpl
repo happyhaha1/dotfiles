@@ -37,7 +37,9 @@ fi
 {{-   $machineProfile = .machineProfile -}}
 {{- end }}
 
-echo ":: [10] Synchronizing Herdr plugins"
+echo ":: [10] Synchronizing Herdr plugins and services"
+
+echo "    Pi integrations"
 
 # Herdr plugin installation is intentionally driven by this small declarative
 # manifest instead of copying Herdr's generated plugins.json. The registry
@@ -233,7 +235,7 @@ echo "    Herdr plugins synchronized"
 )
 
 sync_herdr_web_ui() (
-echo ":: [10] Synchronizing Herdr Web UI service"
+echo "    Herdr Web UI service"
 
 {{- $profile := "other" -}}
 {{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}
@@ -266,7 +268,7 @@ echo "    Herdr Web UI is not enabled for this profile; skipping"
 )
 
 sync_roamgate() (
-echo ":: [10] Synchronizing Roamgate service"
+echo "    Roamgate service"
 
 {{- $profile := "other" -}}
 {{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}

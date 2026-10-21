@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo ":: [05] Installing aqua bootstrap tools"
+echo ":: [06] Installing aqua bootstrap tools"
 
 {{ if and (hasKey . "omarchy") .omarchy }}
 echo "    Skipped (Omarchy: aqua bootstrap managed-off — delete this guard in source to opt in)"

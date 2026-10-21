@@ -19,7 +19,7 @@
 Nix 中的 macOS defaults、主机名、时区、电源和 Touch ID sudo 设置，已经迁移到：
 
 ```text
-.chezmoiscripts/run_onchange_after_03_macos-settings.sh.tmpl
+.chezmoiscripts/run_onchange_after_04_macos-settings.sh.tmpl
 ```
 
 ## 2. 新电脑：只准备 chezmoi

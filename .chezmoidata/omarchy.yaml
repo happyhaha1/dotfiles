@@ -46,7 +46,7 @@ omarchyTuis:
   profiles: {}
 
 # No Omarchy WebApps are retained after the official preinstall removal.
-# run_after_12_omarchy-webapps enforces this empty allowlist after the marker
+# run_after_17_omarchy-webapps enforces this empty allowlist after the marker
 # is present.
 
 # AI wrappers intentionally excluded from the post-preinstall allowlist.
@@ -98,7 +98,7 @@ omarchyPlugins:
     # Calendar and weather widget: a vendored copy of the upstream
     # manateelazycat/omarchy-days plugin, kept in this repository under
     # private_dot_config/omarchy/plugins/local.days (see its README for the
-    # three local changes). `local: true` tells run_after_15 not to look for a
+    # three local changes). `local: true` tells run_after_21 not to look for a
     # Git source and keeps the directory out of the unmanaged-plugin prune.
     # The bar label is the Chinese weekday plus time; clicking it opens the
     # panel with the lunar calendar, holidays and weather.
@@ -108,7 +108,7 @@ omarchyPlugins:
       section: center
     # Visual window and workspace switching: Orbit's Alt+Tab switcher plus a
     # vendored copy of Overview Workspaces that deliberately does not bind a
-    # standalone Super press. run_after_18 keeps its Qt 6.12 qmldir fix applied.
+    # standalone Super press. run_after_24 keeps its Qt 6.12 qmldir fix applied.
     - id: io.github.manateelazycat.window-switcher
       source: https://github.com/manateelazycat/omarchy-window-switcher.git
       enabled: true

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo ":: [12] Enforcing empty Omarchy WebApp allowlist"
+echo ":: [17] Enforcing empty Omarchy WebApp allowlist"
 
 {{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"

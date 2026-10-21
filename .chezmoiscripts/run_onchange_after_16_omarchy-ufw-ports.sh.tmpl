@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo ":: [12] Reconciling managed UFW ports"
+echo ":: [16] Reconciling managed UFW ports"
 
 {{ if not (and (hasKey . "omarchy") .omarchy) }}
 echo "    Skipped (not an Omarchy machine)"
