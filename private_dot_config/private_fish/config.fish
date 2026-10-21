@@ -248,14 +248,15 @@ end
 
 fish_add_path "$HOME/.local/bin"
 
-# Mise activation prepends its shims. Put Aqua's curated CLI subset back at
-# the absolute front so migrated tools resolve to Aqua in interactive Fish too.
+# Keep Aqua's curated tools ahead of mise, then prefer our explicit wrappers.
 set -l aqua_bin "$XDG_DATA_HOME/aquaproj-aqua/bin"
 function __dotfiles_keep_aqua_first --on-event fish_preexec
     set -l aqua_bin "$XDG_DATA_HOME/aquaproj-aqua/bin"
     if test -d "$aqua_bin"
         set -gx PATH "$aqua_bin" (string match -v -- "$aqua_bin" $PATH)
     end
+    set -l local_bin "$HOME/.local/bin"
+    set -gx PATH "$local_bin" (string match -v -- "$local_bin" $PATH)
 end
 
 # Run once now as well as after mise's prompt-time environment refresh.

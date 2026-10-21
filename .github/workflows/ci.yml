@@ -160,7 +160,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-      - name: Test with mocked Aqua resolver and Pi commands
+      - name: Test with mocked mise resolver and Node commands
         run: node --test docs/tests/pi-extensions-update.test.mjs
 
   workflow-lint:

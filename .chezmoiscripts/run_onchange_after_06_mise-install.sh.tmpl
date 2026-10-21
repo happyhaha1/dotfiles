@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+# mise source config: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
 
 {{- if and (hasKey . "omarchy") .omarchy }}
 # Omarchy supplies the mise binary; use it to install the shared tool list
@@ -24,10 +25,8 @@ fi
 exit 0
 {{- end }}
 
-{{ $miseConfig := joinPath .chezmoi.homeDir ".config/mise/config.toml" -}}
 {{ $aquaConfig := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua.yaml" -}}
 {{ $aquaPolicy := joinPath .chezmoi.homeDir ".config/aquaproj-aqua/aqua-policy.yaml" -}}
-# mise config: {{ if stat $miseConfig }}{{ output "sha256sum" $miseConfig | trim }}{{ else }}n/a{{ end }}
 # aqua config: {{ if stat $aquaConfig }}{{ output "sha256sum" $aquaConfig | trim }}{{ else }}n/a{{ end }}
 # aqua policy: {{ if stat $aquaPolicy }}{{ output "sha256sum" $aquaPolicy | trim }}{{ else }}n/a{{ end }}
 

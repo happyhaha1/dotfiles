@@ -62,7 +62,6 @@ jobs:
             twpayne/chezmoi
             openai/codex
             anomalyco/opencode
-            earendil-works/pi
             cli/cli
             atuinsh/atuin
             timhartmann7/omnyssh

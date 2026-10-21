@@ -192,7 +192,7 @@ omarchyIgnoreList:
   - .local/bin/dsh
   # mise 配置在 Omarchy 纳管（共享运行时工具声明）；
   # 安装脚本使用 Omarchy 提供的系统 mise，不改写 mise 二进制来源。
-  # Pi 本体由 Omarchy Aqua 子集管理；~/.pi 配置 + web-search 在 Omarchy
+  # Pi 本体由 mise 的 npm backend 管理，公共入口使用 mise 的 Node；~/.pi + web-search
   # 生效，auth.json 和 sessions 仍不归仓库管（前者需 pi 登录，后者按机器独立）。
   # ~/.ssh/config is encrypted with ~/.ssh/main and managed by this repo.
   - .config/atuin

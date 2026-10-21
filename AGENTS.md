@@ -40,6 +40,7 @@ Use the existing manager instead of adding a second installation path:
 | macOS Homebrew formulas/casks/MAS apps | `.chezmoidata/homebrew.yaml` and the generated Brewfile |
 | Portable pinned CLI binaries | `private_dot_config/aquaproj-aqua/aqua.yaml` |
 | Language runtimes and selected runtime tools | `private_dot_config/mise/config.toml.tmpl` |
+| Pi CLI and Node runtime (macOS and Omarchy) | mise manifest; shared `~/.local/bin/pi` uses Node |
 | Fish plugins | `private_dot_config/private_fish/fish_plugins.tmpl` and Fisher script |
 | Herdr binary | Aqua manifest (`herdrdev/herdr`) |
 | Herdr plugins | `.chezmoidata/herdr.yaml` only; never edit generated plugin state by hand |

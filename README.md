@@ -61,15 +61,14 @@ Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置�
 
 ## Pi 用户扩展包更新
 
-Pi 二进制由 Aqua 固定版本管理；Pi 的用户级扩展包声明在
-`private_dot_pi/agent/settings.json.tmpl` 的 `packages` 中。`just pi-extensions-update`
-通过共享脚本 `~/.local/bin/pi-extensions-update` 执行官方
-`pi update --extensions --no-approve`：`--extensions` 不更新 Aqua 管理的 Pi 二进制，
-`--no-approve` 忽略当前项目配置，只处理 agent 目录声明的用户包。
-脚本独立设置 Aqua 配置上下文，用 `aqua which` 确认 Aqua 包存储中真实的 Pi 可执行文件，
-拒绝 PATH 回退并禁用懒安装；缺少 Aqua 管理的 Pi、Pi agent 目录或用户 settings 时明确跳过，
-更新失败会报错并中止对应配方，不被 `|| true` 吞掉。
-脚本遵循 `AQUA_ROOT_DIR`、`XDG_DATA_HOME` 和 Pi 的 `PI_CODING_AGENT_DIR`。
+Pi 由 mise 固定管理 npm 包 `@earendil-works/pi-coding-agent`，macOS 与 Omarchy
+共用 `~/.local/bin/pi`，使用 mise 管理的 Node 执行 npm 官方入口。
+版本声明在 `private_dot_config/mise/config.toml.tmpl`。
+Pi 的用户级扩展包声明在 `private_dot_pi/agent/settings.json.tmpl` 的 `packages` 中。
+`just pi-extensions-update` 通过共享脚本执行 `pi update --extensions --no-approve`：
+仅更新用户扩展，不更新 mise 管理的 Pi，不加载项目包配置或重载运行中的会话。
+脚本通过 mise 定位 Pi 与 Node；缺少 agent 目录、用户 settings 或 Pi payload 时跳过，
+解析和更新失败会报错。`PI_CODING_AGENT_DIR` 可覆盖 agent 目录。
 
 `just update-all` 和 `just full-upgrade` 在 mise 之后调用同一个脚本；
 `just aqua-install` 与完整 apply 的 `[10]` 入口都不更新扩展包，apply 保持无副作用。
@@ -86,6 +85,9 @@ OpenViking 扩展由 `.chezmoiscripts/run_onchange_after_14_openviking-pi-extens
 固定版本安装到 `~/.pi/agent/extensions/openviking`，不属于上述 `packages` 更新范围。
 macOS 上的 omp 通过 `~/.omp/agent/config.yml` 的 `extensions` 显式加载同一目录。
 OpenViking 保持 `takeoverEnabled: false`，上下文管理继续由 Magic Context 负责。
+Magic Context 的加密配置关闭跨会话记忆、自动记忆搜索、Dreamer 和 embedding，
+保留 historian、上下文压缩及会话归档检索；长期记忆由 OpenViking 提供。
+这些启动配置修改后需要重启 Pi/omp，已存储的 Magic Context 记忆不会被删除。
 
 ## Herdr、Roamgate 与 Web UI
 
