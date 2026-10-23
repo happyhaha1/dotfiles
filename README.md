@@ -173,6 +173,12 @@ Herdr Web UI 同样仅在 `office-server` profile 启用。插件安装仍由
 未纳入 dotfiles 所有权或被禁用的插件不会被接管。从 manifest/profile 移除已管理的
 Web UI 时，`[10]` 会先等待它停止，再卸载插件，避免留下后台服务。
 
+上游已把仓库 `devswha/herdr-web-ui` 改名为 `devswha/ovis`（显示名 Ovis），
+plugin id 仍是 `devswha.herdr-web-ui`，`.env` 路径、`HERDR_WEB_*` 变量和
+`start`/`stop` 动作都未变。Herdr 按安装时请求的仓库名记录来源，因此在改名
+之前安装过的机器仍报旧名：`[10]` 把两个名字视为同一个插件，保留已安装的来源
+而不是卸载重建，manifest 则统一写 `devswha/ovis`。
+
 私有模板生成 `~/.config/herdr/plugins/config/devswha.herdr-web-ui/.env`（权限 `0600`）：
 
 - `HOST` 复用本机 `[data].roamgateHost`，端口为 `7317`，不与 Roamgate 的 `8788` 冲突。

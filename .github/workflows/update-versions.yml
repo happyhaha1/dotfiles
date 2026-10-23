@@ -41,7 +41,7 @@ jobs:
             local repo="$1"
             local ref
 
-            if [[ "$repo" == devswha/herdr-web-ui ]]; then
+            if [[ "$repo" == devswha/ovis ]]; then
               # This repo also releases remote-vN bundles; only app tags are
               # Herdr plugin refs. Inspect more than the most recent release.
               ref="$(gh release list \
@@ -75,7 +75,7 @@ jobs:
           herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
           herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
           herdr_roamgate_ref="$(latest_stable_release_ref powerfooI/roamgate)"
-          herdr_web_ui_ref="$(latest_stable_release_ref devswha/herdr-web-ui)"
+          herdr_web_ui_ref="$(latest_stable_release_ref devswha/ovis)"
 
           # EasyTier publishes per-OS/arch archives; the macOS arm64 digest is
           # pinned for the office-server Mac (the only EasyTier node).
@@ -204,7 +204,7 @@ jobs:
               "thanhdat77/herdr-navigator": os.environ["HERDR_NAVIGATOR_REF"],
               "yankewei/herdr-focus-notify": os.environ["HERDR_FOCUS_NOTIFY_REF"],
               "powerfooI/roamgate": os.environ["HERDR_ROAMGATE_REF"],
-              "devswha/herdr-web-ui": os.environ["HERDR_WEB_UI_REF"],
+              "devswha/ovis": os.environ["HERDR_WEB_UI_REF"],
           }
 
           for source, ref in updates.items():
@@ -298,7 +298,7 @@ jobs:
             | thanhdat77/herdr-navigator | `${{ steps.versions.outputs.herdr_navigator_ref }}` |
             | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
             | powerfooI/roamgate | `${{ steps.versions.outputs.herdr_roamgate_ref }}` |
-            | devswha/herdr-web-ui | `${{ steps.versions.outputs.herdr_web_ui_ref }}` |
+            | devswha/ovis | `${{ steps.versions.outputs.herdr_web_ui_ref }}` |
 
       - name: Enable pull request auto-merge
         if: steps.changes.outputs.changed == 'true'

@@ -19,7 +19,10 @@ herdrPlugins:
       - source: powerfooI/roamgate
         ref: v0.8.8
       # Structured agent chat and mobile access alongside Roamgate.
-      - source: devswha/herdr-web-ui
+      # Upstream renamed devswha/herdr-web-ui to devswha/ovis (the plugin id is
+      # still devswha.herdr-web-ui). `[10]` keeps an already installed legacy
+      # source name instead of reinstalling the same plugin.
+      - source: devswha/ovis
         ref: v0.4.13
   # Example:
   # shared:

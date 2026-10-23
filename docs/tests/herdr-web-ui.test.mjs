@@ -6,12 +6,15 @@ import { test } from "node:test";
 import { loadConfig, parseEnv, reconcile, stopManaged } from "../../.chezmoitemplates/herdr-web-ui-sync.mjs";
 
 const source = "devswha/herdr-web-ui";
+// Upstream renamed the repository to devswha/ovis and kept the plugin id.
+const renamedSource = "devswha/ovis";
 const plugin = "devswha.herdr-web-ui";
 const ref = "v0.3.52";
 // Deliberately exercise the same characters that broke shell-sourced passwords.
 const password = "mock-password & $ # \\ \" ' end";
 
 function fixture(t, options = {}) {
+    const pluginSource = options.source ?? source;
     const home = mkdtempSync(join(tmpdir(), "web-ui-test-"));
     t.after(() => rmSync(home, { recursive: true, force: true }));
     const stateHome = join(home, ".local", "state");
@@ -20,7 +23,7 @@ function fixture(t, options = {}) {
     const stampFile = join(stateHome, "chezmoi", "herdr-web-ui");
     mkdirSync(dirname(envFile), { recursive: true });
     mkdirSync(dirname(ownerFile), { recursive: true });
-    if (options.owned !== false) writeFileSync(ownerFile, `${source}\t${ref}\n`, { mode: 0o600 });
+    if (options.owned !== false) writeFileSync(ownerFile, `${pluginSource}\t${ref}\n`, { mode: 0o600 });
     function configure(token = password, host = "192.0.2.10") {
         writeFileSync(envFile, `HOST="${host}"\nPORT=7317\nHERDR_WEB_TOKEN="${token}"\nHERDR_WEB_AUTO_UPDATE=0\n`, { mode: 0o600 });
     }
@@ -34,7 +37,7 @@ function fixture(t, options = {}) {
     const controls = { fail: null, hang: false, open: false, rejectToken: false, healthBody: null };
     function run(args) {
         commands.push(args);
-        if (args[1] === "list") return `- ${plugin} (Herdr Web UI) ${options.disabled ? "disabled" : "enabled"} [github:${source}@${installedRef}]`;
+        if (args[1] === "list") return `- ${plugin} (Ovis) ${options.disabled ? "disabled" : "enabled"} [github:${pluginSource}@${installedRef}]`;
         if (args[1] === "config-dir") return dirname(envFile);
         if (args[1] === "action") {
             assert.deepEqual(args.slice(0, 3), ["plugin", "action", "invoke"]);
@@ -75,7 +78,7 @@ function fixture(t, options = {}) {
     }
     return { home, envFile, ownerFile, stampFile, configure, server, controls, actions, commands, apply,
         stop: () => stopManaged({ home, stateHome, run, wait: async () => {} }),
-        installAt: value => { installedRef = value; writeFileSync(ownerFile, `${source}\t${value}\n`); } };
+        installAt: value => { installedRef = value; writeFileSync(ownerFile, `${pluginSource}\t${value}\n`); } };
 }
 
 test("plugin-compatible parsing preserves special characters without shell/JSON escaping", () => {
@@ -91,6 +94,27 @@ test("first apply waits for stop/start and writes only a private version/hash st
     assert(!readFileSync(f.stampFile, "utf8").includes(password));
     assert(!JSON.stringify(f.commands).includes(password));
 });
+
+// Upstream renamed devswha/herdr-web-ui to devswha/ovis without changing the
+// plugin id. An install made before the rename keeps reporting the legacy name,
+// so both labels must reconcile, stamp, and stop the same owned service.
+for (const upstream of [renamedSource, source]) {
+    test(`a Web UI registered as ${upstream} reconciles and stamps normally`, async t => {
+        const f = fixture(t, { source: upstream });
+        await f.apply();
+        assert.deepEqual(f.actions, ["stop", "start"]);
+        assert.match(readFileSync(f.stampFile, "utf8"), /^v0\.3\.52\n[0-9a-f]{64}\n$/);
+    });
+
+    test(`a Web UI registered as ${upstream} is stopped on profile removal`, async t => {
+        const f = fixture(t, { source: upstream });
+        f.server.running = true;
+        rmSync(f.envFile);
+        await f.stop();
+        assert.deepEqual(f.actions, ["stop"]);
+        assert.equal(f.server.running, false);
+    });
+}
 
 test("unchanged healthy service is not restarted", async t => {
     const f = fixture(t);

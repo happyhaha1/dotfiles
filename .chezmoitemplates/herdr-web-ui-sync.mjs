@@ -4,8 +4,30 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
-const SOURCE = "devswha/herdr-web-ui";
+// Upstream renamed the repository devswha/herdr-web-ui to devswha/ovis and kept
+// the plugin id. Herdr records the repository name it was told to install, so an
+// install made before the rename still reports (and must still match) the legacy
+// name; the plugin id, its config directory, its `.env` keys and its actions did
+// not change.
+const SOURCES = ["devswha/ovis", "devswha/herdr-web-ui"];
 const PLUGIN = "devswha.herdr-web-ui";
+
+function ownsWebUi(ownership, ref) {
+    return SOURCES.some(source => ownership.includes(`${source}\t${ref}`));
+}
+
+function ownsAnyWebUi(ownership) {
+    return SOURCES.some(source => ownership.some(line => line.startsWith(`${source}\t`)));
+}
+
+function listsWebUi(list) {
+    return SOURCES.some(source => list.includes(`github:${source}@`));
+}
+
+function installedAt(list, ref) {
+    return list.split("\n").find(line => SOURCES.some(source =>
+        line.includes(`github:${source}@${ref}]`) || line.includes(`github:${source}@${ref};`)));
+}
 
 // Match the plugin's readEnvFile exactly: quotes are stripped, not unescaped.
 export function parseEnv(contents) {
@@ -68,8 +90,8 @@ export async function stopManaged({
 } = {}) {
     const ownershipFile = join(stateHome, "chezmoi", "herdr-plugins");
     const ownership = existsSync(ownershipFile) ? readFileSync(ownershipFile, "utf8").split("\n") : [];
-    if (!ownership.some(line => line.startsWith(`${SOURCE}\t`))) return;
-    if (!run(["plugin", "list"]).includes(`github:${SOURCE}@`)) {
+    if (!ownsAnyWebUi(ownership)) return;
+    if (!listsWebUi(run(["plugin", "list"]))) {
         console.log("    Web UI plugin already absent; no registered stop action is available");
         return;
     }
@@ -88,13 +110,12 @@ export async function reconcile(ref, {
     const stateDir = join(stateHome, "chezmoi");
     const ownershipFile = join(stateDir, "herdr-plugins");
     const ownership = existsSync(ownershipFile) ? readFileSync(ownershipFile, "utf8").split("\n") : [];
-    if (!ownership.includes(`${SOURCE}\t${ref}`)) {
+    if (!ownsWebUi(ownership, ref)) {
         console.log("    Web UI is not owned at the requested ref by dotfiles; skipping service reconciliation");
         return "skipped";
     }
 
-    const installed = run(["plugin", "list"]).split("\n").find(line =>
-        line.includes(`github:${SOURCE}@${ref}]`) || line.includes(`github:${SOURCE}@${ref};`));
+    const installed = installedAt(run(["plugin", "list"]), ref);
     if (!installed) throw new Error("Web UI plugin is not at the requested ref; run the [10] plugin synchronization first");
     if (!/\benabled\b/.test(installed)) {
         console.log("    Web UI plugin is disabled; leaving its service alone");

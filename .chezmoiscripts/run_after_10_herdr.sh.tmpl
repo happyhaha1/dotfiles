@@ -140,6 +140,35 @@ plugin_is_installed_from_source() {
     fi
 }
 
+# Upstream renamed the Web UI repository devswha/herdr-web-ui → devswha/ovis and
+# kept its plugin id. Herdr records the repository name it was told to install,
+# so a machine that installed the plugin before the rename still reports the
+# legacy name. Both names address the same plugin and are dotfiles-owned here.
+is_web_ui_source() {
+    [[ "$1" == devswha/ovis || "$1" == devswha/herdr-web-ui ]]
+}
+
+# Resolve each desired source to the name Herdr already has installed, so a
+# manifest that now names ovis does not uninstall and rebuild a working Web UI.
+declare -a resolved_sources=()
+declare -A resolved_refs=()
+
+for plugin_source in "${desired_sources[@]}"; do
+    plugin_ref="${desired_refs[$plugin_source]}"
+    if is_web_ui_source "$plugin_source" \
+        && [[ "$plugin_source" != devswha/herdr-web-ui ]] \
+        && plugin_is_installed_from_source devswha/herdr-web-ui; then
+        echo "    Keeping the installed Web UI source: devswha/herdr-web-ui"
+        plugin_source=devswha/herdr-web-ui
+    fi
+    if [[ -n ${resolved_refs[$plugin_source]+x} ]]; then
+        echo "    Error: Herdr plugin source resolves twice: $plugin_source" >&2
+        exit 1
+    fi
+    resolved_sources+=("$plugin_source")
+    resolved_refs["$plugin_source"]="$plugin_ref"
+done
+
 install_plugin() {
     local plugin_source="$1"
     local plugin_ref="$2"
@@ -149,7 +178,7 @@ install_plugin() {
         args+=(--ref "$plugin_ref")
     fi
     args+=(--yes)
-    if [[ "$plugin_source" == devswha/herdr-web-ui ]]; then
+    if is_web_ui_source "$plugin_source"; then
         # Installation can run the plugin's startup hook immediately. Validate
         # the applied private env first, including when only this script runs.
         bun run - --check-config "$HOME/.config/herdr/plugins/config/devswha.herdr-web-ui/.env" <<'WEB_UI_SYNC'
@@ -164,7 +193,7 @@ uninstall_plugin() {
     local plugin_source="$1"
     local output
 
-    if [[ "$plugin_source" == devswha/herdr-web-ui ]]; then
+    if is_web_ui_source "$plugin_source"; then
         # A detached Web UI outlives plugin registration. Stop it while its
         # supported action is still available when changing/removing profiles.
         bun run - --stop-managed <<'WEB_UI_SYNC'
@@ -190,13 +219,13 @@ WEB_UI_SYNC
 declare -a next_sources=()
 declare -A next_refs=()
 for plugin_source in "${previous_sources[@]}"; do
-    if [[ -z ${desired_refs[$plugin_source]+x} ]]; then
+    if [[ -z ${resolved_refs[$plugin_source]+x} ]]; then
         uninstall_plugin "$plugin_source"
     fi
 done
 
-for plugin_source in "${desired_sources[@]}"; do
-    plugin_ref="${desired_refs[$plugin_source]}"
+for plugin_source in "${resolved_sources[@]}"; do
+    plugin_ref="${resolved_refs[$plugin_source]}"
     was_managed=false
     if [[ -n ${previous_refs[$plugin_source]+x} ]]; then
         was_managed=true
@@ -242,7 +271,7 @@ echo "    Herdr Web UI service"
 {{- $ref := "" -}}
 {{- if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $profile) -}}
 {{- range index .herdrPlugins.profiles $profile -}}
-{{- if eq .source "devswha/herdr-web-ui" -}}{{- $ref = .ref -}}{{- end -}}
+{{- if or (eq .source "devswha/ovis") (eq .source "devswha/herdr-web-ui") -}}{{- $ref = .ref -}}{{- end -}}
 {{- end -}}
 {{- end }}
 {{ if $ref -}}
