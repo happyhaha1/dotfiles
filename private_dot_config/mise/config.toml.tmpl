@@ -5,7 +5,10 @@
 # Pi is installed from npm through mise on every platform. Its wrapper in
 # ~/.local/bin resolves this package instead of shipping a second copy.
 # Use npm as the installer; the embedded installer did not create Pi's bin.
-"npm:@earendil-works/pi-coding-agent" = "1.3.0"
+# Track the npm "latest" dist-tag instead of pinning a version, so mise upgrade
+# actually moves Pi forward; the wrapper and extension updater are
+# version-agnostic.
+"npm:@earendil-works/pi-coding-agent" = "latest"
 
 # Node.js (replaces volta)
 node = "lts"
