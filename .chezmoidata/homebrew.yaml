@@ -74,6 +74,8 @@ homebrew:
       - font-maple-mono
       - font-maple-mono-nf
       - font-maple-mono-nf-cn
+      - t3-code
+      - kero
     profiles:
       daily:
         - chatgpt
