@@ -74,6 +74,7 @@ homebrew:
       - font-maple-mono
       - font-maple-mono-nf
       - font-maple-mono-nf-cn
+      - t3-code
     profiles:
       daily:
         - chatgpt
