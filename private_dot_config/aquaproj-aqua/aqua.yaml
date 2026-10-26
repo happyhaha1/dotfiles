@@ -1,7 +1,7 @@
 ---
 registries:
   - type: standard
-    ref: v4.576.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.578.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
@@ -68,7 +68,7 @@ packages:
   - name: BurntSushi/ripgrep@15.2.0
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
-  - name: joshmedeski/sesh@v2.33.0
+  - name: joshmedeski/sesh@v2.34.0
   - name: skim-rs/skim@v5.8.0
   - name: starship/starship@v1.27.0
   - name: koalaman/shellcheck@v0.11.0
