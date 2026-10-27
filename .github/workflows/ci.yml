@@ -134,7 +134,8 @@ jobs:
           done
           for helper in \
             private_dot_local/bin/executable_herdr-integrations-sync \
-            private_dot_local/bin/executable_pi-extensions-update; do
+            private_dot_local/bin/executable_pi-extensions-update \
+            private_dot_omp/private_agent/modify_private_config.yml; do
             if ! shellcheck --severity=warning "$helper"; then
               status=1
             fi

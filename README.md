@@ -101,6 +101,17 @@ Magic Context 的加密配置关闭跨会话记忆、自动记忆搜索、Dreame
 保留 historian、上下文压缩及会话归档检索；长期记忆由 OpenViking 提供。
 这些启动配置修改后需要重启 Pi/omp，已存储的 Magic Context 记忆不会被删除。
 
+### omp 的 `agent/config.yml`
+
+`~/.omp/agent/config.yml` 由 omp 在运行时自行重写（重排 YAML、丢弃注释、追加
+`dev.*` 等自有键、不写结尾换行），因此不能用普通副本管理：每次 apply 都会判定为
+外部改动并提示 `has changed since chezmoi last wrote it?`。
+
+该文件改由 `private_dot_omp/private_agent/modify_private_config.yml` 这个
+chezmoi `modify_` 脚本管理：脚本用格式保留的 `yq` 只声明本仓库拥有的键，
+其余内容原样透传，omp 自己写入的键不再产生 diff。
+详细设计与拥有的键清单见 `docs/omp-agent-config.md`。
+
 ## Herdr、Roamgate 与 Web UI
 
 Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在

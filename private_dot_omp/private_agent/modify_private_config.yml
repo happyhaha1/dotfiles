@@ -1,0 +1,113 @@
+#!/bin/sh
+# ~/.omp/agent/config.yml is owned by omp at runtime: it re-serializes the YAML,
+# drops comments, appends its own keys, and never writes a trailing newline.
+# This script therefore asserts only the keys declared below and passes the rest
+# through untouched, in the order omp wrote them.
+#
+# A plain copy cannot work here: every apply would overwrite the keys omp had
+# just written, omp would write them back, and the diff would never settle.
+set -eu
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp" "$tmp.stripped"' EXIT
+cat > "$tmp"
+
+# yq is pinned in aqua.yaml but is not on PATH during a fresh bootstrap.
+find_yq() {
+  if command -v yq >/dev/null 2>&1; then
+    command -v yq
+    return 0
+  fi
+  aqua_root="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+  for candidate in "$aqua_root/bin/yq" "$HOME/.local/bin/yq"; do
+    if [ -x "$candidate" ]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+had_newline=1
+if [ -s "$tmp" ]; then
+  case "$(tail -c 1 "$tmp" | od -An -tx1 | tr -d ' \n')" in
+    0a) had_newline=1 ;;
+    *)  had_newline=0 ;;
+  esac
+fi
+
+if [ ! -s "$tmp" ]; then
+  # First apply, or a CI render: write the complete baseline.
+  cat > "$tmp" <<'YAML'
+symbolPreset: nerd
+composer:
+  shape: band
+theme:
+  dark: titanium
+  light: light
+setupVersion: 2
+defaultThinkingLevel: high
+modelRoles:
+  default: home-magpie/group/coding:high
+  plan: home-magpie/group/coding:high
+  designer: home-magpie/group/designer:high
+  task: home-magpie/group/task:high
+  advisor: home-magpie/group/advisor:high
+  smol: home-magpie/group/explore:low
+  slow: home-magpie/group/review:high
+  tiny: home-magpie/group/tiny:low
+  commit: home-magpie/group/tiny:low
+  vision: home-magpie/group/vision:medium
+task:
+  agentModelOverrides:
+    security-reviewer: "@slow"
+extensions:
+  - ~/.pi/agent/extensions/openviking
+compaction:
+  enabled: false
+memory:
+  backend: "off"
+YAML
+elif yq_bin="$(find_yq)"; then
+  "$yq_bin" -i '
+      .symbolPreset                                 = "nerd"
+    | .composer.shape                               = "band"
+    | .theme.dark                                   = "titanium"
+    | .theme.light                                  = "light"
+    | .setupVersion                                 = 2
+    | .defaultThinkingLevel                         = "high"
+    | .modelRoles.default                           = "home-magpie/group/coding:high"
+    | .modelRoles.plan                              = "home-magpie/group/coding:high"
+    | .modelRoles.designer                          = "home-magpie/group/designer:high"
+    | .modelRoles.task                              = "home-magpie/group/task:high"
+    | .modelRoles.advisor                           = "home-magpie/group/advisor:high"
+    | .modelRoles.smol                              = "home-magpie/group/explore:low"
+    | .modelRoles.slow                              = "home-magpie/group/review:high"
+    | .modelRoles.tiny                              = "home-magpie/group/tiny:low"
+    | .modelRoles.commit                            = "home-magpie/group/tiny:low"
+    | .modelRoles.vision                            = "home-magpie/group/vision:medium"
+    | .task.agentModelOverrides."security-reviewer" = "@slow"
+    | .extensions = ((.extensions // []) + ["~/.pi/agent/extensions/openviking"] | unique)
+    | .compaction.enabled                           = false
+    | .memory.backend                               = "off"
+  ' "$tmp"
+else
+  # yq is unavailable (very early bootstrap). Pass the file through unchanged
+  # and say so; the next apply, once aqua has installed yq, asserts the keys.
+  {
+    printf '%s\n' \
+      'omp-config: yq not found; leaving ~/.omp/agent/config.yml unchanged.' \
+      'omp-config: run chezmoi apply again after aqua installs yq.'
+  } >&2
+  cat "$tmp"
+  exit 0
+fi
+
+# omp never writes a trailing newline; yq always adds one. Restore whatever the
+# input had, so an already-correct file stays byte-identical and out of diff.
+if [ "$had_newline" = 0 ] && [ -s "$tmp" ]; then
+  printf '%s' "$(cat "$tmp")" > "$tmp.stripped"
+  mv "$tmp.stripped" "$tmp"
+fi
+
+cat "$tmp"
