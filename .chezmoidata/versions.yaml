@@ -10,7 +10,7 @@ versions:
   claudeAnthropicsSkillsSha256: 7b5869b8a0a4200e596de271be71e5e5573b2c1041ed7d9882317d0d682152d4
   uiUxProMaxSkillRev: 28b3b8dee8c976df4fa3e94aed4e092ad43fcb03
   uiUxProMaxSkillSha256: 1f1046c5d8c72ac224f43c60389ce9e16f4cfc8ecb899e5fdb3589ab0fc3091b
-  vercelLabsAgentSkillsRev: 063bee94c3f4df8453406c830b0a7df0f2860278
+  vercelLabsAgentSkillsRev: 1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62
   gcloudVersion: 562.0.0
   mihomoForkBuild: 02581ff
   zashboardVersion: v3.29.1
