@@ -14,6 +14,9 @@ README.zh-CN.md
 init.sh
 docs/
 node_modules/
+# Graphify's generated knowledge graph: build output, never a dotfile to install
+# into $HOME (it also embeds machine-local absolute paths).
+graphify-out/
 selene.toml
 stylua.toml
 treefmt.toml
