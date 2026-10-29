@@ -14,6 +14,11 @@ versions:
   gcloudVersion: 562.0.0
   mihomoForkBuild: 02581ff
   zashboardVersion: v3.30.0
+  # Shared Pi/omp extension: stable release tag and its resolved commit.
+  openvikingExtensionVersion: v0.5.1
+  openvikingExtensionRev: e855796c83f9eb575d9b0f3082926660730f6a63
+  # The CLI, generated skill and packaged guard use the same release.
+  graphifyVersion: 0.9.97
   # EasyTier release asset pin (macOS office-server only); update together with
   # its GitHub SHA-256 digest.
   easytierVersion: v2.6.4

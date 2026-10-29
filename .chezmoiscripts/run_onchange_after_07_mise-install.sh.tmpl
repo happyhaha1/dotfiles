@@ -2,6 +2,8 @@
 
 set -euo pipefail
 # mise source config: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
+# Graphify release data also changes the rendered mise config.
+# graphify version: {{ .versions.graphifyVersion }}
 
 {{- if and (hasKey . "omarchy") .omarchy }}
 # Omarchy supplies the mise binary; use it to install the shared tool list

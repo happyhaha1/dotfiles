@@ -1,0 +1,86 @@
+#!/bin/sh
+# Shared Pi/omp extensions. Versions come from the scheduled version workflow.
+# Pi discovers these fixed directories; omp explicitly loads the same copies.
+set -eu
+
+echo ":: [20] Installing shared agent extensions"
+
+# OpenViking release: {{ .versions.openvikingExtensionVersion }}
+PIN={{ .versions.openvikingExtensionRev }}
+REPO=github.com/volcengine/OpenViking
+DEST=$HOME/.pi/agent/extensions/openviking
+GITDIR=$HOME/.pi/agent/git/$REPO
+
+need_update=0
+[ -f "$DEST/index.ts" ] || need_update=1
+[ "$(cat "$DEST/.pinned" 2>/dev/null)" = "$PIN" ] || need_update=1
+
+if [ "$need_update" = 1 ]; then
+    # Shallow fetch of the pinned commit into a shared cache dir (also used by
+    # pi's own git packages), then export the subdirectory.
+    mkdir -p "$GITDIR"
+    if ! git -C "$GITDIR" cat-file -e "$PIN" 2>/dev/null; then
+        git clone --filter=blob:none https://$REPO.git "$GITDIR" 2>/dev/null ||
+            git -C "$GITDIR" fetch origin "$PIN"
+    fi
+    # sync.mjs reads the checkout, so align it even when the commit was cached.
+    git -C "$GITDIR" checkout -q "$PIN"
+    rm -rf "$DEST.new"
+    mkdir -p "$DEST.new"
+    # export the tracked files of the subdirectory at the pin
+    git -C "$GITDIR" archive "$PIN" examples/pi-coding-agent-extension |
+        tar -x --strip-components=2 -C "$DEST.new" \
+            "examples/pi-coding-agent-extension" 2>/dev/null ||
+        git -C "$GITDIR" archive "$PIN" examples/pi-coding-agent-extension |
+            tar -x -C "$DEST.new" --strip-components=2
+    # shared/*.mjs is generated (committed: false in sync.mjs targets)
+    node "$GITDIR/examples/memory-plugin-shared/sync.mjs" >/dev/null
+    cp -R "$GITDIR/examples/pi-coding-agent-extension/shared" "$DEST.new/shared"
+    npm ci --prefix "$DEST.new" --omit=dev --ignore-scripts >/dev/null 2>&1
+    rm -rf "$DEST"
+    mv "$DEST.new" "$DEST"
+    echo "$PIN" > "$DEST/.pinned"
+    echo "    openviking extension installed/updated at $DEST"
+else
+    echo "openviking extension already at $PIN, skip"
+fi
+
+# The CLI is installed by mise at step 07. Its pinned version also owns the
+# generated skill and guard; never register a version-specific venv path.
+(
+    cd "$HOME"
+    export MISE_AUTO_INSTALL=false
+    graphify_cmd="$(mise which graphify)"
+    expected_version={{ .versions.graphifyVersion }}
+    cli_version="$("$graphify_cmd" --version)"
+    if [ "$cli_version" != "graphify $expected_version" ]; then
+        echo "    Error: Graphify CLI reports '$cli_version'; expected $expected_version" >&2
+        exit 1
+    fi
+    guard_source="$("$graphify_cmd" pi guard path)"
+    guard_dest="$HOME/.pi/agent/extensions/graphify"
+    skill_dest="$HOME/.pi/agent/skills/graphify"
+
+    if [ ! -f "$guard_source/index.ts" ] || [ ! -f "$guard_source/package.json" ]; then
+        echo "    Error: Graphify guard package is incomplete: $guard_source" >&2
+        exit 1
+    fi
+
+    if [ ! -f "$guard_dest/index.ts" ] ||
+       [ ! -f "$guard_dest/package.json" ] ||
+       [ ! -f "$skill_dest/SKILL.md" ] ||
+       [ ! -d "$skill_dest/references" ] ||
+       [ "$(cat "$skill_dest/.graphify_version" 2>/dev/null)" != "$expected_version" ] ||
+       [ "$(cat "$guard_dest/.pinned" 2>/dev/null)" != "$expected_version" ]; then
+        "$graphify_cmd" install --platform pi
+        rm -rf "$guard_dest.new"
+        mkdir -p "$guard_dest.new"
+        cp "$guard_source/index.ts" "$guard_source/package.json" "$guard_dest.new/"
+        printf '%s\n' "$expected_version" > "$guard_dest.new/.pinned"
+        rm -rf "$guard_dest"
+        mv "$guard_dest.new" "$guard_dest"
+        echo "    Graphify skill and guard installed/updated ($expected_version)"
+    else
+        echo "    Graphify skill and guard already at $expected_version, skip"
+    fi
+)

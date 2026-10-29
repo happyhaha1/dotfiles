@@ -71,6 +71,11 @@ jobs:
             printf '%s\n' "$ref"
           }
 
+          openviking_version="$(latest_stable_release_ref volcengine/OpenViking)"
+          openviking_rev="$(gh api "repos/volcengine/OpenViking/commits/${openviking_version}" -q '.sha')"
+          graphify_tag="$(latest_stable_release_ref Graphify-Labs/graphify)"
+          graphify_version="${graphify_tag#v}"
+
           herdr_agent_usage_ref="$(latest_stable_release_ref senna-lang/herdr-agent-usage)"
           herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
           herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
@@ -116,6 +121,9 @@ jobs:
             echo "gcloud_version=$gcloud_version"
             echo "mihomo_fork_build=$mihomo_fork_build"
             echo "zashboard_version=$zashboard_version"
+            echo "openviking_version=$openviking_version"
+            echo "openviking_rev=$openviking_rev"
+            echo "graphify_version=$graphify_version"
             echo "easytier_version=$easytier_version"
             echo "easytier_macos_sha256=$easytier_macos_sha256"
             echo "herdr_agent_usage_ref=$herdr_agent_usage_ref"
@@ -158,6 +166,9 @@ jobs:
           sed -i 's/gcloudVersion: .*/gcloudVersion: ${{ steps.versions.outputs.gcloud_version }}/' .chezmoidata/versions.yaml
           sed -i 's/mihomoForkBuild: .*/mihomoForkBuild: ${{ steps.versions.outputs.mihomo_fork_build }}/' .chezmoidata/versions.yaml
           sed -i 's/zashboardVersion: .*/zashboardVersion: ${{ steps.versions.outputs.zashboard_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/openvikingExtensionVersion: .*/openvikingExtensionVersion: ${{ steps.versions.outputs.openviking_version }}/' .chezmoidata/versions.yaml
+          sed -i 's/openvikingExtensionRev: .*/openvikingExtensionRev: ${{ steps.versions.outputs.openviking_rev }}/' .chezmoidata/versions.yaml
+          sed -i 's/graphifyVersion: .*/graphifyVersion: ${{ steps.versions.outputs.graphify_version }}/' .chezmoidata/versions.yaml
           sed -i 's/easytierVersion: .*/easytierVersion: ${{ steps.versions.outputs.easytier_version }}/' .chezmoidata/versions.yaml
           sed -i 's/easytierMacosAarch64Sha256: .*/easytierMacosAarch64Sha256: ${{ steps.versions.outputs.easytier_macos_sha256 }}/' .chezmoidata/versions.yaml
           sed -i 's/claudeWshobsonAgentsRev: .*/claudeWshobsonAgentsRev: ${{ steps.versions.outputs.claude_wshobson_agents_rev }}/' .chezmoidata/versions.yaml
@@ -275,6 +286,9 @@ jobs:
              | google-cloud-sdk | `${{ steps.versions.outputs.gcloud_version }}` |
             | mihomo fork build | `${{ steps.versions.outputs.mihomo_fork_build }}` |
             | zashboard | `${{ steps.versions.outputs.zashboard_version }}` |
+            | OpenViking extension | `${{ steps.versions.outputs.openviking_version }}` |
+            | OpenViking extension commit | `${{ steps.versions.outputs.openviking_rev }}` |
+            | Graphify CLI / skill / guard | `${{ steps.versions.outputs.graphify_version }}` |
             | EasyTier | `${{ steps.versions.outputs.easytier_version }}` |
             | EasyTier macos-aarch64 sha256 | `${{ steps.versions.outputs.easytier_macos_sha256 }}` |
             | openai/skills | `${{ steps.versions.outputs.openai_skills_rev }}` |

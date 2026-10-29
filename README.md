@@ -93,10 +93,23 @@ magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移�
 
 回归测试：`node --test docs/tests/pi-extensions-update.test.mjs`。
 
-OpenViking 扩展由 `.chezmoiscripts/run_onchange_after_20_openviking-pi-extension.sh.tmpl`
-固定版本安装到 `~/.pi/agent/extensions/openviking`，不属于上述 `packages` 更新范围。
-macOS 上的 omp 通过 `~/.omp/agent/config.yml` 的 `extensions` 显式加载同一目录。
+OpenViking 与 Graphify 由
+`.chezmoiscripts/run_onchange_after_20_agent-extensions.sh.tmpl` 统一安装到
+`~/.pi/agent/extensions/`，不属于上述 `packages` 更新范围。
+Pi 自动发现扩展；omp 通过 `~/.omp/agent/config.yml` 显式加载同一份目录。
+版本声明在 `.chezmoidata/versions.yaml`，定时版本 workflow 检查上游稳定 release，
+通过版本更新 PR 更新 OpenViking 扩展 commit 和 Graphify 版本；机器在后续 apply 时安装。
+OpenViking CLI 仍由 mise 单独跟踪 latest，服务端版本不由此脚本修改。
 OpenViking 保持 `takeoverEnabled: false`，上下文管理继续由 Magic Context 负责。
+
+Graphify CLI 由 mise 的 `pipx:graphifyy` 安装，使用同一个版本声明；编号 20 脚本
+生成 Pi 的 `~/.pi/agent/skills/graphify/`，并复制该版本自带的 Guard 到固定扩展目录，
+避免 mise 清理旧虚拟环境后扩展路径失效。omp 的同名技能链接到 Pi 技能目录。
+无需另行执行 `pi install`、`omp plugin install` 或安装 MCP；Guard 保持默认提示模式。
+每个项目自行运行 `graphify extract . --code-only` 建图，修改后用 `graphify update .`
+刷新；dotfiles 不自动扫描项目或安装项目 Git hooks。
+版本变化会触发编号 20 的 `run_onchange`；仅删除生成文件不会触发，修复时需显式
+重跑该脚本。更新后重启 Pi/omp 加载新版扩展。
 Magic Context 的加密配置关闭跨会话记忆、自动记忆搜索、Dreamer 和 embedding，
 保留 historian、上下文压缩及会话归档检索；长期记忆由 OpenViking 提供。
 这些启动配置修改后需要重启 Pi/omp，已存储的 Magic Context 记忆不会被删除。

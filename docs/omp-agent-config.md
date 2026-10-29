@@ -46,11 +46,15 @@ chezmoi 对 `modify_` 目标记录的是**脚本**而不是内容哈希，所以
 | `defaultThinkingLevel` | `high` |
 | `modelRoles.*` | `home-magpie/group/*` 路由表 |
 | `task.agentModelOverrides.security-reviewer` | `@slow` |
-| `extensions` | 追加 `~/.pi/agent/extensions/openviking`（去重） |
+| `extensions` | 追加 `~/.pi/agent/extensions/openviking` 与 `~/.pi/agent/extensions/graphify`（去重） |
 | `compaction.enabled` | `false` |
 | `memory.backend` | `"off"` |
 
 `extensions` 用“追加并去重”而不是整体赋值，避免覆盖 omp 之后加入的扩展。
+
+两者由编号 20 的 `run_onchange_after_20_agent-extensions.sh.tmpl` 安装到固定目录，
+Pi 自动发现同一份扩展。Graphify 技能通过 `~/.omp/agent/skills/graphify` 链接到
+`~/.pi/agent/skills/graphify`，不导入其他 Pi 技能。
 
 ### 不属于脚本的内容
 
