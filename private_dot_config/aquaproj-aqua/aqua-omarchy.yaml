@@ -8,7 +8,7 @@ registries:
   type: local
   path: registry.yaml
 packages:
-- name: atuinsh/atuin@v18.24.2
+- name: atuinsh/atuin@v18.24.3
 - name: openai/codex@rust-v0.165.0
 - name: anomalyco/opencode@v2.2.0
 - name: twpayne/chezmoi@v2.73.3
