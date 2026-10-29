@@ -83,13 +83,21 @@ Pi 的用户级扩展包声明在 `private_dot_pi/agent/settings.json.tmpl` 的 
 Herdr 生成的 `~/.pi/agent/extensions/herdr-agent-state.ts` 不属于这些包，
 仍由 `herdr integration install pi` 对齐。
 
-`just full-upgrade` 随后执行 `omp plugin upgrade @cortexkit/pi-magic-context`，
-更新 omp 的 Magic Context 插件；未安装 omp 时跳过，升级失败会中止后续步骤。
-运行中的 omp 会话需要重启才能加载新版插件。
+Billion Context 由 Pi 的 `npm:billion-context` 包声明安装到
+`~/.pi/agent/npm/node_modules/billion-context`：Pi 使用包声明的 `pi-native.js`，
+omp 的 `extensions` 显式加载同一份包的 `dist/agent/omp-native.js`。
+无需 mise 安装 Billion Context，也无需运行 `bili plugin install omp`；
+chezmoi 负责声明 omp 的入口，Pi 扩展更新流程负责升级共享包。
+`~/.config/billion-context/billion-context.json` 关闭自更新和 advisory 更新，
+避免绕过 Pi 的包管理。当前使用默认的模型主动压缩，不配置独立摘要模型或 `autoFold`。
 
-更新不会重载正在运行的会话：普通插件需要逐个 `/reload`，下次启动的 Pi 才使用新包。
-magic-context 使用共享 SQLite 数据库，混合版本进程会阻塞迁移，因此更新包含存储迁移时
-应在维护窗口统一处理所有 Pi/OpenCode 进程，不要依赖 `chezmoi apply` 追最新版本。
+首次切换时先 apply 配置，再执行 `just pi-extensions-update` 安装新包，
+然后执行 `omp plugin disable @cortexkit/pi-magic-context` 停用已安装的旧插件。
+新机器没有安装 Magic Context 时不需要这一步；已有插件与历史数据库保留。
+完成安装后重启 Pi 和 omp，再用 `/acp` 验证两端加载；不要在共享包尚未安装时启动 omp。
+更新共享包前退出 Pi/omp，更新后重启；运行中的会话不会自动加载新代码。
+检查压缩、原文恢复和 OpenViking 召回是否正常。omp 原生模式的部分 Anthropic Cowork
+请求会绕过代理，使用该传输时还需验证实际请求是否受到压缩。
 
 回归测试：`node --test docs/tests/pi-extensions-update.test.mjs`。
 
@@ -100,7 +108,7 @@ Pi 自动发现扩展；omp 通过 `~/.omp/agent/config.yml` 显式加载同一�
 版本声明在 `.chezmoidata/versions.yaml`，定时版本 workflow 检查上游稳定 release，
 通过版本更新 PR 更新 OpenViking 扩展 commit 和 Graphify 版本；机器在后续 apply 时安装。
 OpenViking CLI 仍由 mise 单独跟踪 latest，服务端版本不由此脚本修改。
-OpenViking 保持 `takeoverEnabled: false`，上下文管理继续由 Magic Context 负责。
+OpenViking 保持 `takeoverEnabled: false`，长期记忆由 OpenViking 提供，上下文管理由 Billion Context 负责。
 
 Graphify CLI 由 mise 的 `pipx:graphifyy` 安装，使用同一个版本声明；编号 20 脚本
 生成 Pi 的 `~/.pi/agent/skills/graphify/`，并复制该版本自带的 Guard 到固定扩展目录，
@@ -110,9 +118,9 @@ Graphify CLI 由 mise 的 `pipx:graphifyy` 安装，使用同一个版本声明�
 刷新；dotfiles 不自动扫描项目或安装项目 Git hooks。
 版本变化会触发编号 20 的 `run_onchange`；仅删除生成文件不会触发，修复时需显式
 重跑该脚本。更新后重启 Pi/omp 加载新版扩展。
-Magic Context 的加密配置关闭跨会话记忆、自动记忆搜索、Dreamer 和 embedding，
-保留 historian、上下文压缩及会话归档检索；长期记忆由 OpenViking 提供。
-这些启动配置修改后需要重启 Pi/omp，已存储的 Magic Context 记忆不会被删除。
+Magic Context 的加密配置与历史数据库保留，但不再由 Pi 加载或由升级流程更新。
+omp 上已有的 Magic Context 必须手动禁用，避免与 Billion Context 同时管理上下文。
+新插件不会导入旧的 Magic Context 会话档案，旧会话的原文检索仍需要原插件。
 
 ### omp 的 `agent/config.yml`
 

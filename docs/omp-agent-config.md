@@ -46,22 +46,26 @@ chezmoi 对 `modify_` 目标记录的是**脚本**而不是内容哈希，所以
 | `defaultThinkingLevel` | `high` |
 | `modelRoles.*` | `home-magpie/group/*` 路由表 |
 | `task.agentModelOverrides.security-reviewer` | `@slow` |
-| `extensions` | 追加 `~/.pi/agent/extensions/openviking` 与 `~/.pi/agent/extensions/graphify`（去重） |
+| `extensions` | 追加 OpenViking、Graphify 固定目录及 Pi 管理的 Billion Context 的 `omp-native.js`（去重） |
 | `compaction.enabled` | `false` |
 | `memory.backend` | `"off"` |
 
 `extensions` 用“追加并去重”而不是整体赋值，避免覆盖 omp 之后加入的扩展。
 
-两者由编号 20 的 `run_onchange_after_20_agent-extensions.sh.tmpl` 安装到固定目录，
-Pi 自动发现同一份扩展。Graphify 技能通过 `~/.omp/agent/skills/graphify` 链接到
+OpenViking 与 Graphify 由编号 20 的 `run_onchange_after_20_agent-extensions.sh.tmpl`
+安装到固定目录，Pi 自动发现同一份扩展。Billion Context 由 Pi 的
+`npm:billion-context` 声明安装，omp 共享加载
+`~/.pi/agent/npm/node_modules/billion-context/dist/agent/omp-native.js`；
+首次启动 omp 前必须先完成 Pi 包安装，更新后两端均需重启。
+Graphify 技能通过 `~/.omp/agent/skills/graphify` 链接到
 `~/.pi/agent/skills/graphify`，不导入其他 Pi 技能。
 
 ### 不属于脚本的内容
 
 - `dev.*`、`browser.*` 以及任何 omp 后续新增的键，一律原样保留。
 - 注释：omp 自己不会保留，所以这里也不再声明；`compaction` 与 `memory` 的语义
-  改由本文档说明。这两个键的作用是让 Magic Context 独占上下文平面：它的插件会
-  设置它们，显式写死只是为了防止 `omp config set` 把它们悄悄改回去。
+  改由本文档说明。这两个键关闭 omp 内建压缩与记忆，让 Billion Context 管理上下文；
+  已安装的 Magic Context 需执行 `omp plugin disable @cortexkit/pi-magic-context` 停用。
   OpenViking 保持 `takeoverEnabled: false`，长期记忆由 OpenViking 提供。
 
 ## 行为

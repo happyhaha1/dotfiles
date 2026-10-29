@@ -64,6 +64,7 @@ task:
 extensions:
   - ~/.pi/agent/extensions/openviking
   - ~/.pi/agent/extensions/graphify
+  - ~/.pi/agent/npm/node_modules/billion-context/dist/agent/omp-native.js
 compaction:
   enabled: false
 memory:
@@ -88,7 +89,7 @@ elif yq_bin="$(find_yq)"; then
     | .modelRoles.commit                            = "home-magpie/group/tiny:low"
     | .modelRoles.vision                            = "home-magpie/group/vision:medium"
     | .task.agentModelOverrides."security-reviewer" = "@slow"
-    | .extensions = ((.extensions // []) + ["~/.pi/agent/extensions/openviking", "~/.pi/agent/extensions/graphify"] | unique)
+    | .extensions = ((.extensions // []) + ["~/.pi/agent/extensions/openviking", "~/.pi/agent/extensions/graphify", "~/.pi/agent/npm/node_modules/billion-context/dist/agent/omp-native.js"] | unique)
     | .compaction.enabled                           = false
     | .memory.backend                               = "off"
   ' "$tmp"

@@ -308,10 +308,9 @@ full-upgrade:
     @if command -v omarchy >/dev/null 2>&1; then echo "mise already updated by omarchy update"; else mise upgrade || true; fi
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "Step 6/7: Updating Pi extensions and omp plugins..."
+    @echo "Step 6/7: Updating Pi extensions (shared with omp)..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     "$HOME/.local/bin/pi-extensions-update"
-    if command -v omp >/dev/null 2>&1; then omp plugin upgrade @cortexkit/pi-magic-context; fi
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "Step 7/7: Updating Homebrew..."
