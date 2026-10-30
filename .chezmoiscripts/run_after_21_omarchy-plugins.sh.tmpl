@@ -180,11 +180,14 @@ ensure_plugin_state() {
     fi
 
     installed_plugins="$(omarchy plugin list --json)"
-    enabled="$(jq -r --arg id "$plugin_id" 'map(select(.id == $id))[0].enabled // empty' <<<"$installed_plugins")"
-    if [[ -z "$enabled" ]]; then
+    # jq's `//` treats false as nullish, so a discovered-but-disabled plugin
+    # would read as missing; test discovery and state separately.
+    discovered="$(jq -r --arg id "$plugin_id" 'any(.[]; .id == $id)' <<<"$installed_plugins")"
+    if [[ "$discovered" != true ]]; then
         echo "    Error: declared plugin '$plugin_id' was not discovered by Omarchy" >&2
         exit 1
     fi
+    enabled="$(jq -r --arg id "$plugin_id" 'first(.[] | select(.id == $id)) | .enabled == true' <<<"$installed_plugins")"
 
     if [[ "$plugin_enabled" == true && "$enabled" != true ]]; then
         if [[ -n "$plugin_section" ]]; then

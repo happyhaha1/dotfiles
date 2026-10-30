@@ -125,6 +125,16 @@ omarchyPlugins:
       local: true
       enabled: true
       section: center
+    # Water-杉 input method state in the bar: 中/英 plus the active scheme, click
+    # for the MSIME menu. Omarchy starts Fcitx5 with --disable notificationitem,
+    # so the addon's own tray label never appears; this widget reads the status
+    # the addon publishes to $XDG_RUNTIME_DIR/msime-client/input-status.json.
+    # `local: true` because run_onchange_after_12 copies the package's widget
+    # directory (/usr/share/msime-client/omarchy/plugin) into place.
+    - id: metasequoia.msime
+      local: true
+      enabled: true
+      section: right
     # Visual window and workspace switching: Orbit's Alt+Tab switcher plus a
     # vendored copy of Overview Workspaces that deliberately does not bind a
     # standalone Super press. run_after_24 keeps its Qt 6.12 qmldir fix applied.

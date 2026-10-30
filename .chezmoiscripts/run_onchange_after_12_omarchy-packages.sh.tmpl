@@ -161,14 +161,28 @@ elif [[ -z ${desired_aur[msime-bin]+x} && -d "$msime_state" ]]; then
 fi
 
 # msime-linux-setup also links its bar widget into ~/.config/omarchy/plugins.
-# Omarchy's plugin registry only scans real directories (a symlinked plugin dir
-# is never discovered), so the link would either stay invisible or be removed by
-# run_after_21's unmanaged-plugin prune. Drop it instead of declaring a plugin
-# that Omarchy cannot load.
-msime_plugin_link="$HOME/.config/omarchy/plugins/metasequoia.msime"
-if [[ -L "$msime_plugin_link" ]]; then
-    echo "    Removing the undiscoverable MSIME bar widget link: $msime_plugin_link"
-    rm -f "$msime_plugin_link"
+# Omarchy starts Fcitx5 with --disable notificationitem, so the tray that would
+# show MSIME's 中/英 label never appears; this widget stands in for it. Copy the
+# package's widget as a real directory (the setup tool's symlink is replaced, and
+# run_after_21 prunes anything undeclared) and keep it declared as a local
+# plugin in .chezmoidata/omarchy.yaml.
+msime_plugin_src=/usr/share/msime-client/omarchy/plugin
+msime_plugin_dst="$HOME/.config/omarchy/plugins/metasequoia.msime"
+if [[ -f "$msime_plugin_src/manifest.json" ]]; then
+    if [[ -L "$msime_plugin_dst" ]]; then
+        rm -f "$msime_plugin_dst"
+    fi
+    if ! diff -rq "$msime_plugin_src" "$msime_plugin_dst" >/dev/null 2>&1; then
+        rm -rf "$msime_plugin_dst"
+        mkdir -p "$(dirname "$msime_plugin_dst")"
+        cp -r "$msime_plugin_src" "$msime_plugin_dst" \
+            || echo "    Warning: could not install the MSIME bar widget"
+        # The shell rescans on its own schedule; ask for a rescan so
+        # run_after_21 discovers the plugin without waiting on a timer.
+        if command -v omarchy-shell >/dev/null 2>&1; then
+            omarchy-shell -q shell rescanPlugins || true
+        fi
+    fi
 fi
 
 # Record ownership only after removal and both installation operations succeed.
