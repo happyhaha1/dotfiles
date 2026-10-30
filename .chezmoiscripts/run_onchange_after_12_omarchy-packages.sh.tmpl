@@ -7,7 +7,7 @@ echo ":: [12] Synchronizing Omarchy packages"
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{- else }}
-{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
+{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile.tmpl" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
 {{ $classicUIConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/conf/private_classicui.conf" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
@@ -158,6 +158,41 @@ else
     echo "    No AUR packages declared"
 fi
 
+# MSIME (水杉输入法) keeps its dictionaries and runtime state outside the
+# repository, so prepare them once here. --no-register is mandatory: the Fcitx5
+# input method list belongs to private_profile.tmpl, and letting the setup tool
+# write it would make every `chezmoi apply` fight the last registration.
+# Network access may be unavailable, so a failure is reported but never fatal.
+{{ if .omarchyInputMethod.msime.downloadDictionaries -}}
+msime_args=(--download)
+{{- else }}
+msime_args=()
+{{- end }}
+msime_state="${XDG_CONFIG_HOME:-$HOME/.config}/msime-client"
+if [[ -n ${desired_aur[msime-bin]+x} ]] && command -v msime-linux-setup >/dev/null 2>&1; then
+    if [[ -d "$msime_state" ]]; then
+        msime-linux-setup --update --no-register ${msime_args[@]+"${msime_args[@]}"} \
+            || echo "    Warning: MSIME dictionary update failed; existing dictionaries are kept"
+    else
+        msime-linux-setup --no-register ${msime_args[@]+"${msime_args[@]}"} \
+            || echo "    Warning: MSIME first-time setup failed; run msime-linux-setup manually"
+    fi
+elif [[ -z ${desired_aur[msime-bin]+x} && -d "$msime_state" ]]; then
+    echo "    Note: MSIME is no longer declared but $msime_state exists"
+    echo "          Run msime-linux-setup --unregister before deleting that directory"
+fi
+
+# msime-linux-setup also links its bar widget into ~/.config/omarchy/plugins.
+# Omarchy's plugin registry only scans real directories (a symlinked plugin dir
+# is never discovered), so the link would either stay invisible or be removed by
+# run_after_21's unmanaged-plugin prune. Drop it instead of declaring a plugin
+# that Omarchy cannot load.
+msime_plugin_link="$HOME/.config/omarchy/plugins/metasequoia.msime"
+if [[ -L "$msime_plugin_link" ]]; then
+    echo "    Removing the undiscoverable MSIME bar widget link: $msime_plugin_link"
+    rm -f "$msime_plugin_link"
+fi
+
 # Record ownership only after removal and both installation operations succeed.
 # These machine-local files are intentionally not part of the dotfiles repo.
 install -d -m 700 "$state_dir"
@@ -204,15 +239,17 @@ stop_dbus_activated_fcitx() {
     )
 }
 
-select_rime() {
+select_input_method() {
+    local target="$1"
+
     command -v fcitx5-remote >/dev/null 2>&1 || return 1
     fcitx_bus_ready || return 1
 
     # systemd may report the service started just before its DBus name is
     # available, so retry briefly before giving up.
     for _ in {1..20}; do
-        if fcitx5-remote -s rime >/dev/null 2>&1 \
-            && [[ "$(fcitx5-remote -n 2>/dev/null)" == "rime" ]]; then
+        if fcitx5-remote -s "$target" >/dev/null 2>&1 \
+            && [[ "$(fcitx5-remote -n 2>/dev/null)" == "$target" ]]; then
             return 0
         fi
         sleep 0.1
@@ -234,10 +271,19 @@ fi
 stop_dbus_activated_fcitx
 
 # Restart the Omarchy-managed service after installation or any managed config
-# change, then wait for its D-Bus name before reloading Rime.
-if systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1; then
+# change, then wait for its D-Bus name before reloading Rime. A D-Bus activated
+# instance can hold the bus name while the unit is stopped, which makes the unit
+# exit immediately and trip systemd's start limit; recover from that explicitly.
+systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1 || true
+if ! wait_for_fcitx && ! systemctl --user is-active --quiet omarchy-fcitx5.service; then
+    stop_dbus_activated_fcitx
+    systemctl --user reset-failed omarchy-fcitx5.service >/dev/null 2>&1 || true
+    systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1 || true
+    wait_for_fcitx || true
+fi
+if systemctl --user is-active --quiet omarchy-fcitx5.service; then
     echo "    Restarted omarchy-fcitx5.service"
-    if wait_for_fcitx && fcitx5-remote -r >/dev/null 2>&1; then
+    if fcitx5-remote -r >/dev/null 2>&1; then
         echo "    Deployed Rime configuration"
     fi
 elif wait_for_fcitx && fcitx5-remote -r >/dev/null 2>&1; then
@@ -246,9 +292,23 @@ else
     echo "    Fcitx5 service is not running; it will use the config on next start"
 fi
 
-if [[ -n ${desired[fcitx5-rime]+x} ]] && select_rime; then
-    echo "    Selected Rime as the current input method"
-elif [[ -n ${desired[fcitx5-rime]+x} ]]; then
-    echo "    Could not select Rime in the current Fcitx session; it will be the default on next start"
+# Select the input method declared by omarchyInputMethod.defaultIM. This has to
+# read the same data value as private_profile.tmpl; selecting a fixed engine
+# here would override the profile on every apply.
+default_im="{{ .omarchyInputMethod.defaultIM }}"
+case "$default_im" in
+    msime)
+        target_im=msime
+        target_declared=${desired_aur[msime-bin]+x}
+        ;;
+    *)
+        target_im=rime
+        target_declared=${desired[fcitx5-rime]+x}
+        ;;
+esac
+if [[ -n "$target_declared" ]] && select_input_method "$target_im"; then
+    echo "    Selected ${target_im} as the current input method"
+elif [[ -n "$target_declared" ]]; then
+    echo "    Could not select ${target_im} in the current Fcitx session; it will be the default on next start"
 fi
 {{- end }}

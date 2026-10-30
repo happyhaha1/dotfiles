@@ -82,9 +82,26 @@ omarchyAurPackages:
     # Strata keyboard-first file manager; upstream CI publishes strata-bin to
     # the AUR on every release, so it tracks GitHub tags automatically.
     - strata-bin
+    # MSIME (水杉输入法). The AUR package repacks the upstream Debian data.tar
+    # and therefore never runs the Debian postinst/prerm: both registration and
+    # unregistration must go through `msime-linux-setup` explicitly, which
+    # run_onchange_after_12 does with --no-register because the Fcitx5 input
+    # method list is owned by private_dot_config/fcitx5/private_profile.tmpl.
+    - msime-bin
   profiles:
     hack:
       - whatweb
+
+# Fcitx5 input methods on Omarchy. private_profile.tmpl and the selection step in
+# run_onchange_after_12 read defaultIM from here, so the profile stays the single
+# source of truth instead of drifting when an input method registers itself.
+omarchyInputMethod:
+  # rime | msime. Keep rime to evaluate MSIME side by side, then flip to msime.
+  defaultIM: rime
+  msime:
+    # First run needs roughly 170 MB of dictionaries. Set to false on machines
+    # that cannot reach the network during `chezmoi apply`.
+    downloadDictionaries: true
 
 # Third-party Omarchy shell plugins are an allowlist. Any plugin not listed
 # here is removed by the reconciliation script on every chezmoi apply.

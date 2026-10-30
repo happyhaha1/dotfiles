@@ -2,6 +2,9 @@
 # Enumerate when holding modifier of Toggle key
 EnumerateWithTriggerKeys=True
 # Enumerate Input Method Forward
+# Empty here: these two are KeyLists, so their entries live in the
+# [Hotkey/Enumerate*Keys] sections below. A scalar line such as
+# `EnumerateForwardKeys=Control+space` is silently ignored by Fcitx5.
 EnumerateForwardKeys=
 # Enumerate Input Method Backward
 EnumerateBackwardKeys=
@@ -9,6 +12,16 @@ EnumerateBackwardKeys=
 EnumerateSkipFirst=False
 # Time limit in milliseconds for triggering modifier key shortcuts
 ModifierOnlyKeyTimeout=250
+
+[Hotkey/EnumerateForwardKeys]
+# Cycles keyboard-us -> rime -> msime inside the single Default group.
+# Control+space is free because TriggerKeys below deliberately leaves it unbound
+# (Rime owns bare Shift). Super+space cannot be used: Omarchy binds it to its own
+# menu, so Fcitx5 never sees the key.
+0=Control+space
+
+[Hotkey/EnumerateBackwardKeys]
+0=Control+Shift+space
 
 [Hotkey/TriggerKeys]
 # Ctrl+Space is intentionally disabled; Shift switches Rime's language mode.
@@ -25,10 +38,10 @@ ModifierOnlyKeyTimeout=250
 # Leave empty: Rime handles bare Shift, avoiding a second Fcitx toggle.
 
 [Hotkey/EnumerateGroupForwardKeys]
-0=Super+space
+# Left empty on purpose: there is a single group (Default), so Control+space
+# enumerates the input methods inside that group instead.
 
 [Hotkey/EnumerateGroupBackwardKeys]
-0=Shift+Super+space
 
 [Hotkey/PrevPage]
 0=Up

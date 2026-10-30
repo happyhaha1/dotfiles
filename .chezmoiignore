@@ -44,6 +44,9 @@ treefmt.toml
 .config/foot/
 .config/uwsm/
 .config/aquaproj-aqua/aqua-omarchy.yaml
+# MSIME's Omarchy theme hook points at /usr/share/msime-client, which only
+# exists where the AUR package is installed (Omarchy).
+.config/omarchy/hooks/theme-set.d/
 .local/bin/codex
 .local/bin/gh
 .bashrc

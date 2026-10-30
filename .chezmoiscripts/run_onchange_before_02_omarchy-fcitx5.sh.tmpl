@@ -7,7 +7,7 @@ echo ":: [02] Stopping Fcitx5 before applying its declarative config"
 echo "    Skipped (not an Omarchy machine)"
 exit 0
 {{- else }}
-{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile" -}}
+{{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile.tmpl" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
 {{ $classicUIConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/conf/private_classicui.conf" -}}
 {{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
