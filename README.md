@@ -33,6 +33,17 @@ just doctor
 just check
 ```
 
+## Atuin 智能体会话
+
+`private_dot_config/atuin/config.toml` 在 macOS 和 Omarchy 上启用 Threads 会话及工具调用捕获，
+并由 Atuin 自动启动 daemon；会话沿用现有 `sync_address` 和同步账号进行端到端加密同步。
+Atuin 版本由 Aqua 管理，通过 `Update aqua packages` workflow 更新。
+
+配置应用后，运行 `atuin threads list` 检查捕获，运行 `atuin resume` 搜索并恢复会话。
+Fish 中按 `Ctrl+]` 打开 Threads 搜索，普通模式和 vi 插入模式均可使用。
+已有但未继续使用的会话需要手动运行 `atuin threads import` 导入；dotfiles 不自动批量导入。
+跨机器恢复前，目标机器需登录同一同步服务器并配置相同加密密钥，同时准备好项目文件和依赖。
+
 ## 机器 Profile
 
 持久化的 chezmoi 数据会选择模板和安装脚本使用的 profile：

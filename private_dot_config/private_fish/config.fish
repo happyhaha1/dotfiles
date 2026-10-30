@@ -247,6 +247,11 @@ if status is-interactive
         bind -M insert \cr _atuin_search
     end
 
+    if type -q _atuin_ai_resume
+        bind ctrl-] _atuin_ai_resume
+        bind -M insert ctrl-] _atuin_ai_resume
+    end
+
     # Repository picker from functions/_ghq_fzf_cd.fish.
     bind \cg _ghq_fzf_cd
     bind -M insert \cg _ghq_fzf_cd

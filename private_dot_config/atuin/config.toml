@@ -98,6 +98,13 @@ common_subcommands = [
 ]
 
 # ─────────────────────────────────────────────────────────────
-# Daemon (optional, improves performance)
+# Daemon (required for Threads capture and sync)
 # ─────────────────────────────────────────────────────────────
-# daemon.enabled = true
+[daemon]
+enabled = true
+autostart = true
+
+# Capture agent sessions and tool calls; sync uses sync_address above.
+[threads]
+capture = true
+capture_tools = true
