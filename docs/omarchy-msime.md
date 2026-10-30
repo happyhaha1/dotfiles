@@ -1,7 +1,7 @@
-# Omarchy: 水杉输入法（MSIME）与 Rime 并存
+# Omarchy: 水杉输入法（MSIME）
 
-本仓库在 Omarchy 上同时声明两个 Fcitx5 输入法：Rime（`rime_ice`）与水杉输入法
-（MSIME）。两者并存，默认输入法由一处 data 键控制。
+Omarchy 上只声明一个 Fcitx5 中文输入法：水杉（MSIME）。Rime 已于 2026-10-29
+下架，包声明与受管配置均已移除，配置存档在 `docs/backup/rime/`（不安装）。
 
 ## 归属
 
@@ -38,7 +38,7 @@ AUR 包 `msime-bin` 是上游 Debian `data.tar` 的原样重打包，**不执行
 
 ## 切换与默认值
 
-- 运行时切换：`Ctrl+Space` 在 `keyboard-us` → `rime` → `msime` 之间循环，
+- 运行时切换：`Ctrl+Space` 在 `keyboard-us` → `msime` 之间循环，
   `Ctrl+Shift+Space` 反向。
 - **不要用 `Super+Space`**：它被 Omarchy 绑成了主菜单（`hyprctl binds` 里
   modmask 8 + SPACE = Omarchy menu），Fcitx5 收不到这个键。
@@ -52,11 +52,10 @@ AUR 包 `msime-bin` 是上游 Debian `data.tar` 的原样重打包，**不执行
   行内形式 `EnumerateForwardKeys=Control+space` 会被 Fcitx5 静默忽略
   （它和 `TriggerKeys` 一样是 KeyList，不是标量），这也是最初“绑了键却切不动”
   的直接原因。
-- 改默认：把 `omarchyInputMethod.defaultIM` 改成 `msime` 后 `chezmoi apply`。
-  `private_profile.tmpl` 与 `after_12` 读的是同一个值，不会出现两处不一致。
-- 中英切换：Rime 侧由 Shift 处理（`private_config` 里刻意没有把 `Ctrl+Space`
-  绑给 `TriggerKeys`，`AltTriggerKeys` 留空）。MSIME 的模式切换键在
-  `msime-linux-settings` 里查看，两个输入法各自独立。
+- 改默认：`omarchyInputMethod.defaultIM` 目前只有 `msime` 一个可选值；新增输入法时
+  同步改这里、`private_profile.tmpl` 的 Items 和 `after_12` 里的 `case` 分支即可。
+- 中英切换：`private_config` 里刻意没有把 `Ctrl+Space` 绑给 `TriggerKeys`，
+  `AltTriggerKeys` 留空。MSIME 的模式切换键在 `msime-linux-settings` 里查看。
 - Fcitx5 退出时会把当前输入法写回 `profile` 的 `DefaultIM`。若 `chezmoi apply`
   提示 `.config/fcitx5/profile` 已被修改，那是这个运行时写回，确认覆盖即可
   （或先切回 `defaultIM` 再 apply）。
@@ -97,7 +96,7 @@ rm -rf ~/.config/msime-client ~/.local/share/msime-client
 ## 验证
 
 ```bash
-fcitx5-remote -n                 # 期望 rime（defaultIM 初始值）
+fcitx5-remote -n                 # 期望 msime
 chezmoi diff                     # 期望为空：setup 不再改写 profile
 just doctor
 ```

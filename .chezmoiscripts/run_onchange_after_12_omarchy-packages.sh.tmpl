@@ -10,37 +10,15 @@ exit 0
 {{ $profile := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_profile.tmpl" -}}
 {{ $fcitxConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/private_config" -}}
 {{ $classicUIConfig := joinPath .chezmoi.sourceDir "private_dot_config/fcitx5/conf/private_classicui.conf" -}}
-{{ $rimeConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/default.custom.yaml" -}}
-{{ $rimeSchemaConfig := joinPath .chezmoi.sourceDir "private_dot_local/share/fcitx5/rime/rime_ice.custom.yaml" -}}
 {{- $machineProfile := "other" -}}
 {{- if hasKey . "machineProfile" -}}
 {{-   $machineProfile = .machineProfile -}}
 {{- end -}}
-# Changing the package list, machine profile, or any managed Fcitx/Rime file reruns this script.
+# Changing the package list, machine profile, or any managed Fcitx file reruns this script.
 # machine profile: {{ $machineProfile }}
 # profile: {{ if stat $profile }}{{ output "sha256sum" $profile | trim }}{{ else }}n/a{{ end }}
 # fcitx config: {{ if stat $fcitxConfig }}{{ output "sha256sum" $fcitxConfig | trim }}{{ else }}n/a{{ end }}
 # Classic UI config: {{ if stat $classicUIConfig }}{{ output "sha256sum" $classicUIConfig | trim }}{{ else }}n/a{{ end }}
-# Rime config: {{ if stat $rimeConfig }}{{ output "sha256sum" $rimeConfig | trim }}{{ else }}n/a{{ end }}
-# schema config: {{ if stat $rimeSchemaConfig }}{{ output "sha256sum" $rimeSchemaConfig | trim }}{{ else }}n/a{{ end }}
-
-# Rime now handles Shift natively. Remove the old Shift and CapsLock Lua
-# targets, which deleting their chezmoi source files does not remove.
-for legacy_toggle in shift_toggle capslock_toggle; do
-    legacy_lua="$HOME/.local/share/fcitx5/rime/lua/$legacy_toggle.lua"
-    if [[ -e "$legacy_lua" ]]; then
-        echo "    Removing obsolete Rime workaround: $legacy_toggle"
-        rm -f "$legacy_lua"
-    fi
-done
-
-# The old schema-specific override is no longer managed after switching from
-# luna_pinyin_simp to rime_ice, so remove the stale target explicitly.
-legacy_luna_config="$HOME/.local/share/fcitx5/rime/luna_pinyin_simp.custom.yaml"
-if [[ -e "$legacy_luna_config" ]]; then
-    echo "    Removing obsolete luna_pinyin_simp override"
-    rm -f "$legacy_luna_config"
-fi
 
 packages=(
 {{ range .omarchyPackages.shared }}    {{ . | quote }}
@@ -227,6 +205,16 @@ wait_for_fcitx() {
     return 1
 }
 
+# The unit state, not the bus name, decides whether a restart worked: a
+# transient instance can own org.fcitx.Fcitx5 while the Omarchy unit is failed.
+wait_for_fcitx_unit() {
+    for _ in {1..30}; do
+        systemctl --user is-active --quiet omarchy-fcitx5.service && return 0
+        sleep 0.1
+    done
+    return 1
+}
+
 stop_dbus_activated_fcitx() {
     local unit
     while IFS= read -r unit; do
@@ -257,11 +245,15 @@ select_input_method() {
     return 1
 }
 
-# Rime reads its deployed configuration when the engine starts. Remove the
-# generated default config so the next reload performs a fresh deployment.
-rime_dir="$HOME/.local/share/fcitx5/rime"
-if [[ -d "$rime_dir" ]]; then
-    rm -f "$rime_dir/default.yaml" "$rime_dir/build/default.yaml"
+# Rime is retired on this machine: the engine, its schemas and the overrides are
+# no longer declared. `omarchy pkg drop` removes the packages but leaves the
+# engine's state directory (user dictionary, build cache, sync) behind, so clear
+# it once the package is really gone. The curated overrides are kept in the
+# repository under docs/backup/rime and are deliberately not installed.
+retired_rime_dir="$HOME/.local/share/fcitx5/rime"
+if [[ -d "$retired_rime_dir" ]] && ! pacman -Qq fcitx5-rime >/dev/null 2>&1; then
+    echo "    Removing retired Rime state: $retired_rime_dir"
+    rm -rf "$retired_rime_dir"
 fi
 
 # A D-Bus activation can race the Omarchy unit after it was stopped. Remove
@@ -271,23 +263,24 @@ fi
 stop_dbus_activated_fcitx
 
 # Restart the Omarchy-managed service after installation or any managed config
-# change, then wait for its D-Bus name before reloading Rime. A D-Bus activated
-# instance can hold the bus name while the unit is stopped, which makes the unit
-# exit immediately and trip systemd's start limit; recover from that explicitly.
+# change. Any application that touches org.fcitx.Fcitx5 while the unit is stopped
+# starts a transient D-Bus instance that keeps the bus name, so the unit exits
+# immediately and systemd trips its start limit; the unit state decides whether
+# the restart worked, and a failed one is recovered once.
 systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1 || true
-if ! wait_for_fcitx && ! systemctl --user is-active --quiet omarchy-fcitx5.service; then
+if ! wait_for_fcitx_unit; then
+    echo "    Recovering Fcitx5 service after a bus-name race"
     stop_dbus_activated_fcitx
     systemctl --user reset-failed omarchy-fcitx5.service >/dev/null 2>&1 || true
     systemctl --user restart omarchy-fcitx5.service >/dev/null 2>&1 || true
-    wait_for_fcitx || true
+    wait_for_fcitx_unit || true
 fi
+wait_for_fcitx || true
 if systemctl --user is-active --quiet omarchy-fcitx5.service; then
     echo "    Restarted omarchy-fcitx5.service"
-    if fcitx5-remote -r >/dev/null 2>&1; then
-        echo "    Deployed Rime configuration"
-    fi
-elif wait_for_fcitx && fcitx5-remote -r >/dev/null 2>&1; then
-    echo "    Reloaded the running Fcitx5 instance and deployed Rime configuration"
+    fcitx5-remote -r >/dev/null 2>&1 && echo "    Reloaded the Fcitx5 configuration"
+elif fcitx_bus_ready; then
+    echo "    Fcitx5 runs outside the Omarchy unit; the config applies on next start"
 else
     echo "    Fcitx5 service is not running; it will use the config on next start"
 fi
@@ -298,17 +291,15 @@ fi
 default_im="{{ .omarchyInputMethod.defaultIM }}"
 case "$default_im" in
     msime)
-        target_im=msime
         target_declared=${desired_aur[msime-bin]+x}
         ;;
     *)
-        target_im=rime
-        target_declared=${desired[fcitx5-rime]+x}
+        target_declared=
         ;;
 esac
-if [[ -n "$target_declared" ]] && select_input_method "$target_im"; then
-    echo "    Selected ${target_im} as the current input method"
+if [[ -n "$target_declared" ]] && select_input_method "$default_im"; then
+    echo "    Selected ${default_im} as the current input method"
 elif [[ -n "$target_declared" ]]; then
-    echo "    Could not select ${target_im} in the current Fcitx session; it will be the default on next start"
+    echo "    Could not select ${default_im} in the current Fcitx session; it will be the default on next start"
 fi
 {{- end }}

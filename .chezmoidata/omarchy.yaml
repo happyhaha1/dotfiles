@@ -7,8 +7,9 @@ omarchyPackages:
     # Fcitx5 Chinese input components managed by this dotfiles repository.
     - fcitx5-chinese-addons
     - fcitx5-configtool
-    # Rime engine; librime-data provides the baseline Rime schemas.
-    - fcitx5-rime
+    # Rime was retired in favour of MSIME (水杉输入法); its engine, schemas and
+    # AUR schema packs are no longer declared. The curated overrides are kept in
+    # the repository under docs/backup/rime and are not installed.
     # Fish shell only; keep Bash as the login shell. Omarchy-Fish defaults that
     # we actually want are copied into private_dot_config/private_fish instead
     # of installing omarchy-fish or running omarchy-setup-fish/chsh.
@@ -76,9 +77,6 @@ omarchyRemovedCli:
 # from official packages because installation uses `omarchy pkg aur add`.
 omarchyAurPackages:
   shared:
-    # 雾凇拼音全拼及万象简体语法模型。
-    - rime-ice-pinyin-git
-    - rime-wanxiang-gram-zh-hans
     # hyprmoncfg's ready-made AUR binary; the plugin manages its user daemon.
     - hyprmoncfg-bin
     # Cross-device clipboard sync using the prebuilt desktop release.
@@ -100,8 +98,8 @@ omarchyAurPackages:
 # run_onchange_after_12 read defaultIM from here, so the profile stays the single
 # source of truth instead of drifting when an input method registers itself.
 omarchyInputMethod:
-  # rime | msime. Keep rime to evaluate MSIME side by side, then flip to msime.
-  defaultIM: rime
+  # The only declared input method; Rime was retired (see docs/omarchy-msime.md).
+  defaultIM: msime
   msime:
     # First run needs roughly 170 MB of dictionaries. Set to false on machines
     # that cannot reach the network during `chezmoi apply`.
