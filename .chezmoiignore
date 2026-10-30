@@ -88,13 +88,12 @@ Library/LaunchAgents/io.easytier.core.plist
 {{- end }}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# oh-my-pi (the Pi fork) was removed from Aqua; its Tern-managed
-# binary lives outside this repository. The provider configuration is still
-# macOS-only because it carries the machine-local magpie gateway address.
+# oh-my-pi (the Pi fork) was removed from Aqua; Tern installs and updates its
+# binary outside this repository. ~/.omp/agent/config.yml is managed on both
+# platforms: the home-magpie provider points at the LAN gateway
+# (10.10.10.210:3425), reachable from macOS and Omarchy alike, and the key is
+# indirected through MAGPIE_API_KEY in ~/.config/fish/conf.d/secrets.fish.
 # ─────────────────────────────────────────────────────────────────────────────
-{{- if ne .chezmoi.os "darwin" }}
-.omp/
-{{- end }}
 
 # Web clients and the Web UI's mise Node shim are office-server-only.
 {{- if ne .machineProfile "office-server" }}
