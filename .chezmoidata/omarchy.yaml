@@ -25,6 +25,10 @@ omarchyPackages:
     - dua-cli
     # Bitwarden plugin dependency; the plugin uses the official `bw` CLI.
     - bitwarden-cli
+    # uniclipboard-bin 1.5.0 is built against GTK4/WebKitGTK 6.0, but its AUR
+    # PKGBUILD still declares webkit2gtk-4.1/gtk3. Without this the GUI fails
+    # with `libwebkitgtk-6.0.so.4: cannot open shared object file`.
+    - webkitgtk-6.0
     # age and voxtype-bin are intentionally not managed by this list.
   profiles:
     hack:
