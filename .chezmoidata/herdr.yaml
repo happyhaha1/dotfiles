@@ -23,7 +23,7 @@ herdrPlugins:
       # still devswha.herdr-web-ui). `[10]` keeps an already installed legacy
       # source name instead of reinstalling the same plugin.
       - source: devswha/ovis
-        ref: v0.4.19
+        ref: v0.4.20
   # Example:
   # shared:
   #   - source: owner/repository
