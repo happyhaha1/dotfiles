@@ -86,7 +86,6 @@ homebrew:
         - android-platform-tools
         - driceroland/tap/search
         - omniwm
-        - penso/tap/herdr-gpui
       home-server: []
       office-server: []
   masApps:
