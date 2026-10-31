@@ -10,7 +10,7 @@ registries:
 packages:
 - name: atuinsh/atuin@v18.24.4
 - name: openai/codex@rust-v0.166.0
-- name: anomalyco/opencode@v2.2.2
+- name: anomalyco/opencode@v2.2.5
 - name: twpayne/chezmoi@v2.73.3
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
