@@ -6,10 +6,10 @@ versions:
   aquaInstallerSha256: c0acde4802a1edd8b8201fd4cc1f0e52700cd4feb875f9c9793381b5b0ca2065
   aquaVersion: v2.65.2
   paperlib: 3.1.12
-  uiUxProMaxSkillRev: bf41cbc3ce63e30c922e58ef48741ba6133f9aa9
-  uiUxProMaxSkillSha256: 2640fa3b5cb340f6178da8bb3dac983fa876d2f1b0455b240802264116745905
+  uiUxProMaxSkillRev: 3a13158ff1f32156cbe144108de48eda2ecaed9a
+  uiUxProMaxSkillSha256: 4f79597f2ba3e67e5d26d32b1a38acbcbcf4ab3cce7c8927243f8050bf276354
   gcloudVersion: 562.0.0
-  mihomoForkBuild: 02581ff
+  mihomoForkBuild: a6aa226
   zashboardVersion: v3.30.0
   # Shared Pi/omp extension: stable release tag and its resolved commit.
   openvikingExtensionVersion: v0.5.2.1
