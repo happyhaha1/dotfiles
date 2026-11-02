@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# msime-linux-desktop rewrites ~/.config/msime-client/preferences.json itself
+# (2-space indent, sorted keys, no trailing newline) every time it closes, and it
+# also adds keys this repository does not know about. A plain copy would be
+# overwritten and would then look "changed since chezmoi last wrote it" on every
+# apply, so patch only the keys below and pass everything else through untouched.
+set -euo pipefail
+
+exec python3 -c '
+import json, sys
+
+# Candidate window: horizontal list, keep the page counter, drop the pinyin
+# string because the preedit is already shown inline in the application.
+managed = {
+    "candidate_layout": "horizontal",
+    "show_candidate_page_number": True,
+    "candidate_preedit_style": "empty",
+}
+
+raw = sys.stdin.read()
+if not raw.strip():
+    sys.exit(0)
+
+data = json.loads(raw)
+prefs = data.setdefault("preferences", {})
+if all(prefs.get(key) == value for key, value in managed.items()):
+    sys.stdout.write(raw)
+else:
+    prefs.update(managed)
+    sys.stdout.write(json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False))
+'
