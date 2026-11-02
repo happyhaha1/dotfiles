@@ -199,11 +199,13 @@ omarchyUfwPorts:
       port: "2080"
       protocol: tcp
       from: 192.168.50.0/24
-    # Tern remote (QUIC) from the trusted LAN.
+    # Tern remote (QUIC). The Mac sits on the upstream router's /24, not on
+    # 192.168.50.0/24, so this cannot be LAN-only; Tern still pins the host key
+    # and authorises through ~/.ssh/authorized_keys.
     - name: lan-tern-remote-8376
       port: "8376"
       protocol: udp
-      from: 192.168.50.0/24
+      from: any
     - name: lan-mihomo-ui-9090
       port: "9090"
       protocol: tcp
