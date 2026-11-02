@@ -160,6 +160,17 @@ omarchyPlugins:
     - id: io.github.sirjul1337.lock-explorer
       source: https://github.com/SirJul1337/omarchy-lock-explorer.git
       enabled: true
+    # Notification history browser: a bell on the right plus a searchable
+    # panel. Omarchy 4.0.6 keeps only the last ten closed notifications and
+    # can only replay them (`Super+Shift+Alt+comma`), so this plugin archives
+    # them for 30 days (1000 entries) under
+    # ~/.local/state/omarchy-notification-center/. It reads the built-in
+    # service's files, never replaces the notification daemon, and handles both
+    # the 4.0 per-file history/ layout and the newer history.json.
+    - id: jankeesvw.notification-center
+      source: https://github.com/jankeesvw/omarchy-notification-center.git
+      enabled: true
+      section: right
   profiles: {}
 
 # Community themes are installed and updated by Omarchy's own theme manager.
