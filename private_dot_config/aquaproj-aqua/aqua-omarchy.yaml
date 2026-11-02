@@ -3,7 +3,7 @@
 # GitHub workflow updates; install only this curated subset on Omarchy.
 registries:
 - type: standard
-  ref: v4.579.0
+  ref: v4.581.0
 - name: local
   type: local
   path: registry.yaml
@@ -11,7 +11,7 @@ packages:
 - name: atuinsh/atuin@v18.24.4
 - name: openai/codex@rust-v0.166.0
 - name: anomalyco/opencode@v2.2.5
-- name: twpayne/chezmoi@v2.73.3
+- name: twpayne/chezmoi@v2.74.0
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
 - name: dandavison/delta@0.20.1
