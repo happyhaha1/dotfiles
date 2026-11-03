@@ -4,6 +4,10 @@
 # This script therefore asserts only the keys declared below and passes the rest
 # through untouched, in the order omp wrote them.
 #
+# Model providers, model roles and thinking strength belong to Magpie. This
+# script preserves whatever Magpie wrote. The one exception is modelRoles.designer:
+# Magpie's omp adapter has no designer field, so nothing else would keep it set.
+#
 # A plain copy cannot work here: every apply would overwrite the keys omp had
 # just written, omp would write them back, and the diff would never settle.
 set -eu
@@ -46,18 +50,8 @@ theme:
   dark: titanium
   light: light
 setupVersion: 2
-defaultThinkingLevel: high
 modelRoles:
-  default: home-magpie/group/coding:high
-  plan: home-magpie/group/coding:high
-  designer: home-magpie/group/designer:high
-  task: home-magpie/group/task:high
-  advisor: home-magpie/group/advisor:high
-  smol: home-magpie/group/explore:low
-  slow: home-magpie/group/review:high
-  tiny: home-magpie/group/tiny:low
-  commit: home-magpie/group/tiny:low
-  vision: home-magpie/group/vision:medium
+  designer: magpie/remote-magpie/group/designer:high
 task:
   agentModelOverrides:
     security-reviewer: "@slow"
@@ -77,17 +71,7 @@ elif yq_bin="$(find_yq)"; then
     | .theme.dark                                   = "titanium"
     | .theme.light                                  = "light"
     | .setupVersion                                 = 2
-    | .defaultThinkingLevel                         = "high"
-    | .modelRoles.default                           = "home-magpie/group/coding:high"
-    | .modelRoles.plan                              = "home-magpie/group/coding:high"
-    | .modelRoles.designer                          = "home-magpie/group/designer:high"
-    | .modelRoles.task                              = "home-magpie/group/task:high"
-    | .modelRoles.advisor                           = "home-magpie/group/advisor:high"
-    | .modelRoles.smol                              = "home-magpie/group/explore:low"
-    | .modelRoles.slow                              = "home-magpie/group/review:high"
-    | .modelRoles.tiny                              = "home-magpie/group/tiny:low"
-    | .modelRoles.commit                            = "home-magpie/group/tiny:low"
-    | .modelRoles.vision                            = "home-magpie/group/vision:medium"
+    | .modelRoles.designer                          = "magpie/remote-magpie/group/designer:high"
     | .task.agentModelOverrides."security-reviewer" = "@slow"
     | .extensions = ((.extensions // []) + ["~/.pi/agent/extensions/openviking", "~/.pi/agent/extensions/graphify", "~/.pi/agent/npm/node_modules/billion-context/dist/agent/omp-native.js"] | unique)
     | .compaction.enabled                           = false

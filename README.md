@@ -83,7 +83,9 @@ Web UI 和 Roamgate 阶段使用不带编号的缩进行。
 Pi 由 mise 固定管理 npm 包 `@earendil-works/pi-coding-agent`，macOS 与 Omarchy
 共用 `~/.local/bin/pi`，使用 mise 管理的 Node 执行 npm 官方入口。
 版本声明在 `private_dot_config/mise/config.toml.tmpl`。
-Pi 的用户级扩展包声明在 `private_dot_pi/agent/settings.json.tmpl` 的 `packages` 中。
+Pi 的用户级扩展包声明在 `private_dot_pi/agent/modify_settings.json.tmpl` 的
+`packages` 中；该 `modify_` 脚本只断言主题、默认工具、扩展包和 changelog 版本，
+provider、默认模型、`enabledModels` 与思考强度由 Magpie 写入并原样保留。
 `just pi-extensions-update` 通过共享脚本执行 `pi update --extensions --no-approve`：
 仅更新用户扩展，不更新 mise 管理的 Pi，不加载项目包配置或重载运行中的会话。
 脚本通过 mise 定位 Pi 与 Node；缺少 agent 目录、用户 settings 或 Pi payload 时跳过，
@@ -133,15 +135,35 @@ Magic Context 的加密配置与历史数据库保留，但不再由 Pi 加载�
 omp 上已有的 Magic Context 必须手动禁用，避免与 Billion Context 同时管理上下文。
 新插件不会导入旧的 Magic Context 会话档案，旧会话的原文检索仍需要原插件。
 
-### omp 的 `agent/config.yml`
+### Pi 与 omp 的配置归属
 
-`~/.omp/agent/config.yml` 由 omp 在运行时自行重写（重排 YAML、丢弃注释、追加
-`dev.*` 等自有键、不写结尾换行），因此不能用普通副本管理：每次 apply 都会判定为
-外部改动并提示 `has changed since chezmoi last wrote it?`。
+`~/.pi/agent/settings.json` 与 `~/.omp/agent/config.yml` 都由各自程序在运行时改写，
+plain copy 每次 apply 都会判定为外部改动并提示
+`has changed since chezmoi last wrote it?`。两者因此改由 chezmoi `modify_` 脚本管理：
 
-该文件改由 `private_dot_omp/private_agent/modify_private_config.yml` 这个
-chezmoi `modify_` 脚本管理：脚本用格式保留的 `yq` 只声明本仓库拥有的键，
-其余内容原样透传，omp 自己写入的键不再产生 diff。
+| 文件 | 脚本 | 脚本拥有的内容 |
+| --- | --- | --- |
+| `~/.pi/agent/settings.json` | `private_dot_pi/agent/modify_settings.json.tmpl` | `theme`、`lastChangelogVersion`、`defaultTools`、`packages` |
+| `~/.omp/agent/config.yml` | `private_dot_omp/private_agent/modify_private_config.yml` | UI、扩展、`task.agentModelOverrides.security-reviewer`、`compaction`、`memory` |
+
+脚本用格式保留的 `yq` 只声明本仓库拥有的键，其余内容原样透传；`yq` 尚未由 aqua
+安装时原样透传并在 stderr 提示，下次 apply 再收敛。
+
+provider 定义、模型角色、默认模型、`enabledModels` 与思考强度统一由 Magpie 管理：
+Magpie 把 `magpie` provider 写入 `~/.pi/agent/models.json` 与 `~/.omp/agent/models.yml`，
+并把选择写回两个 agent 的配置；dotfiles 不再提供这两个 models 文件，也不再声明
+`modelRoles` 或 `defaultThinkingLevel`。唯一例外是 `modelRoles.designer`：`magpie omp`
+没有这个字段，不会被 Magpie 改写，因此由 `modify_` 脚本固定为
+`magpie/remote-magpie/group/designer:high`。Magpie 自动接线默认指向本机网关，原先的
+`home-magpie` 远程网关不会自动迁移；启用 Magpie、导入凭据和创建模型组是独立步骤，
+本次改动不执行 apply，且 Magpie 不会自动导入 `MAGPIE_API_KEY`；该 secret 导出仍
+保留给其他程序使用，凭据需在 Magpie 内单独添加。
+
+`~/.pi/agent/auth.json` 仍由加密源 `encrypted_private_auth.json.age` 管理，Magpie
+不写它；`~/.pi/agent/web-search.json` 仍是指向 `../web-search.json` 的符号链接。
+SoL-Pi 的 reducer 使用 `magpie` provider 的 `group/memory`，使用前必须先在 Magpie
+中创建该模型组并配置凭据，否则 Pi 端的证据压缩请求会失败。
+
 详细设计与拥有的键清单见 `docs/omp-agent-config.md`。
 
 ## Herdr、Roamgate 与 Web UI

@@ -48,7 +48,8 @@ Use the existing manager instead of adding a second installation path:
 | Omarchy packages/firewall/input setup | `.chezmoidata/omarchy.yaml` and numbered Omarchy scripts |
 | Omarchy community themes | `.chezmoidata/omarchy.yaml` and numbered scripts; Omarchy's theme CLI owns the checkout and updates |
 | Locally authored Omarchy theme | `private_dot_config/omarchy/themes/<id>/`; it is not declared in `.chezmoidata/omarchy.yaml`, so Omarchy's theme CLI never pulls or updates it |
-| Pi theme selection | `private_dot_pi/agent/settings.json.tmpl` selects `omarchy-system` on Omarchy and preserves `dracula` on macOS |
+| Pi theme selection | `private_dot_pi/agent/modify_settings.json.tmpl` selects `omarchy-system` on Omarchy and preserves `dracula` on macOS |
+| Pi/omp providers, model selection, and thinking | Magpie; `modify_` scripts preserve these fields, and model catalogs have no chezmoi source. Exception: `modelRoles.designer` is pinned by `private_dot_omp/private_agent/modify_private_config.yml` because `magpie omp` has no designer field |
 | Encrypted credentials/configuration | `encrypted_` source files plus the existing age identity |
 
 Herdr plugin refs are updated by the scheduled `update-versions.yml` workflow.

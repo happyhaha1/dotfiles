@@ -239,8 +239,9 @@ omarchyIgnoreList:
   - .local/bin/dsh
   # mise 配置在 Omarchy 纳管（共享运行时工具声明）；
   # 安装脚本使用 Omarchy 提供的系统 mise，不改写 mise 二进制来源。
-  # Pi 本体由 mise 的 npm backend 管理，公共入口使用 mise 的 Node；~/.pi + web-search
-  # 生效，auth.json 和 sessions 仍不归仓库管（前者需 pi 登录，后者按机器独立）。
+  # Pi 本体由 mise 的 npm backend 管理，公共入口使用 mise 的 Node；~/.pi 的
+  # settings.json 由 modify_ 脚本断言 UI/工具/包，models.json 由 Magpie 写入，
+  # auth.json 来自 age 加密源，sessions 按机器独立不纳管。
   # ~/.ssh/config is encrypted with ~/.ssh/main and managed by this repo.
   - .config/atuin
   - .config/bat

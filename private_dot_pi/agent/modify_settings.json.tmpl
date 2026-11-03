@@ -1,0 +1,83 @@
+#!/bin/sh
+# Magpie and Pi own model selection, scope, thinking, and runtime settings.
+# Assert only the UI, tools, and package settings owned by this repository.
+set -eu
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp" "$tmp.stripped"' EXIT
+cat > "$tmp"
+
+# Match omp's bootstrap behavior before aqua has placed yq on PATH.
+find_yq() {
+  if command -v yq >/dev/null 2>&1; then
+    command -v yq
+    return 0
+  fi
+  aqua_root="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+  for candidate in "$aqua_root/bin/yq" "$HOME/.local/bin/yq"; do
+    if [ -x "$candidate" ]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+had_newline=1
+if [ -s "$tmp" ]; then
+  case "$(tail -c 1 "$tmp" | od -An -tx1 | tr -d ' \n')" in
+    0a) had_newline=1 ;;
+    *)  had_newline=0 ;;
+  esac
+fi
+
+if [ ! -s "$tmp" ]; then
+  cat > "$tmp" <<'JSON'
+{
+  "lastChangelogVersion": "99.99.99",
+  "theme": "{{ if .omarchy }}omarchy-system{{ else }}dracula{{ end }}",
+  "defaultTools": [
+    "+codemode"
+  ],
+  "packages": [
+    "npm:@sherif-fanous/pi-dracula",
+    "npm:billion-context",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:@narumitw/pi-goal",
+    "npm:pi-web-access",
+    "npm:pi-extmgr",
+    "git:github.com/NVlabs/SoL-Pi"
+  ]
+}
+JSON
+elif yq_bin="$(find_yq)"; then
+  "$yq_bin" -i -p=json -o=json -I=2 '
+      .lastChangelogVersion = "99.99.99"
+    | .theme = "{{ if .omarchy }}omarchy-system{{ else }}dracula{{ end }}"
+    | .defaultTools = ["+codemode"]
+    | .packages = [
+        "npm:@sherif-fanous/pi-dracula",
+        "npm:billion-context",
+        "npm:@juanibiapina/pi-powerbar",
+        "npm:@narumitw/pi-goal",
+        "npm:pi-web-access",
+        "npm:pi-extmgr",
+        "git:github.com/NVlabs/SoL-Pi"
+      ]
+  ' "$tmp"
+else
+  {
+    printf '%s\n' \
+      'pi-settings: yq not found; leaving ~/.pi/agent/settings.json unchanged.' \
+      'pi-settings: run chezmoi apply again after aqua installs yq.'
+  } >&2
+  cat "$tmp"
+  exit 0
+fi
+
+if [ "$had_newline" = 0 ] && [ -s "$tmp" ]; then
+  printf '%s' "$(cat "$tmp")" > "$tmp.stripped"
+  mv "$tmp.stripped" "$tmp"
+fi
+
+cat "$tmp"

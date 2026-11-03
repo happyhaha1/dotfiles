@@ -130,7 +130,7 @@ jobs:
               if ! shellcheck --severity=warning "$output"; then
                 status=1
               fi
-            done < <(find .chezmoiscripts -type f -name '*.sh.tmpl' -print | sort)
+            done < <(find .chezmoiscripts private_dot_pi/agent -type f \( -name '*.sh.tmpl' -o -name 'modify_*.tmpl' \) -print | sort)
           done
           for helper in \
             private_dot_local/bin/executable_herdr-integrations-sync \
