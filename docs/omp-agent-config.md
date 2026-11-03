@@ -86,9 +86,9 @@ Magpie 自动接线默认使用本机网关；此前由 dotfiles 写死的 `home
 chezmoi 不执行这些操作。现有 `MAGPIE_API_KEY` 的 fish secret 导出不在这里删除；
 Magpie 不会自动导入环境变量中的 key，凭据仍需在 Magpie 内单独添加。
 
-模型组（例如 `group/memory`）必须先在 Magpie 中存在。SoL-Pi 的 reducer 在
-`private_dot_pi/agent/private_sol-pi.json` 中指向 `magpie` provider 的
-`group/memory`；该组缺失或凭据未配置时，Pi 端的证据压缩请求会失败。
+SoL-Pi 的 reducer 在 `private_dot_pi/agent/private_sol-pi.json` 中指向 `magpie`
+provider 的 `remote-magpie/group/memory`，直接使用已接入的远端 memory 组，
+无需创建本机 `group/memory` 转发组。远端组缺失或凭据未配置时，Pi 端的证据压缩请求会失败。
 
 ### 不属于脚本的内容
 

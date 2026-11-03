@@ -86,7 +86,7 @@ workspaceSwipeFingerCount = 3
 
 [hiddenBar]
 enabled = true
-hiddenBundleIDs = ["ru.keepcoder.Telegram", "com.fn-sync-client.app", "com.tencent.xinWeChat", "cc.ggbond.mactools", "com.tinycast.app.beta"]
+hiddenBundleIDs = ["ru.keepcoder.Telegram", "com.tencent.xinWeChat", "cc.ggbond.mactools", "com.tinycast.app.beta", "com.fn-sync-client.app", "com.kingsoft.wpsoffice.mac", "com.netease.uuremote", "app.uniclipboard.desktop", "dev.kdrag0n.MacVirt"]
 rehideIntervalSeconds = 5.0
 
 [mouseWarp]

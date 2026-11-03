@@ -161,8 +161,8 @@ Magpie 把 `magpie` provider 写入 `~/.pi/agent/models.json` 与 `~/.omp/agent/
 
 `~/.pi/agent/auth.json` 仍由加密源 `encrypted_private_auth.json.age` 管理，Magpie
 不写它；`~/.pi/agent/web-search.json` 仍是指向 `../web-search.json` 的符号链接。
-SoL-Pi 的 reducer 使用 `magpie` provider 的 `group/memory`，使用前必须先在 Magpie
-中创建该模型组并配置凭据，否则 Pi 端的证据压缩请求会失败。
+SoL-Pi 的 reducer 使用 `magpie` provider 的 `remote-magpie/group/memory`，直接引用
+已接入的远端 memory 组，无需本机转发组；远端组缺失或凭据未配置时，Pi 端的证据压缩请求会失败。
 
 详细设计与拥有的键清单见 `docs/omp-agent-config.md`。
 

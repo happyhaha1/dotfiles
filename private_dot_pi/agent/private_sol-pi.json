@@ -4,7 +4,7 @@
   "observationPack": true,
   "evidencePreservingReducer": true,
   "evidencePreservingReducerProvider": "magpie",
-  "evidencePreservingReducerModel": "group/memory",
+  "evidencePreservingReducerModel": "remote-magpie/group/memory",
   "onlineContextCompact": false,
   "cacheWriteReadRatio": 12.5
 }
