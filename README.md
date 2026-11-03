@@ -83,6 +83,8 @@ Web UI 和 Roamgate 阶段使用不带编号的缩进行。
 Pi 由 mise 固定管理 npm 包 `@earendil-works/pi-coding-agent`，macOS 与 Omarchy
 共用 `~/.local/bin/pi`，使用 mise 管理的 Node 执行 npm 官方入口。
 版本声明在 `private_dot_config/mise/config.toml.tmpl`。
+`just full-upgrade` 会单独以 `--minimum-release-age 0s` 升级 Pi，
+跳过 Pi 新版本的发布冷却期；其他 mise 工具仍使用默认策略。
 Pi 的用户级扩展包声明在 `private_dot_pi/agent/modify_settings.json.tmpl` 的
 `packages` 中；该 `modify_` 脚本只断言主题、默认工具、扩展包和 changelog 版本，
 provider、默认模型、`enabledModels` 与思考强度由 Magpie 写入并原样保留。

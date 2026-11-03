@@ -306,6 +306,7 @@ full-upgrade:
     @echo "Step 5/7: Updating mise tools..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @if command -v omarchy >/dev/null 2>&1; then echo "mise already updated by omarchy update"; else mise upgrade || true; fi
+    mise upgrade --minimum-release-age 0s npm:@earendil-works/pi-coding-agent
     @echo ""
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "Step 6/7: Updating Pi extensions (shared with omp)..."
