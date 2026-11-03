@@ -46,7 +46,7 @@ else
 fi
 
 # The CLI is installed by mise at step 07. Its pinned version also owns the
-# generated skill and guard; never register a version-specific venv path.
+# packaged guard; never register a version-specific venv path.
 (
     cd "$HOME"
     export MISE_AUTO_INSTALL=false
@@ -59,7 +59,6 @@ fi
     fi
     guard_source="$("$graphify_cmd" pi guard path)"
     guard_dest="$HOME/.pi/agent/extensions/graphify"
-    skill_dest="$HOME/.pi/agent/skills/graphify"
 
     if [ ! -f "$guard_source/index.ts" ] || [ ! -f "$guard_source/package.json" ]; then
         echo "    Error: Graphify guard package is incomplete: $guard_source" >&2
@@ -68,19 +67,15 @@ fi
 
     if [ ! -f "$guard_dest/index.ts" ] ||
        [ ! -f "$guard_dest/package.json" ] ||
-       [ ! -f "$skill_dest/SKILL.md" ] ||
-       [ ! -d "$skill_dest/references" ] ||
-       [ "$(cat "$skill_dest/.graphify_version" 2>/dev/null)" != "$expected_version" ] ||
        [ "$(cat "$guard_dest/.pinned" 2>/dev/null)" != "$expected_version" ]; then
-        "$graphify_cmd" install --platform pi
         rm -rf "$guard_dest.new"
         mkdir -p "$guard_dest.new"
         cp "$guard_source/index.ts" "$guard_source/package.json" "$guard_dest.new/"
         printf '%s\n' "$expected_version" > "$guard_dest.new/.pinned"
         rm -rf "$guard_dest"
         mv "$guard_dest.new" "$guard_dest"
-        echo "    Graphify skill and guard installed/updated ($expected_version)"
+        echo "    Graphify guard installed/updated ($expected_version)"
     else
-        echo "    Graphify skill and guard already at $expected_version, skip"
+        echo "    Graphify guard already at $expected_version, skip"
     fi
 )

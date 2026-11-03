@@ -57,8 +57,7 @@ OpenViking 与 Graphify 由编号 20 的 `run_onchange_after_20_agent-extensions
 `npm:billion-context` 声明安装，omp 共享加载
 `~/.pi/agent/npm/node_modules/billion-context/dist/agent/omp-native.js`；
 首次启动 omp 前必须先完成 Pi 包安装，更新后两端均需重启。
-Graphify 技能通过 `~/.omp/agent/skills/graphify` 链接到
-`~/.pi/agent/skills/graphify`，不导入其他 Pi 技能。
+包括 Graphify 在内的技能及其跨工具链接统一由 Magpie 管理，dotfiles 不再安装技能或维护技能链接。
 
 ### 不属于脚本的内容
 
