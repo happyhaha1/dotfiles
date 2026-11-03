@@ -3,7 +3,7 @@
 # GitHub workflow updates; install only this curated subset on Omarchy.
 registries:
 - type: standard
-  ref: v4.581.0
+  ref: v4.581.1
 - name: local
   type: local
   path: registry.yaml

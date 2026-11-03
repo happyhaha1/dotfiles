@@ -1,12 +1,12 @@
 ---
 registries:
   - type: standard
-    ref: v4.581.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.581.1 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
 packages:
-  - name: nektos/act@v0.2.94
+  - name: nektos/act@v0.2.95
   - name: atuinsh/atuin@v18.24.4
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
@@ -17,7 +17,7 @@ packages:
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.166.0
   - name: anomalyco/opencode@v2.2.5
-  - name: alibaba/open-code-review@v1.13.3
+  - name: alibaba/open-code-review@v1.13.4
   - name: direnv/direnv@v2.38.2
   - name: jdx/mise@v2026.10.25
     tags:
