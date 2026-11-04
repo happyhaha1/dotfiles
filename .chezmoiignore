@@ -47,6 +47,9 @@ treefmt.toml
 # MSIME's Omarchy theme hook points at /usr/share/msime-client, which only
 # exists where the AUR package is installed (Omarchy).
 .config/omarchy/hooks/theme-set.d/
+# The bar layout describes installed Omarchy plugins, so a macOS host must not
+# receive it; macOS has no omarchy-shell to read the file.
+.config/omarchy/shell.json
 # The MSIME preferences are patched by a modify_ script, so they are only
 # meaningful where the addon exists.
 .config/msime-client/preferences.json

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 150,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "transparent": true,
+    "centerAnchor": "local.days",
+    "layout": {
+      "left": [
+        {
+          "id": "omarchy.menu"
+        },
+        {
+          "id": "io.github.manateelazycat.window-switcher"
+        }
+      ],
+      "center": [
+        {
+          "id": "omarchy.indicators"
+        },
+        {
+          "id": "omarchy.keyboard-layout"
+        },
+        {
+          "id": "omarchy.weather"
+        },
+        {
+          "id": "local.days"
+        },
+        {
+          "id": "omarchy.system-update"
+        }
+      ],
+      "right": [
+        {
+          "id": "omarchy.tray"
+        },
+        {
+          "id": "jankeesvw.notification-center"
+        },
+        {
+          "id": "harshith.system-monitor",
+          "barMode": "Adaptive"
+        },
+        {
+          "id": "io.github.elevate08.qs-bitwarden-cli"
+        },
+        {
+          "id": "crmne.hyprmoncfg"
+        },
+        {
+          "id": "metasequoia.msime"
+        },
+        {
+          "id": "omaplug",
+          "autoCheckUpdates": true
+        },
+        {
+          "id": "omarchy.agents"
+        },
+        {
+          "id": "omarchy.bluetooth"
+        },
+        {
+          "id": "omarchy.network"
+        },
+        {
+          "id": "omarchy.audio"
+        },
+        {
+          "id": "omarchy.monitor"
+        },
+        {
+          "id": "omarchy.power"
+        }
+      ]
+    }
+  },
+  "plugins": [
+    {
+      "id": "io.github.sirjul1337.lock-explorer",
+      "tourSeen": true,
+      "openAs": "panel",
+      "design": "editorial"
+    }
+  ],
+  "disabledPlugins": [
+    "omarchy.lock",
+    "omarchy.workspaces"
+  ],
+  "cloneSourceRestores": [
+    "io.github.sirjul1337.lock-explorer",
+    "io.github.manateelazycat.window-switcher"
+  ]
+}
