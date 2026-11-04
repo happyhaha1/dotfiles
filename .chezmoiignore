@@ -57,10 +57,11 @@ treefmt.toml
 
 # EasyTier: the encrypted node configuration belongs to the macOS office-server,
 # which owns the mesh's LAN subnet exports. The Omarchy host is no longer an
-# EasyTier node.
-.config/easytier/
+# EasyTier node, so both the node config and its launchd unit are managed only
+# there.
 .config/systemd/user/easytier.service
 {{- if not (and (eq .chezmoi.os "darwin") (eq .machineProfile "office-server")) }}
+.config/easytier/
 Library/LaunchAgents/io.easytier.core.plist
 {{- end }}
 
