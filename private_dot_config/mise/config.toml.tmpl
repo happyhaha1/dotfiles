@@ -80,8 +80,8 @@ trusted_config_paths = [
     "~/Documents/Work",
 ]
 
-# Always keep latest versions
-always_keep_download = false
+# Finished downloads are kept in mise's download cache (download_cache=true by
+# default), so always_keep_download is gone. Keep failed install dirs instead.
 always_keep_install = false
 
 [settings.npm]
