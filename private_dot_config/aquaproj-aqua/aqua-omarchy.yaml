@@ -9,7 +9,7 @@ registries:
   path: registry.yaml
 packages:
 - name: atuinsh/atuin@v18.24.5
-- name: openai/codex@rust-v0.166.0
+- name: openai/codex@rust-v0.167.0
 - name: anomalyco/opencode@v2.2.5
 - name: twpayne/chezmoi@v2.74.0
 - name: timhartmann7/omnyssh@v1.1.5
@@ -29,6 +29,6 @@ packages:
 - name: mvdan/sh@v3.14.1
 - name: numtide/treefmt@v2.6.0
 - name: sxyazi/yazi@v26.9.1
-- name: mikefarah/yq@v4.54.1
+- name: mikefarah/yq@v4.54.2
 - name: k3d-io/k3d@v5.9.0
 - name: herdrdev/herdr@v0.9.5
