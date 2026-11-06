@@ -7,13 +7,13 @@ versions:
   aquaVersion: v2.66.1
   paperlib: 3.1.12
   gcloudVersion: 562.0.0
-  mihomoForkBuild: e272b9d
+  mihomoForkBuild: f8b5ba5
   zashboardVersion: v3.30.0
   # Shared Pi/omp extension: stable release tag and its resolved commit.
   openvikingExtensionVersion: v0.5.3
   openvikingExtensionRev: 178a8cdfb41b51e7d24c4bf79a13cc54981e0ee8
   # The CLI and packaged guard use the same release.
-  graphifyVersion: 0.9.102
+  graphifyVersion: 0.9.103
   # EasyTier release asset pin (macOS office-server only); update together with
   # its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
