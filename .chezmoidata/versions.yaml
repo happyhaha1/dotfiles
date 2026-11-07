@@ -7,7 +7,7 @@ versions:
   aquaVersion: v2.66.1
   paperlib: 3.1.12
   gcloudVersion: 562.0.0
-  mihomoForkBuild: f8b5ba5
+  mihomoForkBuild: 0cc66a1
   zashboardVersion: v3.30.0
   # Shared Pi/omp extension: stable release tag and its resolved commit.
   openvikingExtensionVersion: v0.5.3
