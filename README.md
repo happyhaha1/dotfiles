@@ -278,6 +278,7 @@ Tailscale 或防火墙。普通 HTTP 只用于受信任网络，手机 PWA/推�
 ## 自动化
 
 - `.github/workflows/update-versions.yml` 更新固定版本并创建依赖更新 PR。
+  OpenViking 使用 GitHub 标记为 Latest 的主程序 Release，避免将同仓库中的 SDK、CLI 或 LangChain 集成包 Release 误作主程序版本；仍保留空值和版本格式校验。
 - `.github/workflows/update-aqua-packages.yml` 更新 Aqua registry 和软件包版本。
 - `.github/workflows/scheduler.yml` 触发定时更新工作流。
 - `.github/workflows/ci.yml` 在 Pull Request 和推送到 `main` 时验证模板、渲染后的 shell 脚本和仓库机密信息。

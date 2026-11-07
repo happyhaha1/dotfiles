@@ -51,6 +51,9 @@ jobs:
                 --limit 100 \
                 --json tagName \
                 --jq '[.[] | select(.tagName | test("^v[0-9]+[.][0-9]+[.][0-9]+$"))][0].tagName // empty')"
+            elif [[ "$repo" == volcengine/OpenViking ]]; then
+              # Scoped package releases share this repo; Latest tracks the app.
+              ref="$(gh release view --repo "$repo" --json tagName -q '.tagName')"
             else
               ref="$(gh release list \
                 --repo "$repo" \
