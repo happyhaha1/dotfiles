@@ -78,6 +78,12 @@ Web UI 和 Roamgate 阶段使用不带编号的缩进行。
 
 如果工具已经在上述配置源中声明，不要手动安装；应该修改声明，然后重新 apply。
 
+Omarchy 状态栏布局由 `private_dot_config/omarchy/shell.json` 管理，使用
+`centerBegin`、`center`、`centerEnd` 分别声明中间区域的左侧、居中组件和右侧。
+Omarchy 升级迁移或设置界面也会改写本机 `~/.config/omarchy/shell.json`；
+出现 `has changed since chezmoi last wrote it` 时，先核对差异，将要保留的布局和
+插件设置同步回源文件，再仅应用该文件，避免覆盖当前配置。
+
 ## Pi 用户扩展包更新
 
 Pi 由 mise 固定管理 npm 包 `@earendil-works/pi-coding-agent`，macOS 与 Omarchy
