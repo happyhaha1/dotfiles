@@ -80,6 +80,8 @@ Web UI 和 Roamgate 阶段使用不带编号的缩进行。
 
 Omarchy 状态栏布局由 `private_dot_config/omarchy/shell.json` 管理，使用
 `centerBegin`、`center`、`centerEnd` 分别声明中间区域的左侧、居中组件和右侧。
+插件同步脚本只在组件不在声明区域时移动它，区域内的顺序由 `shell.json` 决定，
+避免每次 apply 重新排序并导致下一次 apply 提示冲突。
 Omarchy 升级迁移或设置界面也会改写本机 `~/.config/omarchy/shell.json`；
 出现 `has changed since chezmoi last wrote it` 时，先核对差异，将要保留的布局和
 插件设置同步回源文件，再仅应用该文件，避免覆盖当前配置。

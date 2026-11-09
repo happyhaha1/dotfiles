@@ -200,7 +200,14 @@ ensure_plugin_state() {
     fi
 
     if [[ "$plugin_enabled" == true && -n "$plugin_section" ]]; then
-        omarchy bar move "$plugin_id" --section "$plugin_section"
+        # shell.json owns ordering within each section. Moving an already
+        # placed widget reorders it and makes the next apply conflict.
+        if ! jq -e --arg id "$plugin_id" --arg section "$plugin_section" '
+            any(.bar.layout[$section][]?;
+                if type == "object" then .id == $id else . == $id end)
+        ' "$HOME/.config/omarchy/shell.json" >/dev/null; then
+            omarchy bar move "$plugin_id" --section "$plugin_section"
+        fi
     fi
 }
 
