@@ -63,12 +63,12 @@ jobs:
               --no-pager \
               > /dev/null
 
-          # Exercise profile-gated private templates without real credentials.
+          # Exercise profile-gated private templates.
           for profile in daily office-server; do
             HOME="$home" XDG_CONFIG_HOME="$home/.config" \
               chezmoi diff \
                 -S "$GITHUB_WORKSPACE" -D "$home" -c "$work/generated.toml" \
-                --override-data "{\"machineProfile\":\"$profile\",\"roamgateHost\":\"192.0.2.10\",\"roamgatePassword\":\"ci-placeholder-only\"}" \
+                --override-data "{\"machineProfile\":\"$profile\"}" \
                 --no-tty --exclude encrypted --refresh-externals=never --no-pager \
                 > /dev/null
           done
@@ -120,7 +120,7 @@ jobs:
                   -S "$GITHUB_WORKSPACE" \
                   -D "$home" \
                   -c "$work/generated.toml" \
-                  --override-data "{\"machineProfile\":\"$profile\",\"roamgateHost\":\"192.0.2.10\",\"roamgatePassword\":\"ci-placeholder-only\"}" \
+                  --override-data "{\"machineProfile\":\"$profile\"}" \
                   --no-tty --file "$GITHUB_WORKSPACE/$source" \
                   > "$output"; then
                 echo "Template rendering failed: $profile/$source" >&2
@@ -142,16 +142,16 @@ jobs:
           done
           exit "$status"
 
-  herdr-services:
-    name: Test Herdr integrations and service reconciliation
+  herdr-integrations:
+    name: Test Herdr integrations
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: lts/*
-      - name: Test with mocked Herdr commands and HTTP responses
-        run: node --test docs/tests/herdr-integrations.test.mjs docs/tests/herdr-web-ui.test.mjs docs/tests/roamgate.test.mjs
+      - name: Test with mocked Aqua and Herdr commands
+        run: node --test docs/tests/herdr-integrations.test.mjs
 
   pi-packages:
     name: Test Pi extension package updates

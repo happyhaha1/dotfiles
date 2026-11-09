@@ -103,13 +103,6 @@ Library/LaunchAgents/io.easytier.core.plist
 # is pinned here because magpie omp has no designer field.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Web clients and the Web UI's mise Node shim are office-server-only.
-{{- if ne .machineProfile "office-server" }}
-.config/roamgate/
-.config/herdr/plugins/config/devswha.herdr-web-ui/
-.local/bin/node
-{{- end }}
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Encryption-related exclusions (skip when useEncryption is false)
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,11 @@
 .config/fish/conf.d/custom_functions.fish
 .config/herdr/plugins/config/sessionizer/config.toml
+.config/herdr/plugins/config/devswha.herdr-web-ui/.env
+.config/herdr/plugins/config/devswha.ovis/.env
+.config/roamgate/roamgate.env
+{{ if eq .machineProfile "office-server" -}}
+.local/bin/node
+{{ end -}}
 {{ if eq .chezmoi.os "darwin" -}}
 .config/cmux/settings.json
 {{ end -}}

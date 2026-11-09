@@ -41,17 +41,7 @@ jobs:
             local repo="$1"
             local ref
 
-            if [[ "$repo" == devswha/ovis ]]; then
-              # This repo also releases remote-vN bundles; only app tags are
-              # Herdr plugin refs. Inspect more than the most recent release.
-              ref="$(gh release list \
-                --repo "$repo" \
-                --exclude-drafts \
-                --exclude-pre-releases \
-                --limit 100 \
-                --json tagName \
-                --jq '[.[] | select(.tagName | test("^v[0-9]+[.][0-9]+[.][0-9]+$"))][0].tagName // empty')"
-            elif [[ "$repo" == volcengine/OpenViking ]]; then
+            if [[ "$repo" == volcengine/OpenViking ]]; then
               # Scoped package releases share this repo; Latest tracks the app.
               ref="$(gh release view --repo "$repo" --json tagName -q '.tagName')"
             else
@@ -81,9 +71,6 @@ jobs:
 
           herdr_agent_usage_ref="$(latest_stable_release_ref senna-lang/herdr-agent-usage)"
           herdr_navigator_ref="$(latest_stable_release_ref thanhdat77/herdr-navigator)"
-          herdr_focus_notify_ref="$(latest_stable_release_ref yankewei/herdr-focus-notify)"
-          herdr_roamgate_ref="$(latest_stable_release_ref powerfooI/roamgate)"
-          herdr_web_ui_ref="$(latest_stable_release_ref devswha/ovis)"
 
           # EasyTier publishes per-OS/arch archives; the macOS arm64 digest is
           # pinned for the office-server Mac (the only EasyTier node).
@@ -105,9 +92,6 @@ jobs:
             echo "easytier_macos_sha256=$easytier_macos_sha256"
             echo "herdr_agent_usage_ref=$herdr_agent_usage_ref"
             echo "herdr_navigator_ref=$herdr_navigator_ref"
-            echo "herdr_focus_notify_ref=$herdr_focus_notify_ref"
-            echo "herdr_roamgate_ref=$herdr_roamgate_ref"
-            echo "herdr_web_ui_ref=$herdr_web_ui_ref"
           } >> "$GITHUB_OUTPUT"
       - name: Update .chezmoidata/versions.yaml
         run: |
@@ -127,9 +111,6 @@ jobs:
         env:
           HERDR_AGENT_USAGE_REF: ${{ steps.versions.outputs.herdr_agent_usage_ref }}
           HERDR_NAVIGATOR_REF: ${{ steps.versions.outputs.herdr_navigator_ref }}
-          HERDR_FOCUS_NOTIFY_REF: ${{ steps.versions.outputs.herdr_focus_notify_ref }}
-          HERDR_ROAMGATE_REF: ${{ steps.versions.outputs.herdr_roamgate_ref }}
-          HERDR_WEB_UI_REF: ${{ steps.versions.outputs.herdr_web_ui_ref }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -140,9 +121,6 @@ jobs:
           updates = {
               "senna-lang/herdr-agent-usage": os.environ["HERDR_AGENT_USAGE_REF"],
               "thanhdat77/herdr-navigator": os.environ["HERDR_NAVIGATOR_REF"],
-              "yankewei/herdr-focus-notify": os.environ["HERDR_FOCUS_NOTIFY_REF"],
-              "powerfooI/roamgate": os.environ["HERDR_ROAMGATE_REF"],
-              "devswha/ovis": os.environ["HERDR_WEB_UI_REF"],
           }
 
           for source, ref in updates.items():
@@ -220,9 +198,6 @@ jobs:
             | EasyTier macos-aarch64 sha256 | `${{ steps.versions.outputs.easytier_macos_sha256 }}` |
             | senna-lang/herdr-agent-usage | `${{ steps.versions.outputs.herdr_agent_usage_ref }}` |
             | thanhdat77/herdr-navigator | `${{ steps.versions.outputs.herdr_navigator_ref }}` |
-            | yankewei/herdr-focus-notify | `${{ steps.versions.outputs.herdr_focus_notify_ref }}` |
-            | powerfooI/roamgate | `${{ steps.versions.outputs.herdr_roamgate_ref }}` |
-            | devswha/ovis | `${{ steps.versions.outputs.herdr_web_ui_ref }}` |
 
       - name: Enable pull request auto-merge
         if: steps.changes.outputs.changed == 'true'

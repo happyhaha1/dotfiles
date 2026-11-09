@@ -14,11 +14,10 @@ fi
 
 set -euo pipefail
 
-# One Herdr entry point after the Aqua install step, including plugin services.
+# One Herdr entry point after the Aqua install step for plugin reconciliation.
 sync_herdr_plugins() (
-# Re-activate mise inside this phase so plugin build commands can see the
-# earlier mise install step's tools without leaking environment changes into
-# the Web UI phase.
+# Re-activate mise inside this phase so plugin install/build commands can see
+# the earlier mise install step's tools.
 aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if [[ -d "$aqua_bin_dir" ]]; then
     export PATH="$aqua_bin_dir:$PATH"
@@ -32,12 +31,7 @@ if command -v mise >/dev/null 2>&1; then
     eval "$mise_activation"
 fi
 
-{{- $machineProfile := "other" -}}
-{{- if hasKey . "machineProfile" -}}
-{{-   $machineProfile = .machineProfile -}}
-{{- end }}
-
-echo ":: [10] Synchronizing Herdr plugins and services"
+echo ":: [10] Synchronizing Herdr plugins"
 
 echo "    Pi integrations"
 
@@ -45,8 +39,6 @@ echo "    Pi integrations"
 # manifest instead of copying Herdr's generated plugins.json. The registry
 # contains machine-specific paths and is written by Herdr itself.
 # desired shared:{{ range .herdrPlugins.shared }} {{ .source }}{{ if hasKey . "ref" }}@{{ .ref }}{{ end }}{{ end }}
-# machine profile: {{ $machineProfile }}
-
 
 declare -a desired_sources=()
 declare -A desired_refs=()
@@ -77,11 +69,6 @@ add_desired() {
 
 {{ range .herdrPlugins.shared -}}
 add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
-{{ end -}}
-{{ if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $machineProfile) -}}
-{{ range index .herdrPlugins.profiles $machineProfile -}}
-add_desired {{ .source | quote }} {{ if hasKey . "ref" }}{{ .ref | quote }}{{ else }}""{{ end }}
-{{ end -}}
 {{ end -}}
 
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi"
@@ -140,35 +127,6 @@ plugin_is_installed_from_source() {
     fi
 }
 
-# Upstream renamed the Web UI repository devswha/herdr-web-ui → devswha/ovis and
-# kept its plugin id. Herdr records the repository name it was told to install,
-# so a machine that installed the plugin before the rename still reports the
-# legacy name. Both names address the same plugin and are dotfiles-owned here.
-is_web_ui_source() {
-    [[ "$1" == devswha/ovis || "$1" == devswha/herdr-web-ui ]]
-}
-
-# Resolve each desired source to the name Herdr already has installed, so a
-# manifest that now names ovis does not uninstall and rebuild a working Web UI.
-declare -a resolved_sources=()
-declare -A resolved_refs=()
-
-for plugin_source in "${desired_sources[@]}"; do
-    plugin_ref="${desired_refs[$plugin_source]}"
-    if is_web_ui_source "$plugin_source" \
-        && [[ "$plugin_source" != devswha/herdr-web-ui ]] \
-        && plugin_is_installed_from_source devswha/herdr-web-ui; then
-        echo "    Keeping the installed Web UI source: devswha/herdr-web-ui"
-        plugin_source=devswha/herdr-web-ui
-    fi
-    if [[ -n ${resolved_refs[$plugin_source]+x} ]]; then
-        echo "    Error: Herdr plugin source resolves twice: $plugin_source" >&2
-        exit 1
-    fi
-    resolved_sources+=("$plugin_source")
-    resolved_refs["$plugin_source"]="$plugin_ref"
-done
-
 install_plugin() {
     local plugin_source="$1"
     local plugin_ref="$2"
@@ -178,13 +136,6 @@ install_plugin() {
         args+=(--ref "$plugin_ref")
     fi
     args+=(--yes)
-    if is_web_ui_source "$plugin_source"; then
-        # Installation can run the plugin's startup hook immediately. Validate
-        # the applied private env first, including when only this script runs.
-        bun run - --check-config "$HOME/.config/herdr/plugins/config/devswha.herdr-web-ui/.env" <<'WEB_UI_SYNC'
-{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
-WEB_UI_SYNC
-    fi
     echo "    Installing Herdr plugin: $plugin_source${plugin_ref:+@$plugin_ref}"
     herdr "${args[@]}"
 }
@@ -193,13 +144,6 @@ uninstall_plugin() {
     local plugin_source="$1"
     local output
 
-    if is_web_ui_source "$plugin_source"; then
-        # A detached Web UI outlives plugin registration. Stop it while its
-        # supported action is still available when changing/removing profiles.
-        bun run - --stop-managed <<'WEB_UI_SYNC'
-{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
-WEB_UI_SYNC
-    fi
     echo "    Uninstalling removed Herdr plugin: $plugin_source"
     if output="$(herdr plugin uninstall "$plugin_source" 2>&1)"; then
         printf '%s\n' "$output"
@@ -219,13 +163,13 @@ WEB_UI_SYNC
 declare -a next_sources=()
 declare -A next_refs=()
 for plugin_source in "${previous_sources[@]}"; do
-    if [[ -z ${resolved_refs[$plugin_source]+x} ]]; then
+    if [[ -z ${desired_refs[$plugin_source]+x} ]]; then
         uninstall_plugin "$plugin_source"
     fi
 done
 
-for plugin_source in "${resolved_sources[@]}"; do
-    plugin_ref="${resolved_refs[$plugin_source]}"
+for plugin_source in "${desired_sources[@]}"; do
+    plugin_ref="${desired_refs[$plugin_source]}"
     was_managed=false
     if [[ -n ${previous_refs[$plugin_source]+x} ]]; then
         was_managed=true
@@ -263,76 +207,8 @@ trap - EXIT
 echo "    Herdr plugins synchronized"
 )
 
-sync_herdr_web_ui() (
-echo "    Herdr Web UI service"
-
-{{- $profile := "other" -}}
-{{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}
-{{- $ref := "" -}}
-{{- if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $profile) -}}
-{{- range index .herdrPlugins.profiles $profile -}}
-{{- if or (eq .source "devswha/ovis") (eq .source "devswha/herdr-web-ui") -}}{{- $ref = .ref -}}{{- end -}}
-{{- end -}}
-{{- end }}
-{{ if $ref -}}
-# Run every apply with an internal stamp and health checks, so a deleted stamp
-# or a stopped service is recoverable without changing the script's content.
-aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
-export PATH="$HOME/.local/bin:$aqua_bin_dir:$PATH"
-if ! command -v herdr >/dev/null 2>&1; then
-    echo "    Herdr is not installed; skipping Web UI service reconciliation"
-    exit 0
-fi
-if ! command -v bun >/dev/null 2>&1; then
-    echo "    Error: Bun is required; apply the mise Bun shim before starting Web UI" >&2
-    exit 1
-fi
-
-bun run - {{ $ref | quote }} <<'WEB_UI_SYNC'
-{{ include ".chezmoitemplates/herdr-web-ui-sync.mjs" }}
-WEB_UI_SYNC
-{{ else -}}
-echo "    Herdr Web UI is not enabled for this profile; skipping"
-{{ end -}}
-)
-
-sync_roamgate() (
-echo "    Roamgate service"
-
-{{- $profile := "other" -}}
-{{- if hasKey . "machineProfile" -}}{{- $profile = .machineProfile -}}{{- end -}}
-{{- $ref := "" -}}
-{{- if and (hasKey .herdrPlugins "profiles") (hasKey .herdrPlugins.profiles $profile) -}}
-{{- range index .herdrPlugins.profiles $profile -}}
-{{- if eq .source "powerfooI/roamgate" -}}{{- $ref = .ref -}}{{- end -}}
-{{- end -}}
-{{- end }}
-{{ if $ref -}}
-# Run every full apply. The private stamp and authenticated runtime version,
-# not just plugin registration or --version, decide whether activation is due.
-aqua_bin_dir="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
-export PATH="$HOME/.local/bin:$aqua_bin_dir:$PATH"
-if ! command -v herdr >/dev/null 2>&1; then
-    echo "    Herdr is not installed; skipping Roamgate service reconciliation"
-    exit 0
-fi
-if ! command -v bun >/dev/null 2>&1; then
-    echo "    Error: Bun is required; apply the mise Bun shim before starting Roamgate" >&2
-    exit 1
-fi
-
-bun run - {{ $ref | quote }} <<'ROAMGATE_SYNC'
-{{ include ".chezmoitemplates/roamgate-sync.mjs" }}
-ROAMGATE_SYNC
-{{ else -}}
-echo "    Roamgate is not enabled for this profile; skipping"
-{{ end -}}
-)
-
-# Run every full apply: integrations and service health cannot use onchange.
+# Run every full apply: integrations and plugin ownership cannot use onchange.
 # Subshell phases preserve their original exit/trap/environment boundaries.
-# Invoke them directly (not in a conditional) so any failure stops later phases.
+# Invoke them directly (not in a conditional) so any failure stops the rest.
 "$HOME/.local/bin/herdr-integrations-sync"
 sync_herdr_plugins
-sync_herdr_web_ui
-sync_roamgate

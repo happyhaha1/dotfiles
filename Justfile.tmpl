@@ -236,20 +236,6 @@ doctor:
         warn 'herdr is not installed on this machine'
     fi
 
-    roamgate_env="$HOME/.config/roamgate/roamgate.env"
-    if [[ -f "$roamgate_env" ]]; then
-        ok 'Roamgate environment file exists (value contents not printed)'
-    elif [[ "${profile:-}" == office-server ]]; then
-        warn "office-server profile has no Roamgate environment file: $roamgate_env"
-    fi
-
-    web_ui_env="$HOME/.config/herdr/plugins/config/devswha.herdr-web-ui/.env"
-    if [[ -f "$web_ui_env" ]]; then
-        ok 'Herdr Web UI environment file exists (value contents not printed)'
-    elif [[ "${profile:-}" == office-server ]]; then
-        warn "office-server profile has no Herdr Web UI environment file: $web_ui_env"
-    fi
-
     if [[ "${DOTFILES_DOCTOR_DIFF:-0}" == 1 ]]; then
         if chezmoi diff --no-pager --exclude encrypted --refresh-externals=never >/dev/null 2>&1; then
             ok 'chezmoi diff completed without encrypted files'

@@ -50,11 +50,8 @@ Fish 中按 `Ctrl+]` 打开 Threads 搜索，普通模式和 vi 插入模式均�
 
 - `daily`：普通的交互式 Mac profile。
 - `home-server`：减少桌面配置的 macOS 服务器 profile。
-- `office-server`：办公室/服务器 profile；Roamgate 与 Herdr Web UI 局域网集成在此 profile 启用。
+- `office-server`：办公室/服务器 profile；EasyTier 服务器节点等服务器侧配置在此启用。
 - `other`：非交互式或无法分类机器的安全默认 profile。
-
-Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置中（使用 `chezmoi edit-config` 设置），
-不会写入 `.chezmoidata/` 或普通的 Git 跟踪模板。
 
 ## 软件包归属
 
@@ -71,10 +68,10 @@ Roamgate 的局域网地址等机器私有数据保存在本机 chezmoi 配置�
 脚本文件名中的数字就是 apply 日志里 `:: [NN]` 的步骤编号：`before` 阶段是
 `[01]`–`[02]`，随后 `after` 阶段按编号升序执行，全部 25 个脚本编号连续且唯一。
 同一阶段里 `run_onchange_` 与 `run_after_` 的文件名属性会被剥离后排序，
-因此两类脚本共用同一条编号序列。Herdr 入口 `[10]` 下的 Pi 集成、插件、
-Web UI 和 Roamgate 阶段使用不带编号的缩进行。
+因此两类脚本共用同一条编号序列。Herdr 入口 `[10]` 下的 Pi 集成与插件阶段
+使用不带编号的缩进行。
 重命名会改变 `run_onchange_` 脚本的状态键，修改日志也会改变渲染内容；
-受影响的脚本会在下一次 apply 时重跑一次，安装和服务逻辑保持不变。
+受影响的脚本会在下一次 apply 时重跑一次，安装逻辑保持不变。
 
 如果工具已经在上述配置源中声明，不要手动安装；应该修改声明，然后重新 apply。
 
@@ -177,14 +174,17 @@ SoL-Pi 的 reducer 使用 `magpie` provider 的 `remote-magpie/group/memory`，�
 
 详细设计与拥有的键清单见 `docs/omp-agent-config.md`。
 
-## Herdr、Roamgate 与 Web UI
+## Herdr 插件管理
 
 Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在
-`.chezmoidata/herdr.yaml` 中，由统一入口
-`.chezmoiscripts/run_after_10_herdr.sh.tmpl` 按顺序同步 Pi 集成、插件、Web UI 和 Roamgate。
-入口在每次完整 apply 时执行；插件已经对齐时不会重复安装。
-各阶段使用子 shell 隔离变量、退出和清理 trap，失败会中止后续阶段。
-定时版本工作流会更新稳定版插件 ref 并创建 PR，但不会自动在机器上安装更新。
+`.chezmoidata/herdr.yaml` 中，目前只有两个插件，对所有 profile 一致：
+
+- `senna-lang/herdr-agent-usage`：usagebar。
+- `thanhdat77/herdr-navigator`：herdr-navigator。
+
+统一入口 `.chezmoiscripts/run_after_10_herdr.sh.tmpl` 在每次完整 apply 时按顺序
+同步 Pi 集成和插件；插件已经对齐时不会重复安装，失败会中止后续阶段。
+定时版本工作流会更新这两个插件的稳定版 ref 并创建 PR，但不会自动在机器上安装更新。
 
 ### Herdr 官方 Pi 集成
 
@@ -205,78 +205,23 @@ Herdr 本体的版本固定在 Aqua 配置中。Herdr 插件声明在
 此同步只更新磁盘上的集成文件，不重启 Herdr 或 Pi；已运行的 Pi 需要
 `/reload` 或下次启动才加载新集成。它不会让 Pi 二进制本身升级。
 
-Roamgate 当前在 `office-server` profile 中配置为直接通过局域网访问，使用 `8788` 端口。
-它的主机地址只保存在本机，Git 跟踪的模板只引用 `{{ .roamgateHost }}`。
-Roamgate 密码只保存在本机 chezmoi 配置中：
+### 插件同步与归属
 
-```bash
-chezmoi edit-config
-```
+统一入口只安装 manifest 中声明的插件。所有权状态戳
+`~/.local/state/chezmoi/herdr-plugins`（遵循 `XDG_STATE_HOME`）只记录 dotfiles
+安装过的 source 与 ref：已记录且 ref 未变时跳过，ref 变化时原位升级，从 manifest
+移除时卸载。从未被记录的插件属于使用者，dotfiles 不接管、不替换也不卸载；
+全部安装与卸载成功后才写入状态戳。
 
-在 `[data]` 下设置 `roamgatePassword`；不要将真实密码写入 Git 跟踪文件。
-启动或重启服务前，使用 `chezmoi diff` 检查生成的配置；包含密码的 diff 不要上传或分享。
+卸载只针对状态戳中记录的、dotfiles 曾经拥有的插件注册，通用同步不停止任何后台服务。
+旧配置在既有机器上留下的独立服务，需要先用该服务自己的官方 `stop`/卸载动作停止并移除，
+再从 manifest 删除对应插件；只删除 manifest 条目不会停止这些守护进程。
 
-### Roamgate 服务同步
+manifest 会拒绝空 source、重复 source 和含换行符的 source/ref。缺少 Herdr 时跳过
+插件同步并提示下次 apply 重试，因此未安装 Herdr 的机器仍可完整 apply。
 
-统一的 `[10]` 入口更新插件文件、同步 Web UI 后，最后检查 Roamgate 服务。
-版本/配置变化、后台停止或实际版本仍旧时，使用官方 `start` 动作刷新服务定义并重启，
-不重启 Herdr 主进程或 Web UI。`restart` 只重启已有定义，不能刷新旧二进制路径。
-正常且未变化的服务不会重启；首次启用同步时会刷新一次。
-macOS 的 `bootout` 是异步卸载：刷新前只卸载已验证的 Roamgate job，按原生状态轮询
-等待它完全消失（等待预算 20 秒），再次核对定义后才执行官方 `start`。不存在的 job
-直接启动；卸载失败、检查异常或超时则中止，不盲目重试 `bootstrap` 或使用固定延时。
-Linux 继续使用官方的 systemd 服务同步，不额外停止服务。
-
-同步只作用于 dotfiles 拥有且已启用、source/ref 匹配的插件。自动同步要求已配置
-固定 `roamgatePassword`，env 权限为 `0600`；模板对密码的 shell 特殊字符作字面转义，
-不会执行其中的 `$`、反引号或命令替换。只有官方生成且未手改的 launchd/systemd 定义
-（路径指向当前或上次已验证的插件 binary）可被刷新；自定义定义、symlink 或 systemd
-覆盖项（包括尚未 daemon-reload 的磁盘覆盖项）会报错并保留原服务；检测到旧 Herdr GUI
-服务定义时也不会自动强制迁移。自定义 HTTPS 配置不由此 HTTP 同步器接管。
-
-脚本等待 Herdr 动作日志成功，再用密码登录并核对后台 `/api/health` 的 `version`
-与 manifest 一致、`auth_required=true` 且未登录访问返回 `401`；`/healthz` 或插件的
-`version` 动作不足以证明正在运行的版本。成功后原子写入本机私有状态戳
-`~/.local/state/chezmoi/roamgate`（遵循 `XDG_STATE_HOME`），只含 ref、配置哈希和 binary
-路径，不含密码。动作失败、超时或版本/鉴权不匹配时保留旧状态戳并报错，不标记同步成功。
-
-### Herdr Web UI
-
-Herdr Web UI 同样仅在 `office-server` profile 启用。插件安装仍由
-`.chezmoidata/herdr.yaml` 和统一的 `[10]` 入口管理；插件同步后，Web UI 阶段
-检查私有状态戳和健康状态，版本/配置变化或服务停止时等待 `stop` 完成后
-执行 `start`，不重启 Herdr 主进程或 Roamgate。未变化的健康服务不会重启，
-未纳入 dotfiles 所有权或被禁用的插件不会被接管。从 manifest/profile 移除已管理的
-Web UI 时，`[10]` 会先等待它停止，再卸载插件，避免留下后台服务。
-
-上游已把仓库 `devswha/herdr-web-ui` 改名为 `devswha/ovis`（显示名 Ovis），
-plugin id 仍是 `devswha.herdr-web-ui`，`.env` 路径、`HERDR_WEB_*` 变量和
-`start`/`stop` 动作都未变。Herdr 按安装时请求的仓库名记录来源，因此在改名
-之前安装过的机器仍报旧名：`[10]` 把两个名字视为同一个插件，保留已安装的来源
-而不是卸载重建，manifest 则统一写 `devswha/ovis`。
-
-私有模板生成 `~/.config/herdr/plugins/config/devswha.herdr-web-ui/.env`（权限 `0600`）：
-
-- `HOST` 复用本机 `[data].roamgateHost`，端口为 `7317`，不与 Roamgate 的 `8788` 冲突。
-- `HERDR_WEB_TOKEN` 按操作者选择复用 `[data].roamgatePassword`；网页要求 token 时输入同一个密码。
-  更换该密码会同时影响两个服务；完整 apply 时统一的 `[10]` 入口依次同步 Web UI 与 Roamgate。
-- 不另设密钥、不提交真实 IP/密码；缺少 host/password 或含换行时拒绝渲染/安装。
-- 只管理 `.env`；旧 `env` 同名配置被 `.env` 覆盖，不要维护两份冲突的配置。
-- Node/Bun 继续由 mise 管理，`~/.local/bin` shim 解决 Herdr 后台 PATH 不含 mise 的问题。
-
-应用前执行 `chezmoi diff`，再执行 `chezmoi apply`。服务脚本等待 Herdr 动作日志
-成功结束，并验证健康响应、无 token 返回 `401`、使用 token 可访问，再写入本机状态戳。
-安全状态戳不含明文密码。启动或鉴权验证失败时尝试停止该插件的服务并报错，不标记同步成功。
-首次完整应用会安装/启动 Web UI，不需要再手动安装插件。
-
-`update-versions.yml` 将 Web UI 的正式 `vX.Y.Z` app ref 纳入版本 PR，排除 `remote-vN`
-远程运行时包。`HERDR_WEB_AUTO_UPDATE=0` 禁止内置自动安装，但网页的手动 Update
-仍能绕过 pin：**不要在网页更新 Web UI/Herdr，统一走版本 PR 和 chezmoi/Aqua 应用。**
-远程 PC 连接、设备配对及下载缓存由应用管理，不纳入 Git；此接入不会修改远端机器、
-Tailscale 或防火墙。普通 HTTP 只用于受信任网络，手机 PWA/推送仍需要 HTTPS。
-
-集成与服务同步的无副作用回归测试：
-`node --test docs/tests/herdr-integrations.test.mjs docs/tests/herdr-web-ui.test.mjs docs/tests/roamgate.test.mjs`。
+集成与插件同步的无副作用回归测试：
+`node --test docs/tests/herdr-integrations.test.mjs`。
 
 ## 加密与私有数据
 

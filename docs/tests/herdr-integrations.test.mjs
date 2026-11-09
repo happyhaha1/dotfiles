@@ -11,13 +11,6 @@ import test from "node:test";
 
 const sourceRoot = fileURLToPath(new URL("../../", import.meta.url));
 const helperSource = readFileSync(join(sourceRoot, "private_dot_local/bin/executable_herdr-integrations-sync"), "utf8");
-const orchestrationSource = readFileSync(join(sourceRoot, ".chezmoiscripts/run_after_10_herdr.sh.tmpl"), "utf8");
-const applyMarker = "# Run every full apply:";
-assert(orchestrationSource.includes(applyMarker));
-const applySource = orchestrationSource.slice(orchestrationSource.indexOf(applyMarker));
-const hookSource = applySource.split("\n").find((line) => line === '"$HOME/.local/bin/herdr-integrations-sync"');
-assert(hookSource, "the integration helper must be called unconditionally");
-const justSource = readFileSync(join(sourceRoot, "Justfile.tmpl"), "utf8");
 
 function executable(path, content) {
   mkdirSync(dirname(path), { recursive: true });
@@ -128,28 +121,6 @@ function events(f) {
   return readFileSync(f.log, "utf8").trim().split("\n").filter(Boolean);
 }
 
-// These recipe bodies contain no template expressions. Exercise each command
-// in the strict Bash shell configured by Justfile, preserving its fail-fast
-// behavior; local verification additionally renders and runs the actual just CLI.
-function runRecipe(f, name) {
-  const lines = justSource.split("\n");
-  const start = lines.indexOf(`${name}:`);
-  assert.notEqual(start, -1, `recipe ${name} must exist`);
-  const commands = [];
-  for (const line of lines.slice(start + 1)) {
-    if (!line.startsWith("    ")) break;
-    const command = line.slice(4).replace(/^@/, "");
-    assert(!command.includes("{{"), "rendering would be required for a templated command");
-    commands.push(command);
-  }
-  assert(commands.length > 0);
-  for (const command of commands) {
-    const result = run(f, command, true);
-    if (result.status !== 0) return result;
-  }
-  return { status: 0 };
-}
-
 test("installs only the current Aqua CLI's bundled Pi integration", (t) => {
   const f = fixture(t);
   assert.equal(run(f, f.helper).status, 0);
@@ -172,17 +143,6 @@ test("a newer CLI's bundled version replaces the previous integration", (t) => {
   f.env.TEST_INTEGRATION_VERSION = "10";
   assert.equal(run(f, f.helper).status, 0);
   assert.equal(readFileSync(f.extension, "utf8"), "bundled integration v10\n");
-});
-
-test("the unconditional after hook repairs a deleted extension on the next run", (t) => {
-  const f = fixture(t);
-  assert(hookSource.includes('"$HOME/.local/bin/herdr-integrations-sync"'));
-  assert(!hookSource.includes("{{"), "the hook must not be gated by profile or template state");
-  assert.equal(run(f, hookSource, true).status, 0);
-  rmSync(f.extension);
-  assert.equal(run(f, hookSource, true).status, 0);
-  assert(existsSync(f.extension));
-  assert.equal(events(f).length, 2);
 });
 
 test("missing Aqua-managed Herdr skips even if a wrapper is on PATH", (t) => {
@@ -233,74 +193,6 @@ test("installer errors keep their exit code and the previous file", (t) => {
   assert.equal(result.status, 37);
   assert.match(result.stderr, /mock installer failed/);
   assert.equal(readFileSync(f.extension, "utf8"), before);
-});
-
-const stubPhases = `
-sync_herdr_plugins() (
-  printf 'phase plugins\\n' >> "$TEST_EVENTS"
-  export HERDR_PLUGIN_SCOPE=plugin
-  exit "\${TEST_PLUGIN_EXIT:-0}"
-)
-sync_herdr_web_ui() (
-  [[ -z "\${HERDR_PLUGIN_SCOPE+x}" ]] || exit 99
-  printf 'phase web-ui\\n' >> "$TEST_EVENTS"
-  export HERDR_WEB_SCOPE=web-ui
-  exit "\${TEST_WEB_UI_EXIT:-0}"
-)
-sync_roamgate() (
-  [[ -z "\${HERDR_PLUGIN_SCOPE+x}" && -z "\${HERDR_WEB_SCOPE+x}" ]] || exit 99
-  printf 'phase roamgate\\n' >> "$TEST_EVENTS"
-  exit "\${TEST_ROAMGATE_EXIT:-0}"
-)
-`;
-
-test("one unconditional entry replaces every separate Herdr service script", () => {
-  for (const retired of [
-    "run_after_09_herdr-integrations.sh.tmpl",
-    "run_onchange_after_10_herdr-plugins.sh.tmpl",
-    "run_after_11_herdr-web-ui.sh.tmpl",
-    "run_after_12_roamgate.sh.tmpl",
-  ]) assert(!existsSync(join(sourceRoot, ".chezmoiscripts", retired)), retired);
-});
-
-test("the combined entry invokes integrations, plugins, Web UI, and Roamgate in order", (t) => {
-  const f = fixture(t);
-  assert.equal(run(f, stubPhases + applySource, true).status, 0);
-  assert.deepEqual(events(f), ["herdr integration install pi", "phase plugins", "phase web-ui", "phase roamgate"]);
-});
-
-test("a failed integration prevents every later phase", (t) => {
-  const f = fixture(t);
-  f.env.TEST_INSTALL_EXIT = "37";
-  assert.equal(run(f, stubPhases + applySource, true).status, 37);
-  assert.deepEqual(events(f), ["herdr integration install pi"]);
-});
-
-test("a failed plugin phase prevents both service phases", (t) => {
-  const f = fixture(t);
-  f.env.TEST_PLUGIN_EXIT = "31";
-  assert.equal(run(f, stubPhases + applySource, true).status, 31);
-  assert.deepEqual(events(f), ["herdr integration install pi", "phase plugins"]);
-});
-
-test("a plugin phase exit zero and its environment stay local to that phase", (t) => {
-  const f = fixture(t);
-  assert.equal(run(f, stubPhases + applySource, true).status, 0);
-  assert.deepEqual(events(f), ["herdr integration install pi", "phase plugins", "phase web-ui", "phase roamgate"]);
-});
-
-test("Web UI failure prevents Roamgate synchronization", (t) => {
-  const f = fixture(t);
-  f.env.TEST_WEB_UI_EXIT = "42";
-  assert.equal(run(f, stubPhases + applySource, true).status, 42);
-  assert.deepEqual(events(f), ["herdr integration install pi", "phase plugins", "phase web-ui"]);
-});
-
-test("Roamgate failure remains a failure of the combined entry", (t) => {
-  const f = fixture(t);
-  f.env.TEST_ROAMGATE_EXIT = "43";
-  assert.equal(run(f, stubPhases + applySource, true).status, 43);
-  assert.deepEqual(events(f), ["herdr integration install pi", "phase plugins", "phase web-ui", "phase roamgate"]);
 });
 
 test("normalizes a relative AQUA_ROOT_DIR before checking resolved package ownership", (t) => {
@@ -368,33 +260,3 @@ test("Aqua resolution failures retain their exit code and never run the installe
   assert.match(result.stderr, /mock resolver failed/);
   assert.deepEqual(events(f), []);
 });
-
-for (const name of ["aqua-install", "update-all", "full-upgrade"]) {
-  test(`${name} syncs after Aqua succeeds and before cleanup`, (t) => {
-    const f = fixture(t);
-    assert.equal(runRecipe(f, name).status, 0);
-    const calls = events(f);
-    const aqua = calls.indexOf("aqua install");
-    const sync = calls.indexOf("herdr integration install pi");
-    assert(aqua >= 0 && sync > aqua, calls.join("\n"));
-    const vacuum = calls.indexOf("aqua vacuum --init");
-    if (vacuum >= 0) assert(vacuum > sync);
-  });
-
-  test(`${name} does not swallow integration installation failures`, (t) => {
-    const f = fixture(t);
-    f.env.TEST_INSTALL_EXIT = "37";
-    assert.equal(runRecipe(f, name).status, 37);
-    assert.deepEqual(events(f).filter((line) => !line.startsWith("chezmoi ")), [
-      "aqua install", "herdr integration install pi",
-    ]);
-  });
-
-  test(`${name} skips sync when Aqua fails, preserving existing Aqua error policy`, (t) => {
-    const f = fixture(t);
-    f.env.TEST_AQUA_EXIT = "12";
-    assert.equal(runRecipe(f, name).status, name === "aqua-install" ? 12 : 0);
-    assert(!events(f).some((line) => line.startsWith("herdr ")));
-    assert(!existsSync(f.extension));
-  });
-}

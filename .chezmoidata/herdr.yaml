@@ -8,22 +8,6 @@ herdrPlugins:
       ref: v0.5.24
     - source: thanhdat77/herdr-navigator
       ref: v0.3.6
-  # Focus notifications require a graphical macOS terminal, so keep them on
-  # the daily desktop profile instead of installing them on headless hosts.
-  profiles:
-    daily:
-      - source: yankewei/herdr-focus-notify
-        ref: v0.8.1
-    office-server:
-      # Roamgate provides a browser/PWA client for the local Herdr server.
-      - source: powerfooI/roamgate
-        ref: v0.8.15
-      # Structured agent chat and mobile access alongside Roamgate.
-      # Upstream renamed devswha/herdr-web-ui to devswha/ovis (the plugin id is
-      # still devswha.herdr-web-ui). `[10]` keeps an already installed legacy
-      # source name instead of reinstalling the same plugin.
-      - source: devswha/ovis
-        ref: v0.5.1
   # Example:
   # shared:
   #   - source: owner/repository

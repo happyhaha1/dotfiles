@@ -77,18 +77,6 @@ encryption = "age"
 {{-   $claudeProviderAccount = .claudeProvider -}}{{/* backward compatibility */}}
 {{- end -}}
 
-{{/* Roamgate LAN host is machine-local data; never commit the address to the repo. */}}
-{{- $roamgateHost := "" -}}
-{{- if hasKey . "roamgateHost" -}}
-{{-   $roamgateHost = .roamgateHost -}}
-{{- end -}}
-
-{{/* Roamgate's fixed password is machine-local data; never commit it. */}}
-{{- $roamgatePassword := "" -}}
-{{- if hasKey . "roamgatePassword" -}}
-{{-   $roamgatePassword = .roamgatePassword -}}
-{{- end -}}
-
 {{/* timezone: prefer local config, fallback to ip-api.com */}}
 {{- $timezone := "" -}}
 
@@ -123,8 +111,6 @@ omarchy = {{ $omarchy }}
 isMacbook = {{ $isMacbook }}
 timezone = {{ $timezone | quote }}
 claudeProviderAccount = {{ $claudeProviderAccount | quote }}
-roamgateHost = {{ $roamgateHost | quote }}
-roamgatePassword = {{ $roamgatePassword | quote }}
 
 [edit]
 command = "nvim"
