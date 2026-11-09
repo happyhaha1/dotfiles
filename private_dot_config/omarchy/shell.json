@@ -54,9 +54,6 @@
           ]
         },
         {
-          "id": "jankeesvw.notification-center"
-        },
-        {
           "id": "harshith.system-monitor",
           "barMode": "Adaptive"
         },
@@ -90,6 +87,9 @@
         },
         {
           "id": "omarchy.power"
+        },
+        {
+          "id": "jankeesvw.notification-center"
         }
       ],
       "centerBegin": [
