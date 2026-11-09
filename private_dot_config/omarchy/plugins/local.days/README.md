@@ -8,7 +8,7 @@
 > `~/.config/omarchy/plugins/local.days/`，并在 `.chezmoidata/omarchy.yaml` 里
 > 以 `local: true` 声明（这样 `pruneUnmanaged` 不会删掉它）。
 >
-> 与原版只有三处差异，都不涉及面板内容：
+> 与原版的本地差异如下，不涉及面板内容：
 >
 > 1. 插件 id、IPC target、通知点击目标：`andy.days` → `local.days`；
 > 2. 状态栏从日历图标改为「中文星期 + 时间」文字（`BarWidget.qml` 里标注了
@@ -16,8 +16,11 @@
 > 3. 上游的 `install.sh`、`tests/`、`scripts/` 未纳入——安装归 chezmoi，
 >    运行时依赖仍由 `bootstrap.sh` 建到 `~/.local/share/omarchy-days/venv`，
 >    由 `.chezmoiscripts/run_after_25_omarchy-local-days-deps.sh.tmpl` 幂等执行。
+> 4. `CompatUi/KeyboardPanel.qml` 使用 `barSizeFor(screen.name)` 获取状态栏
+>    实际厚度（旧接口回退到 `barSize`），用于面板定位、可用尺寸与点击区域。
+>    Omarchy 的状态栏窗口现覆盖全屏，不能再把窗口宽高作为状态栏厚度。
 >
-> 升级上游：重新拷贝上述文件，然后重做这三处改动。
+> 升级上游：重新拷贝上述文件，然后保留这些本地改动。
 >
 > 许可：本插件 GPL-3.0-only（`LICENSE`）；`CompatUi/` 为 MIT（见
 > `CompatUi/OMARCHY-LICENSE`）。
