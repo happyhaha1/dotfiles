@@ -53,7 +53,6 @@ homebrew:
       - zed
       # - omniwm
       # - otty
-      # - stablyai/orca/orca
       # - abue-ammar/tinycast/tinycast
       - mactools
       - macshot
