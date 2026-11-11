@@ -9,9 +9,9 @@ registries:
   path: registry.yaml
 packages:
 - name: atuinsh/atuin@v18.24.6
-- name: openai/codex@rust-v0.167.0
-- name: anomalyco/opencode@v2.2.6
-- name: twpayne/chezmoi@v2.74.0
+- name: openai/codex@rust-v0.167.1
+- name: anomalyco/opencode@v2.2.7
+- name: twpayne/chezmoi@v2.74.1
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
 - name: dandavison/delta@0.20.1
