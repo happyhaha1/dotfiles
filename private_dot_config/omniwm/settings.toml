@@ -1135,7 +1135,7 @@ binding = "Unassigned"
 id = "removeWindowMark"
 
 [[hotkeys]]
-binding = "Unassigned"
+binding = "Option+Shift+N"
 id = "toggleWorkspaceBarVisibility"
 
 [[hotkeys]]
