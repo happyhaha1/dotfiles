@@ -39,8 +39,14 @@ homebrew:
       daily:
         - mas # Required for masApps installation
         - vjeantet/tap/alerter
+        - cocoapods
+        - makensis
+        - xcodegen
       home-server: []
-      office-server: []
+      office-server:
+        - cocoapods
+        - makensis
+        - xcodegen
   casks:
     shared:
       - bitwarden
