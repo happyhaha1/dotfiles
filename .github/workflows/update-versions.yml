@@ -42,8 +42,12 @@ jobs:
             local ref
 
             if [[ "$repo" == volcengine/OpenViking ]]; then
-              # Scoped package releases share this repo; Latest tracks the app.
-              ref="$(gh release view --repo "$repo" --json tagName -q '.tagName')"
+              # Scoped package releases share this repo; filter for app tags.
+              ref="$(gh api --paginate "repos/$repo/releases?per_page=100" \
+                | jq -sr '[.[][]
+                  | select(.draft == false and .prerelease == false)
+                  | select(.tag_name | test("^v[0-9]+(\\.[0-9]+){2,3}$"))]
+                  | max_by(.published_at) | .tag_name // empty')"
             else
               ref="$(gh release list \
                 --repo "$repo" \
