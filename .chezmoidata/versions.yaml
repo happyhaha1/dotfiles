@@ -13,7 +13,7 @@ versions:
   openvikingExtensionVersion: v0.5.4.1
   openvikingExtensionRev: 86edb40a01733490b930266dcfcab7c2cebf94b3
   # The CLI and packaged guard use the same release.
-  graphifyVersion: 0.9.107
+  graphifyVersion: 0.9.108
   # EasyTier release asset pin (macOS office-server only); update together with
   # its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
