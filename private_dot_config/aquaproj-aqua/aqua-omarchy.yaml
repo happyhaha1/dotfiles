@@ -9,8 +9,8 @@ registries:
   path: registry.yaml
 packages:
 - name: atuinsh/atuin@v18.24.8
-- name: openai/codex@rust-v0.168.0
-- name: anomalyco/opencode@v2.2.7
+- name: openai/codex@rust-v0.169.0
+- name: anomalyco/opencode@v2.3.0
 - name: twpayne/chezmoi@v2.74.1
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
@@ -19,7 +19,7 @@ packages:
   update:
     enabled: false
 - name: cli/cli@v2.104.0
-- name: dlvhdr/gh-dash@v4.26.2
+- name: dlvhdr/gh-dash@v4.26.3
 - name: x-motemen/ghq@v1.12.0
 - name: git-lfs/git-lfs@v3.8.1
 - name: charmbracelet/glow@v3.0.0
