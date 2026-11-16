@@ -1,12 +1,12 @@
 ---
 registries:
   - type: standard
-    ref: v4.586.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.587.0 # renovate: depName=aquaproj/aqua-registry
   - name: local
     type: local
     path: registry.yaml
 packages:
-  - name: nektos/act@v0.2.97
+  - name: nektos/act@v0.2.98
   - name: atuinsh/atuin@v18.24.8
   - name: sharkdp/bat@v0.26.1
   - name: eth-p/bat-extras@v2024.08.24
