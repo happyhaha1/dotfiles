@@ -8,13 +8,13 @@ registries:
   type: local
   path: registry.yaml
 packages:
-- name: atuinsh/atuin@v18.24.8
-- name: openai/codex@rust-v0.170.0
+- name: atuinsh/atuin@v18.25.0
+- name: openai/codex@rust-v0.171.0
 - name: anomalyco/opencode@v2.3.2
 - name: twpayne/chezmoi@v2.74.1
 - name: timhartmann7/omnyssh@v1.1.5
   registry: local
-- name: dandavison/delta@0.21.1
+- name: dandavison/delta@0.21.2
 - name: Wilfred/difftastic@0.70.0
   update:
     enabled: false
