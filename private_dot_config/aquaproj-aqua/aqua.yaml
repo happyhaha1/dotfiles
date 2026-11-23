@@ -17,7 +17,7 @@ packages:
   # - name: anthropics/claude-code@v2.1.228
   - name: openai/codex@rust-v0.171.0
   - name: anomalyco/opencode@v2.3.2
-  - name: alibaba/open-code-review@v1.14.0
+  - name: alibaba/open-code-review@v1.14.2
   - name: direnv/direnv@v2.38.2
   - name: jdx/mise@v2026.11.12
     tags:
@@ -26,7 +26,7 @@ packages:
   # Standalone release binaries avoid Homebrew dependency trees when a
   # package publishes a macOS ARM64 artifact in the Standard Registry.
   - name: Kitware/CMake@v4.5.1
-  - name: twpayne/chezmoi@v2.74.1
+  - name: twpayne/chezmoi@v2.74.2
   - name: Tyrrrz/FFmpegBin@9.0.2
   - name: neovim/neovim@v0.12.6
   # ouch 0.8.3 dropped GitHub Artifact Attestations (cosign-only), so aqua's
@@ -40,7 +40,7 @@ packages:
   - name: timhartmann7/omnyssh@v1.1.5
     registry: local
   - name: muesli/duf@v0.9.1
-  - name: dandavison/delta@0.21.2
+  - name: dandavison/delta@0.22.0
   - name: Wilfred/difftastic@0.70.0
     update:
       enabled: false
@@ -65,7 +65,7 @@ packages:
   - name: o2sh/onefetch@3.3.0
   - name: ip7z/7zip@26.06
   - name: Nukesor/pueue/pueue@v4.0.5
-  - name: BurntSushi/ripgrep@15.2.0
+  - name: BurntSushi/ripgrep@16.0.0
   - name: phiresky/ripgrep-all@v0.10.10
   - name: chmln/sd@v1.1.0
   - name: joshmedeski/sesh@v2.34.0
