@@ -10,10 +10,10 @@ versions:
   mihomoForkBuild: 574c6db
   zashboardVersion: v3.30.0
   # Shared Pi/omp extension: stable release tag and its resolved commit.
-  openvikingExtensionVersion: v0.5.5
-  openvikingExtensionRev: 4f4b09c8b81cc52cc0361ec7d9f189ce0ccda35b
+  openvikingExtensionVersion: v0.5.6
+  openvikingExtensionRev: 831ad81f5838d3502812a48bbec2e1d2930ed13c
   # The CLI and packaged guard use the same release.
-  graphifyVersion: 0.9.115
+  graphifyVersion: 0.9.118
   # EasyTier release asset pin (macOS office-server only); update together with
   # its GitHub SHA-256 digest.
   easytierVersion: v2.6.4
