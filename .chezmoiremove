@@ -3,6 +3,8 @@
 .config/herdr/plugins/config/devswha.herdr-web-ui/.env
 .config/herdr/plugins/config/devswha.ovis/.env
 .config/roamgate/roamgate.env
+.config/opencode
+.config/fish/completions/opencode.fish
 {{ if eq .machineProfile "office-server" -}}
 .local/bin/node
 {{ end -}}
