@@ -255,6 +255,5 @@ omarchyIgnoreList:
   - .config/lazygit
   - .config/nvim
   - .config/omnyssh
-  - .config/opencode
   - .config/yazi
   - .config/zellij

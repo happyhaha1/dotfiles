@@ -61,7 +61,6 @@ jobs:
           allow = %w[
             twpayne/chezmoi
             openai/codex
-            anomalyco/opencode
             cli/cli
             atuinsh/atuin
             timhartmann7/omnyssh
